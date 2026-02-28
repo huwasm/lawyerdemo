@@ -107,7 +107,7 @@ npm run dev
 |---|---|
 | `CLAUDE_CODE_BRIEFING.md` | Complete technical spec — read this for ALL details |
 | `ANALYSIS.md` | Problem analysis, police report comparison, business context |
-| `dashboard-demo.html` | UI mockup reference |
+| `docs/design-mockup/dashboard/dashboard-demo.html` | UI mockup reference |
 | `app/page.tsx` | Main dashboard UI |
 | `app/api/extract/route.ts` | Claude Vision extraction endpoint |
 | `app/api/match/route.ts` | Clio Matter auto-matching |
@@ -122,6 +122,39 @@ npm run dev
 4. Email is sent by our app (Resend), NOT through Clio
 5. All 5 test police reports must work (including pedestrian and bicyclist cases)
 6. The Guillermo Reyes case is the demo case for Email #3 submission
+
+## Handover Discipline — MANDATORY
+
+**After every significant unit of work, update the handover file.** This prevents context loss when the session ends or the context window fills up.
+
+### When to update
+
+Update `docs/_handover/` after ANY of these:
+- A feature is built or changed (new route, new component, refactor)
+- A bug is found and fixed
+- An API integration is tested (success or failure)
+- Configuration changes (env vars, Vercel, Clio setup)
+- A deployment is done
+- A decision is made that affects architecture
+
+### How to update
+
+1. Open the latest handover file in `docs/_handover/` (by date)
+2. If it's a new day or a major new topic, create a new file: `YYYY-MM-DD_{description}.md`
+3. Update the **Completed**, **In Progress**, **Blocked**, and **Next Steps** sections
+4. Update the folder's `README.md` if a new file was created
+
+### What to capture
+
+- What was done (specific files, endpoints, decisions)
+- What broke and how it was fixed
+- What's blocked and why
+- What to do next (priority order)
+- Any gotchas discovered
+
+### Rule
+
+**Do NOT wait until the end of a session.** Update incrementally. If context is lost, the handover file is the recovery point. A new session should be able to run `/let docs/_handover/LATEST_FILE.md` and be fully caught up.
 
 ## Testing
 

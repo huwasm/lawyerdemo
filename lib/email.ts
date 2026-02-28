@@ -1,10 +1,7 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { Resend } from "resend";
 import { getCalendlyLink } from "./calendly";
+import { getAI } from "./ai";
 
-function getAnthropic() {
-  return new Anthropic();
-}
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY);
 }
@@ -21,26 +18,11 @@ interface EmailDraftInput {
 async function draftPersonalParagraph(
   input: EmailDraftInput
 ): Promise<string> {
-  const response = await getAnthropic().messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 512,
-    messages: [
-      {
-        role: "user",
-        content: `You are Andrew Richards, a personal injury attorney. Write ONE paragraph (3-4 sentences) for a client email about their car accident.
-
-Tone: warm, empathetic, professional. No legal jargon. Written as if you personally reviewed the police report.
-
-Client first name: ${input.clientFirstName}
-Date of accident: ${input.accidentDate}
-Officer's description: ${input.officerNotes}
-
-Write ONLY the paragraph — no greeting, no sign-off, no quotes around it.`,
-      },
-    ],
+  return getAI().draftParagraph({
+    clientFirstName: input.clientFirstName,
+    accidentDate: input.accidentDate,
+    officerNotes: input.officerNotes,
   });
-
-  return response.content[0].type === "text" ? response.content[0].text : "";
 }
 
 function formatDate(dateStr: string): string {

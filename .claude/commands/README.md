@@ -6,9 +6,10 @@ Commands in this folder. Type `/commandname` to use.
 |---------|------|-------------|
 | `/donotcode` | donotcode.md | Analyze and provide structured feedback without writing code |
 | `/let` | let.md | Get up to speed on a handover document or task context |
+| `/newdoc` | newdoc.md | Create a standardized documentation file in docs/ |
 
 ---
 
-**Total:** 2 commands
+**Total:** 3 commands
 
 **Usage:** Type `/commandname` in chat (e.g., `/donotcode`)
