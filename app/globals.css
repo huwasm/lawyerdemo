@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-clio-bg text-clio-text;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      sans-serif;
+  }
+}
+
+@layer components {
+  .input-field {
+    @apply w-full rounded-md border border-clio-border bg-white px-3 py-2 text-sm text-clio-text transition-colors focus:border-clio-blue focus:outline-none focus:ring-2 focus:ring-clio-blue/10;
+  }
+
+  .input-ai {
+    @apply border-clio-blue bg-clio-blue-light;
+  }
+
+  .btn-primary {
+    @apply rounded-md bg-clio-blue px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-clio-blue-dark disabled:cursor-not-allowed disabled:bg-slate-300;
+  }
+
+  .btn-secondary {
+    @apply rounded-md border border-clio-border bg-white px-5 py-2.5 text-sm font-semibold text-clio-text transition-colors hover:bg-clio-bg;
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 1.5s infinite;
+}
