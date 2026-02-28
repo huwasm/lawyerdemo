@@ -14,22 +14,28 @@ function getClient() {
 
 export const openaiProvider: AIProvider = {
   async extractFromPdf(pdfBase64: string): Promise<ExtractionResult> {
-    const response = await getClient().chat.completions.create({
+    const client = getClient();
+
+    // Upload the PDF as a file first
+    const pdfBuffer = Buffer.from(pdfBase64, "base64");
+    const file = await client.files.create({
+      file: new File([pdfBuffer], "report.pdf", { type: "application/pdf" }),
+      purpose: "assistants",
+    });
+
+    // Use the Responses API which supports PDF files natively
+    const response = await client.responses.create({
       model: "gpt-4o",
-      max_tokens: 4096,
-      messages: [
+      input: [
         {
           role: "user",
           content: [
             {
-              type: "image_url",
-              image_url: {
-                url: `data:application/pdf;base64,${pdfBase64}`,
-                detail: "high",
-              },
+              type: "input_file",
+              file_id: file.id,
             },
             {
-              type: "text",
+              type: "input_text",
               text: EXTRACTION_PROMPT,
             },
           ],
@@ -37,7 +43,19 @@ export const openaiProvider: AIProvider = {
       ],
     });
 
-    const text = response.choices[0]?.message?.content || "";
+    // Extract text from response output
+    // Use `any` to avoid complex OpenAI SDK union type conflicts
+    const outputItems = response.output as any[];
+    const text = outputItems
+      .filter((item) => item.type === "message")
+      .flatMap((item) => item.content)
+      .filter((c: any) => c.type === "output_text")
+      .map((c: any) => c.text)
+      .join("");
+
+    // Clean up uploaded file
+    await client.files.delete(file.id).catch(() => {});
+
     return parseJsonResponse(text);
   },
 

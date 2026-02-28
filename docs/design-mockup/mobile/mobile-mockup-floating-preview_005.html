@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design 5: Floating Preview Button — Mobile Legal Intake</title>
+<style>
+  :root {
+    --clio-blue: #0070E0;
+    --clio-blue-dark: #005BBB;
+    --clio-blue-light: #E8F2FC;
+    --clio-text: #333333;
+    --clio-text-light: #666666;
+    --clio-bg: #F5F7FA;
+    --clio-white: #FFFFFF;
+    --clio-border: #D1D9E0;
+    --clio-success: #0D9B4A;
+    --clio-success-bg: #E6F7ED;
+    --clio-warning: #E67E22;
+    --clio-warning-bg: #FFF5EB;
+    --clio-error: #D63031;
+    --phone-w: 393px;
+    --phone-h: 852px;
+    --frame-radius: 48px;
+    --frame-bezel: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #1a1a2e;
+    color: var(--clio-text);
+    line-height: 1.5;
+    min-height: 100vh;
+    font-size: 16px;
+  }
+
+  /* ---- Page Header ---- */
+  .page-header {
+    text-align: center;
+    padding: 48px 32px 12px;
+    color: #fff;
+  }
+  .page-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .page-header h1 span {
+    color: var(--clio-blue);
+  }
+  .page-header p {
+    font-size: 16px;
+    color: #a0a0b8;
+    max-width: 720px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ---- Showcase Container ---- */
+  .showcase {
+    display: flex;
+    gap: 48px;
+    padding: 40px 48px 60px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    align-items: flex-start;
+  }
+  .showcase::-webkit-scrollbar {
+    height: 8px;
+  }
+  .showcase::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+  }
+  .showcase::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 4px;
+  }
+
+  /* ---- Screen Group ---- */
+  .screen-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    scroll-snap-align: center;
+  }
+  .screen-label {
+    color: #a0a0b8;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 16px;
+  }
+  .screen-label .num {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    background: var(--clio-blue);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 12px;
+    margin-right: 8px;
+    letter-spacing: 0;
+  }
+
+  /* ---- Flow Arrows between screens ---- */
+  .flow-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    gap: 6px;
+    flex-shrink: 0;
+    margin-top: 20px;
+  }
+  .flow-arrow .arrow-line {
+    width: 40px;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.1), var(--clio-blue), rgba(255,255,255,0.1));
+    position: relative;
+  }
+  .flow-arrow .arrow-line::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: -4px;
+    border: 5px solid transparent;
+    border-left-color: var(--clio-blue);
+  }
+  .flow-arrow .arrow-text {
+    font-size: 10px;
+    color: #8080a0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  /* ---- Special: bidirectional arrow for FAB ---- */
+  .fab-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    gap: 6px;
+    flex-shrink: 0;
+    margin-top: 20px;
+  }
+  .fab-arrow .arrow-line-bi {
+    width: 48px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--clio-blue), rgba(255,255,255,0.3), var(--clio-blue));
+    position: relative;
+  }
+  .fab-arrow .arrow-line-bi::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: -4px;
+    border: 5px solid transparent;
+    border-right-color: var(--clio-blue);
+  }
+  .fab-arrow .arrow-line-bi::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: -4px;
+    border: 5px solid transparent;
+    border-left-color: var(--clio-blue);
+  }
+  .fab-arrow .arrow-label {
+    font-size: 10px;
+    color: var(--clio-blue);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    background: rgba(0,112,224,0.12);
+    padding: 3px 10px;
+    border-radius: 10px;
+  }
+
+  /* ---- iPhone Frame ---- */
+  .phone-frame {
+    width: calc(var(--phone-w) + var(--frame-bezel) * 2);
+    height: calc(var(--phone-h) + var(--frame-bezel) * 2);
+    background: #1c1c1e;
+    border-radius: var(--frame-radius);
+    padding: var(--frame-bezel);
+    box-shadow:
+      0 0 0 2px #333,
+      0 20px 60px rgba(0,0,0,0.5),
+      inset 0 0 0 1px rgba(255,255,255,0.05);
+    position: relative;
+  }
+  .phone-screen {
+    width: var(--phone-w);
+    height: var(--phone-h);
+    background: var(--clio-bg);
+    border-radius: calc(var(--frame-radius) - var(--frame-bezel));
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Dynamic Island */
+  .phone-screen::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 36px;
+    background: #1c1c1e;
+    border-radius: 20px;
+    z-index: 10;
+  }
+
+  /* Home indicator */
+  .phone-screen::after {
+    content: '';
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 134px;
+    height: 5px;
+    background: #333;
+    border-radius: 3px;
+    z-index: 10;
+  }
+
+  /* ---- Status Bar ---- */
+  .status-bar {
+    height: 54px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 28px 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--clio-text);
+    flex-shrink: 0;
+  }
+  .status-bar .time { font-size: 16px; font-weight: 700; }
+  .status-icons { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+
+  /* ---- App Header ---- */
+  .app-header {
+    background: var(--clio-white);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--clio-border);
+    flex-shrink: 0;
+  }
+  .app-logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--clio-blue);
+    letter-spacing: -0.3px;
+  }
+  .app-logo span { color: var(--clio-text); font-weight: 400; }
+  .app-avatar {
+    width: 34px;
+    height: 34px;
+    background: var(--clio-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* ---- Generic content area ---- */
+  .content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+  }
+  .content-area.top-align {
+    justify-content: flex-start;
+    padding-top: 0;
+  }
+
+  /* ---- Upload Screen ---- */
+  .upload-zone {
+    width: 100%;
+    padding: 40px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+  }
+  .upload-dashed {
+    width: 100%;
+    max-width: 340px;
+    border: 3px dashed var(--clio-border);
+    border-radius: 24px;
+    padding: 48px 24px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--clio-white);
+  }
+  .upload-cam-icon {
+    font-size: 64px;
+    line-height: 1;
+    margin-bottom: 16px;
+    filter: grayscale(0.2);
+  }
+  .upload-title {
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    color: var(--clio-text);
+    margin-bottom: 28px;
+  }
+  .btn-primary {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: var(--clio-blue);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    letter-spacing: 0.2px;
+  }
+  .btn-primary:hover { background: var(--clio-blue-dark); }
+  .btn-primary.success-btn { background: var(--clio-success); }
+  .btn-outline {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: transparent;
+    color: var(--clio-blue);
+    border: 2px solid var(--clio-blue);
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    margin-top: 12px;
+  }
+
+  /* ---- Extracting Screen ---- */
+  .extracting-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .extract-anim {
+    position: relative;
+    width: 88px;
+    height: 88px;
+    margin-bottom: 24px;
+  }
+  .extract-doc {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 52px;
+    background: var(--clio-blue-light);
+    border: 2px solid var(--clio-blue);
+    border-radius: 6px;
+  }
+  .extract-doc::before {
+    content: '';
+    position: absolute;
+    top: 10px; left: 7px; right: 7px;
+    height: 2px;
+    background: var(--clio-blue);
+    opacity: 0.3;
+    box-shadow: 0 7px 0 rgba(0,112,224,0.3), 0 14px 0 rgba(0,112,224,0.3), 0 21px 0 rgba(0,112,224,0.3);
+  }
+  .extract-ring {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border: 3px solid transparent;
+    border-top-color: var(--clio-blue);
+    border-right-color: var(--clio-blue);
+    border-radius: 50%;
+    animation: spinRing 1.2s linear infinite;
+  }
+  @keyframes spinRing {
+    to { transform: rotate(360deg); }
+  }
+  .extract-title {
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+    color: var(--clio-text);
+    margin-bottom: 8px;
+  }
+  .extract-subtitle {
+    font-size: 13px;
+    text-align: center;
+    color: var(--clio-text-light);
+  }
+
+  /* ---- Review Form (Screen 3a) ---- */
+  .review-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 16px 100px 16px;
+  }
+  .review-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--clio-success-bg);
+    color: var(--clio-success);
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .review-status .check-mark {
+    font-weight: 700;
+  }
+
+  .form-section {
+    background: var(--clio-white);
+    border-radius: 14px;
+    margin-top: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    overflow: hidden;
+  }
+  .form-section-header {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--clio-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 14px 16px 0;
+  }
+  .form-section-body {
+    padding: 10px 16px 14px;
+  }
+  .form-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #F0F2F4;
+  }
+  .form-row:last-child {
+    border-bottom: none;
+  }
+  .form-row-label {
+    font-size: 13px;
+    color: var(--clio-text-light);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .form-row-value {
+    font-size: 14px;
+    color: var(--clio-text);
+    font-weight: 500;
+    text-align: right;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .form-row-value.small {
+    font-size: 12px;
+    word-break: break-all;
+    white-space: normal;
+    max-width: 200px;
+  }
+  .form-row-desc {
+    font-size: 12px;
+    color: var(--clio-text);
+    line-height: 1.4;
+    padding: 6px 0 2px;
+  }
+  .confidence-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .confidence-dot.high { background: var(--clio-success); }
+  .confidence-dot.medium { background: var(--clio-warning); }
+
+  /* ---- Floating Action Button ---- */
+  .fab-container {
+    position: absolute;
+    bottom: 90px;
+    right: 20px;
+    z-index: 8;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .fab-tooltip {
+    background: var(--clio-white);
+    color: var(--clio-text);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+    white-space: nowrap;
+  }
+  .fab-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--clio-blue);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    border: none;
+    box-shadow:
+      0 4px 14px rgba(0,112,224,0.35),
+      0 2px 6px rgba(0,0,0,0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .fab-btn:hover {
+    transform: scale(1.08);
+    box-shadow:
+      0 6px 20px rgba(0,112,224,0.4),
+      0 3px 8px rgba(0,0,0,0.2);
+  }
+
+  /* ---- Sticky Footer (Review) ---- */
+  .sticky-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--clio-white);
+    border-top: 1px solid var(--clio-border);
+    padding: 12px 16px 32px;
+    display: flex;
+    gap: 12px;
+    z-index: 5;
+  }
+  .btn-reset {
+    flex: 1;
+    padding: 14px;
+    background: #EAECEF;
+    color: var(--clio-text-light);
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+  }
+  .btn-approve {
+    flex: 2;
+    padding: 14px;
+    background: var(--clio-blue);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  /* ---- Report Overlay (Screen 3b) ---- */
+  .overlay-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: calc(var(--frame-radius) - var(--frame-bezel));
+  }
+  .overlay-close {
+    position: absolute;
+    top: 58px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 25;
+  }
+  .overlay-image {
+    width: 340px;
+    height: 520px;
+    background: var(--clio-white);
+    border-radius: 8px;
+    margin: 0 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px 16px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    overflow: hidden;
+  }
+  .report-header-img {
+    width: 100%;
+    text-align: center;
+    padding: 8px 0 12px;
+    border-bottom: 2px solid var(--clio-text);
+    margin-bottom: 12px;
+  }
+  .report-header-img .dept {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--clio-text);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .report-header-img .title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--clio-text);
+    margin-top: 4px;
+  }
+  .report-body-lines {
+    width: 100%;
+    flex: 1;
+  }
+  .report-line {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 6px;
+    align-items: baseline;
+  }
+  .report-line .rl-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--clio-text-light);
+    text-transform: uppercase;
+    white-space: nowrap;
+    min-width: 60px;
+  }
+  .report-line .rl-value {
+    font-size: 10px;
+    color: var(--clio-text);
+    border-bottom: 1px solid #ccc;
+    flex: 1;
+    padding-bottom: 1px;
+  }
+  .report-block {
+    width: 100%;
+    margin-top: 8px;
+    padding: 6px 0;
+    border-top: 1px solid #ddd;
+  }
+  .report-block .rb-title {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--clio-text);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .report-block-lines {
+    height: 24px;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 7px,
+      #ddd 7px,
+      #ddd 8px
+    );
+  }
+  .overlay-hint {
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .overlay-hint .pinch-icon {
+    font-size: 18px;
+  }
+
+  /* ---- Processing Screen ---- */
+  .process-overlay {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(245,247,250,0.97);
+  }
+  .process-card {
+    background: var(--clio-white);
+    border-radius: 20px;
+    padding: 28px 24px;
+    width: 100%;
+    max-width: 353px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+  .process-title {
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 24px;
+    color: var(--clio-text);
+  }
+  .process-step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid #F0F2F4;
+  }
+  .process-step:last-child { border-bottom: none; }
+  .process-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .process-icon.done {
+    background: var(--clio-success-bg);
+    color: var(--clio-success);
+  }
+  .process-icon.active {
+    background: var(--clio-blue-light);
+    color: var(--clio-blue);
+    animation: spinIcon 1s linear infinite;
+  }
+  @keyframes spinIcon {
+    to { transform: rotate(360deg); }
+  }
+  .process-icon.pending {
+    background: #F0F2F4;
+    color: #bbb;
+  }
+  .process-text {
+    font-size: 14px;
+    color: var(--clio-text);
+    font-weight: 500;
+  }
+  .process-text.pending-text { color: var(--clio-text-light); }
+
+  /* ---- Success Screen ---- */
+  .success-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .success-check {
+    width: 80px;
+    height: 80px;
+    background: var(--clio-success-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin-bottom: 20px;
+    animation: successPop 0.5s ease-out;
+  }
+  @keyframes successPop {
+    0% { transform: scale(0.5); opacity: 0; }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .success-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--clio-text);
+    margin-bottom: 8px;
+  }
+  .success-subtitle {
+    font-size: 14px;
+    color: var(--clio-text-light);
+    text-align: center;
+    margin-bottom: 28px;
+    max-width: 300px;
+  }
+  .success-summary {
+    background: var(--clio-success-bg);
+    border-radius: 14px;
+    padding: 16px 20px;
+    width: 100%;
+    max-width: 320px;
+    margin-bottom: 28px;
+  }
+  .success-summary-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 13px;
+    color: #1a6b35;
+  }
+  .success-summary-row .check-icon {
+    color: var(--clio-success);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ---- Annotations ---- */
+  .annotation-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 6px 14px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+  }
+  .annotation-row span {
+    font-size: 12px;
+    color: #8888aa;
+    font-weight: 500;
+  }
+  .annotation-row .arrow-icon {
+    color: var(--clio-blue);
+    font-size: 16px;
+  }
+
+  /* In-phone annotation callout */
+  .in-phone-annotation {
+    position: absolute;
+    z-index: 9;
+    background: rgba(0,112,224,0.9);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .in-phone-annotation::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+  .in-phone-annotation.point-right::after {
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 6px solid transparent;
+    border-left-color: rgba(0,112,224,0.9);
+    border-right: none;
+  }
+  .in-phone-annotation.point-down::after {
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(0,112,224,0.9);
+    border-bottom: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- Page Header -->
+<div class="page-header">
+  <h1>Design 5: <span>Floating Preview Button</span></h1>
+  <p>Form takes the full screen. A floating action button (FAB) in the bottom-right corner opens a full-screen overlay of the original report photo. Maximizes editing space while keeping reference just one tap away.</p>
+</div>
+
+<!-- Showcase -->
+<div class="showcase">
+
+  <!-- ========== SCREEN 1: Upload ========== -->
+  <div class="screen-group">
+    <div class="screen-label"><span class="num">1</span> Upload</div>
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="status-bar">
+          <span class="time">9:41</span>
+          <div class="status-icons">
+            <span>&#9679;&#9679;&#9679;&#9679;</span>
+            <span>&#128267;</span>
+          </div>
+        </div>
+        <div class="app-header">
+          <div class="app-logo">Richards <span>&amp; Law</span></div>
+          <div class="app-avatar">AR</div>
+        </div>
+        <div class="upload-zone">
+          <div class="upload-dashed">
+            <div class="upload-cam-icon">&#128247;</div>
+            <div class="upload-title">Capture or upload report</div>
+            <button class="btn-primary" style="max-width: 280px;">&#128248;&ensp;Take Photo</button>
+            <button class="btn-outline" style="max-width: 280px;">&#128196;&ensp;Choose File</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow 1->2 -->
+  <div class="flow-arrow">
+    <div class="arrow-line"></div>
+    <div class="arrow-text">Upload</div>
+  </div>
+
+  <!-- ========== SCREEN 2: Extracting ========== -->
+  <div class="screen-group">
+    <div class="screen-label"><span class="num">2</span> Extracting</div>
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="status-bar">
+          <span class="time">9:41</span>
+          <div class="status-icons">
+            <span>&#9679;&#9679;&#9679;&#9679;</span>
+            <span>&#128267;</span>
+          </div>
+        </div>
+        <div class="app-header">
+          <div class="app-logo">Richards <span>&amp; Law</span></div>
+          <div class="app-avatar">AR</div>
+        </div>
+        <div class="extracting-area">
+          <div class="extract-anim">
+            <div class="extract-doc"></div>
+            <div class="extract-ring"></div>
+          </div>
+          <div class="extract-title">Extracting data from your report...</div>
+          <div class="extract-subtitle">This usually takes 3&ndash;5 seconds</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow 2->3a -->
+  <div class="flow-arrow">
+    <div class="arrow-line"></div>
+    <div class="arrow-text">Done</div>
+  </div>
+
+  <!-- ========== SCREEN 3a: Review (Form + FAB) ========== -->
+  <div class="screen-group">
+    <div class="screen-label"><span class="num">3a</span> Review &mdash; Form + FAB</div>
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="status-bar">
+          <span class="time">9:42</span>
+          <div class="status-icons">
+            <span>&#9679;&#9679;&#9679;&#9679;</span>
+            <span>&#128267;</span>
+          </div>
+        </div>
+        <div class="app-header">
+          <div class="app-logo">Richards <span>&amp; Law</span></div>
+          <div class="app-avatar">AR</div>
+        </div>
+        <!-- Status bar -->
+        <div class="review-status">
+          <span class="check-mark">&#10003;</span>
+          <span>Review extracted data</span>
+        </div>
+        <!-- Scrollable form -->
+        <div class="review-scroll">
+          <!-- Client Info Section -->
+          <div class="form-section">
+            <div class="form-section-header">Client Information</div>
+            <div class="form-section-body">
+              <div class="form-row">
+                <div class="form-row-label"><span class="confidence-dot high"></span> Name</div>
+                <div class="form-row-value">Mardochee Vincent</div>
+              </div>
+              <div class="form-row">
+                <div class="form-row-label"><span class="confidence-dot high"></span> Gender</div>
+                <div class="form-row-value">F</div>
+              </div>
+              <div class="form-row">
+                <div class="form-row-label"><span class="confidence-dot high"></span> Plate</div>
+                <div class="form-row-value">XYZ789</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accident Section -->
+          <div class="form-section">
+            <div class="form-section-header">Accident Details</div>
+            <div class="form-section-body">
+              <div class="form-row">
+                <div class="form-row-label"><span class="confidence-dot high"></span> Date</div>
+                <div class="form-row-value">05/22/2024</div>
+              </div>
+              <div class="form-row">
+                <div class="form-row-label"><span class="confidence-dot high"></span> Injured</div>
+                <div class="form-row-value">0</div>
+              </div>
+              <div class="form-row">
+                <div class="form-row-label"><span class="confidence-dot high"></span> Location</div>
+                <div class="form-row-value">SW 8th St &amp; 27th Ave</div>
+              </div>
+              <div class="form-row" style="border-bottom: none;">
+                <div class="form-row-label"><span class="confidence-dot high"></span> Description</div>
+              </div>
+              <div class="form-row-desc">Rear-end collision at traffic light. V1 struck V2 while stopped at red. Minor vehicle damage, no injuries reported.</div>
+            </div>
+          </div>
+
+          <!-- Defendant Section -->
+          <div class="form-section">
+            <div class="form-section-header">Defendant</div>
+            <div class="form-section-body">
+              <div class="form-row">
+                <div class="form-row-label"><span class="confidence-dot high"></span> Name</div>
+                <div class="form-row-value">Kevin Trent</div>
+              </div>
+              <div class="form-row">
+                <div class="form-row-label"><span class="confidence-dot high"></span> Vehicle</div>
+                <div class="form-row-value">2020 Toyota Camry</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Clio Section -->
+          <div class="form-section">
+            <div class="form-section-header">Clio Matter</div>
+            <div class="form-section-body">
+              <div class="form-row">
+                <div class="form-row-label"><span class="confidence-dot high"></span> Matter</div>
+                <div class="form-row-value">Vincent v Trent</div>
+              </div>
+              <div class="form-row">
+                <div class="form-row-label"><span class="confidence-dot high"></span> ID</div>
+                <div class="form-row-value">#54321</div>
+              </div>
+              <div class="form-row">
+                <div class="form-row-label"><span class="confidence-dot medium"></span> SOL</div>
+                <div class="form-row-value" style="color: var(--clio-warning); font-weight: 600;">May 22, 2032</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Email Section -->
+          <div class="form-section" style="margin-bottom: 16px;">
+            <div class="form-section-header">Email</div>
+            <div class="form-section-body">
+              <div class="form-row">
+                <div class="form-row-label"><span class="confidence-dot high"></span> To</div>
+                <div class="form-row-value small">talent.legal-engineer<br>.hackathon.automation<br>-email@swans.co</div>
+              </div>
+              <div class="form-row">
+                <div class="form-row-label"><span class="confidence-dot high"></span> Meeting</div>
+                <div class="form-row-value">Virtual (Sep&ndash;Feb)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAB -->
+        <div class="fab-container">
+          <div class="fab-tooltip">View Report</div>
+          <button class="fab-btn">&#128196;</button>
+        </div>
+
+        <!-- FAB annotation -->
+        <div class="in-phone-annotation point-right" style="bottom: 105px; right: 92px;">
+          Floating button &mdash; tap to view report
+        </div>
+
+        <!-- Sticky Footer -->
+        <div class="sticky-footer">
+          <button class="btn-reset">Reset</button>
+          <button class="btn-approve">Approve &amp; Push</button>
+        </div>
+      </div>
+    </div>
+    <div class="annotation-row">
+      <span>Full-screen form + FAB for report preview</span>
+    </div>
+  </div>
+
+  <!-- FAB Arrow 3a <-> 3b -->
+  <div class="fab-arrow">
+    <div class="arrow-line-bi"></div>
+    <div class="arrow-label">Tap FAB</div>
+  </div>
+
+  <!-- ========== SCREEN 3b: Report Overlay ========== -->
+  <div class="screen-group">
+    <div class="screen-label"><span class="num">3b</span> Report Overlay</div>
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="status-bar">
+          <span class="time">9:42</span>
+          <div class="status-icons">
+            <span>&#9679;&#9679;&#9679;&#9679;</span>
+            <span>&#128267;</span>
+          </div>
+        </div>
+        <div class="app-header">
+          <div class="app-logo">Richards <span>&amp; Law</span></div>
+          <div class="app-avatar">AR</div>
+        </div>
+        <!-- Faded form behind -->
+        <div class="review-status" style="opacity: 0.15;">
+          <span class="check-mark">&#10003;</span>
+          <span>Review extracted data</span>
+        </div>
+        <div style="flex: 1; opacity: 0.08; padding: 0 16px;">
+          <div class="form-section">
+            <div class="form-section-header">Client Information</div>
+            <div class="form-section-body">
+              <div class="form-row">
+                <div class="form-row-label">Name</div>
+                <div class="form-row-value">Mardochee Vincent</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dark Overlay -->
+        <div class="overlay-bg">
+          <div class="overlay-close">&#10005;</div>
+
+          <!-- Report Image -->
+          <div class="overlay-image">
+            <div class="report-header-img">
+              <div class="dept">Miami-Dade Police Department</div>
+              <div class="title">Traffic Crash Report</div>
+            </div>
+            <div class="report-body-lines">
+              <div class="report-line">
+                <span class="rl-label">Case No.</span>
+                <span class="rl-value">2024-MD-08832</span>
+              </div>
+              <div class="report-line">
+                <span class="rl-label">Date</span>
+                <span class="rl-value">05/22/2024</span>
+              </div>
+              <div class="report-line">
+                <span class="rl-label">Time</span>
+                <span class="rl-value">14:32</span>
+              </div>
+              <div class="report-line">
+                <span class="rl-label">Location</span>
+                <span class="rl-value">SW 8th St &amp; 27th Ave, Miami</span>
+              </div>
+              <div style="height: 8px;"></div>
+              <div class="report-line">
+                <span class="rl-label">Vehicle 1</span>
+                <span class="rl-value">Kevin Trent &mdash; 2020 Toyota Camry</span>
+              </div>
+              <div class="report-line">
+                <span class="rl-label">Vehicle 2</span>
+                <span class="rl-value">Mardochee Vincent &mdash; 2018 Honda Accord</span>
+              </div>
+              <div class="report-block">
+                <div class="rb-title">Narrative</div>
+                <div style="font-size: 9px; color: var(--clio-text-light); line-height: 1.5;">
+                  V1, operated by Kevin Trent, was traveling westbound on SW 8th St. V2, operated by Mardochee Vincent, was stopped at red light at intersection of 27th Ave. V1 failed to stop and struck V2 in rear. No injuries. Minor damage to both vehicles.
+                </div>
+              </div>
+              <div class="report-block">
+                <div class="rb-title">Diagram</div>
+                <div class="report-block-lines"></div>
+              </div>
+              <div class="report-block">
+                <div class="rb-title">Officer</div>
+                <div class="report-line">
+                  <span class="rl-label">Badge</span>
+                  <span class="rl-value">Off. J. Martinez #4471</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="overlay-hint">
+            <span class="pinch-icon">&#128588;</span>
+            <span>Pinch to zoom</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="annotation-row">
+      <span>Full-screen overlay &mdash; tap &#10005; to close</span>
+    </div>
+  </div>
+
+  <!-- Arrow 3->4 -->
+  <div class="flow-arrow">
+    <div class="arrow-line"></div>
+    <div class="arrow-text">Approve</div>
+  </div>
+
+  <!-- ========== SCREEN 4: Processing ========== -->
+  <div class="screen-group">
+    <div class="screen-label"><span class="num">4</span> Processing</div>
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="status-bar">
+          <span class="time">9:43</span>
+          <div class="status-icons">
+            <span>&#9679;&#9679;&#9679;&#9679;</span>
+            <span>&#128267;</span>
+          </div>
+        </div>
+        <div class="app-header">
+          <div class="app-logo">Richards <span>&amp; Law</span></div>
+          <div class="app-avatar">AR</div>
+        </div>
+        <div class="process-overlay">
+          <div class="process-card">
+            <div class="process-title">Pushing to Clio...</div>
+            <div class="process-step">
+              <div class="process-icon done">&#10003;</div>
+              <div class="process-text">Updating Matter custom fields</div>
+            </div>
+            <div class="process-step">
+              <div class="process-icon done">&#10003;</div>
+              <div class="process-text">Generating retainer</div>
+            </div>
+            <div class="process-step">
+              <div class="process-icon done">&#10003;</div>
+              <div class="process-text">Creating calendar entry</div>
+            </div>
+            <div class="process-step">
+              <div class="process-icon active">&#8635;</div>
+              <div class="process-text">Downloading retainer PDF</div>
+            </div>
+            <div class="process-step">
+              <div class="process-icon pending">&#9675;</div>
+              <div class="process-text pending-text">Sending email</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow 4->5 -->
+  <div class="flow-arrow">
+    <div class="arrow-line"></div>
+    <div class="arrow-text">Done</div>
+  </div>
+
+  <!-- ========== SCREEN 5: Success ========== -->
+  <div class="screen-group">
+    <div class="screen-label"><span class="num">5</span> Success</div>
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="status-bar">
+          <span class="time">9:44</span>
+          <div class="status-icons">
+            <span>&#9679;&#9679;&#9679;&#9679;</span>
+            <span>&#128267;</span>
+          </div>
+        </div>
+        <div class="app-header">
+          <div class="app-logo">Richards <span>&amp; Law</span></div>
+          <div class="app-avatar">AR</div>
+        </div>
+        <div class="success-body">
+          <div class="success-check">&#10003;</div>
+          <div class="success-title">All Done!</div>
+          <div class="success-subtitle">Vincent v Trent has been fully processed and pushed to Clio. The client will receive their retainer agreement shortly.</div>
+          <div class="success-summary">
+            <div class="success-summary-row">
+              <span class="check-icon">&#10003;</span>
+              <span>Custom fields updated</span>
+            </div>
+            <div class="success-summary-row">
+              <span class="check-icon">&#10003;</span>
+              <span>Retainer agreement generated</span>
+            </div>
+            <div class="success-summary-row">
+              <span class="check-icon">&#10003;</span>
+              <span>SOL calendar entry created</span>
+            </div>
+            <div class="success-summary-row">
+              <span class="check-icon">&#10003;</span>
+              <span>Client email sent</span>
+            </div>
+          </div>
+          <button class="btn-primary success-btn" style="max-width: 320px;">Process Next Report</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /showcase -->
+
+</body>
+</html>

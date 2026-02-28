@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design 2: Stacked Layout — Mobile Intake Dashboard</title>
+<style>
+  :root {
+    --clio-blue: #0070E0;
+    --clio-blue-dark: #005BBB;
+    --clio-blue-light: #E8F2FC;
+    --clio-text: #333333;
+    --clio-text-light: #666666;
+    --clio-bg: #F5F7FA;
+    --clio-white: #FFFFFF;
+    --clio-border: #D1D9E0;
+    --clio-success: #0D9B4A;
+    --clio-success-bg: #E6F7ED;
+    --clio-warning: #E67E22;
+    --clio-warning-bg: #FFF5EB;
+    --clio-error: #D63031;
+    --frame-w: 393px;
+    --frame-h: 852px;
+    --notch-h: 54px;
+    --header-h: 56px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #1a1a2e;
+    color: var(--clio-text);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ── Title bar ── */
+  .title-bar {
+    padding: 40px 48px 24px;
+    color: #fff;
+  }
+  .title-bar h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .title-bar h1 span {
+    color: #60a5fa;
+  }
+  .title-bar p {
+    font-size: 15px;
+    color: #94a3b8;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+
+  /* ── Showcase scroll ── */
+  .showcase {
+    display: flex;
+    gap: 56px;
+    padding: 32px 48px 64px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .showcase::-webkit-scrollbar { height: 6px; }
+  .showcase::-webkit-scrollbar-track { background: transparent; }
+  .showcase::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+  /* ── Phone column ── */
+  .phone-col {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .phone-col.wide {
+    /* For expanded variant shown beside collapsed */
+  }
+  .phone-label {
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+  .phone-label span {
+    color: #60a5fa;
+  }
+
+  /* ── iPhone frame ── */
+  .iphone {
+    width: var(--frame-w);
+    height: var(--frame-h);
+    background: #000;
+    border-radius: 48px;
+    padding: 12px;
+    position: relative;
+    box-shadow:
+      0 0 0 2px #333,
+      0 20px 60px rgba(0,0,0,0.5),
+      inset 0 0 0 2px #1a1a1a;
+  }
+  .iphone-screen {
+    width: 100%;
+    height: 100%;
+    background: var(--clio-bg);
+    border-radius: 38px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Notch / Dynamic Island */
+  .notch-bar {
+    height: var(--notch-h);
+    background: var(--clio-white);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 6px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .dynamic-island {
+    width: 120px;
+    height: 34px;
+    background: #000;
+    border-radius: 20px;
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .status-time {
+    position: absolute;
+    left: 24px;
+    top: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--clio-text);
+  }
+  .status-icons {
+    position: absolute;
+    right: 24px;
+    top: 16px;
+    font-size: 12px;
+    color: var(--clio-text);
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  /* ── App header ── */
+  .app-header {
+    height: var(--header-h);
+    background: var(--clio-white);
+    border-bottom: 1px solid var(--clio-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    flex-shrink: 0;
+  }
+  .app-logo {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--clio-blue);
+    letter-spacing: -0.3px;
+  }
+  .app-logo span { color: var(--clio-text); font-weight: 400; }
+  .app-avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--clio-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* ── Screen body (scrollable content) ── */
+  .screen-body {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Screen 1: Upload ── */
+  .upload-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .upload-zone {
+    width: 100%;
+    height: 380px;
+    border: 3px dashed var(--clio-border);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: var(--clio-white);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .upload-icon {
+    font-size: 64px;
+    line-height: 1;
+  }
+  .upload-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--clio-text);
+    text-align: center;
+  }
+  .upload-sub {
+    font-size: 14px;
+    color: var(--clio-text-light);
+    text-align: center;
+  }
+
+  /* ── Screen 2: Extracting ── */
+  .extract-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+  .report-preview {
+    height: 200px;
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .report-preview::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .report-lines {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .report-line {
+    height: 8px;
+    background: #94a3b8;
+    border-radius: 4px;
+    opacity: 0.3;
+  }
+  .report-line:nth-child(1) { width: 70%; }
+  .report-line:nth-child(2) { width: 90%; }
+  .report-line:nth-child(3) { width: 60%; }
+  .report-line:nth-child(4) { width: 85%; }
+  .report-line:nth-child(5) { width: 45%; }
+  .report-line:nth-child(6) { width: 75%; }
+  .report-line:nth-child(7) { width: 55%; }
+
+  .extract-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    z-index: 2;
+  }
+  .pulse-dot {
+    width: 16px;
+    height: 16px;
+    background: var(--clio-blue);
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(0,112,224,0.4); }
+    50% { transform: scale(1.3); opacity: 0.8; box-shadow: 0 0 0 12px rgba(0,112,224,0); }
+  }
+  .extract-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--clio-blue-dark);
+  }
+
+  .skeleton-form {
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .skeleton-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .skeleton-label {
+    width: 80px;
+    height: 10px;
+    background: #d1d5db;
+    border-radius: 5px;
+  }
+  .skeleton-field {
+    width: 100%;
+    height: 40px;
+    background: #e5e7eb;
+    border-radius: 8px;
+    animation: shimmer 1.5s ease-in-out infinite alternate;
+  }
+  .skeleton-field.short { width: 60%; }
+  @keyframes shimmer {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+  }
+
+  /* ── Screen 3: Review ── */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--clio-success-bg);
+    border-bottom: 1px solid #b7e4c7;
+    flex-shrink: 0;
+  }
+  .status-check {
+    color: var(--clio-success);
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .status-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #065f1e;
+  }
+
+  /* Thumbnail strip */
+  .thumb-strip {
+    height: 120px;
+    background: #1e293b;
+    position: relative;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .thumb-strip.expanded {
+    height: 300px;
+  }
+  .thumb-img-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #334155, #475569);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  /* Fake report content inside thumbnail */
+  .thumb-content {
+    width: 280px;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+  }
+  .thumb-content .tc-line {
+    height: 4px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 2px;
+    margin-bottom: 5px;
+  }
+  .thumb-content .tc-line:nth-child(1) { width: 65%; }
+  .thumb-content .tc-line:nth-child(2) { width: 90%; }
+  .thumb-content .tc-line:nth-child(3) { width: 50%; }
+  .thumb-content .tc-line:nth-child(4) { width: 80%; }
+  .thumb-content .tc-line:nth-child(5) { width: 40%; }
+  .thumb-content .tc-line:nth-child(6) { width: 70%; }
+  .thumb-content .tc-line:nth-child(7) { width: 55%; height: 4px; }
+  .thumb-content .tc-line:nth-child(8) { width: 85%; }
+
+  .thumb-toggle {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 32px;
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 6px;
+  }
+  .thumb-toggle-btn {
+    font-size: 11px;
+    color: #fff;
+    background: rgba(0,0,0,0.5);
+    border: none;
+    border-radius: 10px;
+    padding: 2px 12px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Form area */
+  .form-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    padding-bottom: 80px; /* space for sticky footer */
+  }
+  .form-section {
+    margin-bottom: 20px;
+  }
+  .form-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--clio-blue-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--clio-blue-light);
+  }
+  .form-field {
+    margin-bottom: 12px;
+  }
+  .field-label-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--clio-text-light);
+  }
+  .confidence-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .confidence-high {
+    background: var(--clio-success-bg);
+    color: var(--clio-success);
+  }
+  .confidence-med {
+    background: var(--clio-warning-bg);
+    color: var(--clio-warning);
+  }
+  .field-input {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border: 1.5px solid var(--clio-border);
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--clio-text);
+    background: var(--clio-white);
+    font-family: inherit;
+  }
+  .field-input.filled {
+    border-color: var(--clio-success);
+    background: #fafffe;
+  }
+  .field-textarea {
+    width: 100%;
+    height: 64px;
+    padding: 10px 12px;
+    border: 1.5px solid var(--clio-border);
+    border-radius: 10px;
+    font-size: 13px;
+    color: var(--clio-text);
+    background: var(--clio-white);
+    font-family: inherit;
+    resize: none;
+    line-height: 1.4;
+  }
+  .field-textarea.filled {
+    border-color: var(--clio-success);
+    background: #fafffe;
+  }
+  .field-row {
+    display: flex;
+    gap: 10px;
+  }
+  .field-row .form-field {
+    flex: 1;
+  }
+  .linked-matter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--clio-blue-light);
+    border: 1.5px solid var(--clio-blue);
+    border-radius: 10px;
+    font-size: 13px;
+    color: var(--clio-blue-dark);
+    font-weight: 600;
+  }
+  .linked-icon {
+    font-size: 14px;
+  }
+
+  /* Sticky footer */
+  .sticky-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--clio-white);
+    border-top: 1px solid var(--clio-border);
+    padding: 12px 16px;
+    padding-bottom: 34px; /* home indicator space */
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+  }
+  .btn-reset {
+    flex: 0 0 auto;
+    padding: 0 20px;
+    height: 44px;
+    border: 1.5px solid var(--clio-border);
+    border-radius: 12px;
+    background: var(--clio-white);
+    color: var(--clio-text-light);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-approve {
+    flex: 1;
+    height: 44px;
+    border: none;
+    border-radius: 12px;
+    background: var(--clio-blue);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  /* ── Screen 4: Processing ── */
+  .process-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(0,0,0,0.04);
+  }
+  .process-card {
+    width: 100%;
+    background: var(--clio-white);
+    border-radius: 20px;
+    padding: 32px 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    text-align: center;
+  }
+  .process-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--clio-text);
+    margin-bottom: 24px;
+  }
+  .process-steps {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .step-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--clio-text);
+  }
+  .step-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .step-done {
+    background: var(--clio-success-bg);
+    color: var(--clio-success);
+  }
+  .step-active {
+    background: var(--clio-blue-light);
+    color: var(--clio-blue);
+    animation: spin-icon 1s linear infinite;
+  }
+  @keyframes spin-icon {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .step-pending {
+    background: #f1f5f9;
+    color: #94a3b8;
+  }
+  .step-label { font-weight: 500; }
+  .step-label.done { color: var(--clio-success); }
+  .step-label.active { color: var(--clio-blue); font-weight: 600; }
+  .step-label.pending { color: #94a3b8; }
+
+  /* ── Screen 5: Success ── */
+  .success-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    gap: 24px;
+  }
+  .success-circle {
+    width: 88px;
+    height: 88px;
+    background: var(--clio-success-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    color: var(--clio-success);
+    box-shadow: 0 0 0 12px rgba(13,155,74,0.08);
+  }
+  .success-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--clio-text);
+  }
+  .success-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+  .summary-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--clio-white);
+    border-radius: 12px;
+    border: 1px solid var(--clio-border);
+    font-size: 13px;
+  }
+  .summary-icon {
+    width: 28px;
+    height: 28px;
+    background: var(--clio-success-bg);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .summary-text {
+    color: var(--clio-text);
+    font-weight: 500;
+  }
+  .summary-text strong {
+    color: var(--clio-text);
+  }
+  .btn-next {
+    width: 100%;
+    height: 50px;
+    border: none;
+    border-radius: 14px;
+    background: var(--clio-blue);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  /* ── Home indicator ── */
+  .home-indicator {
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: inherit;
+  }
+  .home-bar {
+    width: 134px;
+    height: 5px;
+    background: #000;
+    border-radius: 3px;
+    opacity: 0.2;
+  }
+
+  /* ── Annotations ── */
+  .annotation-group {
+    display: flex;
+    gap: 56px;
+    align-items: flex-start;
+  }
+  .annotation {
+    position: relative;
+    margin-top: 12px;
+    max-width: 220px;
+  }
+  .annotation-arrow {
+    position: absolute;
+    color: #60a5fa;
+    font-size: 20px;
+  }
+  .annotation-text {
+    font-size: 12px;
+    color: #94a3b8;
+    line-height: 1.5;
+    background: rgba(96,165,250,0.08);
+    border: 1px solid rgba(96,165,250,0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+  }
+  .annotation-text strong {
+    color: #60a5fa;
+  }
+
+  /* ── Annotation connectors (outside frames) ── */
+  .screen-3-pair {
+    display: flex;
+    gap: 56px;
+    align-items: flex-start;
+  }
+  .phone-col-annotated {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+  }
+  .annotation-left, .annotation-right {
+    position: absolute;
+    width: 180px;
+  }
+  .annotation-connector {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .connector-line {
+    width: 32px;
+    height: 2px;
+    background: #60a5fa;
+    margin-top: 8px;
+    flex-shrink: 0;
+  }
+  .connector-dot {
+    width: 6px;
+    height: 6px;
+    background: #60a5fa;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ Title Bar ═══════════════ -->
+<div class="title-bar">
+  <h1>Design 2: <span>Stacked Layout</span></h1>
+  <p>Mobile legal intake dashboard for Richards & Law. Photo thumbnail pinned at top, scrollable form below. Designed for one-handed phone use during client onboarding. Each screen represents a stage in the police report intake workflow.</p>
+</div>
+
+<!-- ═══════════════ Showcase ═══════════════ -->
+<div class="showcase">
+
+  <!-- ━━━ Screen 1: Upload ━━━ -->
+  <div class="phone-col">
+    <div class="phone-label"><span>1</span> &mdash; Upload</div>
+    <div class="iphone">
+      <div class="iphone-screen">
+        <!-- iOS Status Bar -->
+        <div class="notch-bar">
+          <span class="status-time">9:41</span>
+          <div class="dynamic-island"></div>
+          <span class="status-icons">
+            <span style="font-size:13px">&#9679;&#9679;&#9679;&#9679;</span>
+            <span style="font-size:14px">&#128267;</span>
+          </span>
+        </div>
+        <!-- App Header -->
+        <div class="app-header">
+          <div class="app-logo">Richards <span>& Law</span></div>
+          <div class="app-avatar">AR</div>
+        </div>
+        <!-- Upload Body -->
+        <div class="screen-body">
+          <div class="upload-body">
+            <div class="upload-zone">
+              <div class="upload-icon">&#128247;</div>
+              <div class="upload-title">Snap a photo of the report</div>
+              <div class="upload-sub">or tap to upload PDF</div>
+            </div>
+          </div>
+        </div>
+        <div class="home-indicator"><div class="home-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━━ Screen 2: Extracting ━━━ -->
+  <div class="phone-col">
+    <div class="phone-label"><span>2</span> &mdash; Extracting</div>
+    <div class="iphone">
+      <div class="iphone-screen">
+        <div class="notch-bar">
+          <span class="status-time">9:41</span>
+          <div class="dynamic-island"></div>
+          <span class="status-icons">
+            <span style="font-size:13px">&#9679;&#9679;&#9679;&#9679;</span>
+            <span style="font-size:14px">&#128267;</span>
+          </span>
+        </div>
+        <div class="app-header">
+          <div class="app-logo">Richards <span>& Law</span></div>
+          <div class="app-avatar">AR</div>
+        </div>
+        <div class="screen-body extract-body">
+          <!-- Blurred report preview -->
+          <div class="report-preview">
+            <div class="report-lines">
+              <div class="report-line"></div>
+              <div class="report-line"></div>
+              <div class="report-line"></div>
+              <div class="report-line"></div>
+              <div class="report-line"></div>
+              <div class="report-line"></div>
+              <div class="report-line"></div>
+            </div>
+            <div class="extract-overlay">
+              <div class="pulse-dot"></div>
+              <div class="extract-label">AI extracting data...</div>
+            </div>
+          </div>
+          <!-- Skeleton form -->
+          <div class="skeleton-form">
+            <div class="skeleton-group">
+              <div class="skeleton-label"></div>
+              <div class="skeleton-field"></div>
+            </div>
+            <div class="skeleton-group">
+              <div class="skeleton-label" style="width:100px"></div>
+              <div class="skeleton-field"></div>
+            </div>
+            <div class="skeleton-group">
+              <div class="skeleton-label" style="width:60px"></div>
+              <div class="skeleton-field short"></div>
+            </div>
+            <div class="skeleton-group">
+              <div class="skeleton-label" style="width:110px"></div>
+              <div class="skeleton-field"></div>
+            </div>
+            <div class="skeleton-group">
+              <div class="skeleton-label" style="width:70px"></div>
+              <div class="skeleton-field short"></div>
+            </div>
+            <div class="skeleton-group">
+              <div class="skeleton-label" style="width:90px"></div>
+              <div class="skeleton-field"></div>
+            </div>
+          </div>
+        </div>
+        <div class="home-indicator" style="background:var(--clio-bg)"><div class="home-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━━ Screen 3a: Review (Collapsed Thumbnail) ━━━ -->
+  <div class="phone-col" style="position:relative;">
+    <div class="phone-label"><span>3a</span> &mdash; Review (collapsed)</div>
+    <div style="display:flex; gap:24px; align-items:flex-start;">
+      <div style="position:relative;">
+        <div class="iphone">
+          <div class="iphone-screen">
+            <div class="notch-bar">
+              <span class="status-time">9:42</span>
+              <div class="dynamic-island"></div>
+              <span class="status-icons">
+                <span style="font-size:13px">&#9679;&#9679;&#9679;&#9679;</span>
+                <span style="font-size:14px">&#128267;</span>
+              </span>
+            </div>
+            <div class="app-header">
+              <div class="app-logo">Richards <span>& Law</span></div>
+              <div class="app-avatar">AR</div>
+            </div>
+            <!-- Status bar -->
+            <div class="status-bar">
+              <span class="status-check">&#10003;</span>
+              <span class="status-text">Extraction complete &mdash; review fields</span>
+            </div>
+            <!-- Thumbnail strip (collapsed = 120px) -->
+            <div class="thumb-strip">
+              <div class="thumb-img-placeholder">
+                <div class="thumb-content">
+                  <div class="tc-line"></div>
+                  <div class="tc-line"></div>
+                  <div class="tc-line"></div>
+                  <div class="tc-line"></div>
+                  <div class="tc-line"></div>
+                </div>
+              </div>
+              <div class="thumb-toggle">
+                <div class="thumb-toggle-btn">&#9660; Expand</div>
+              </div>
+            </div>
+            <!-- Form -->
+            <div class="screen-body" style="position:relative;">
+              <div class="form-scroll">
+                <!-- Client Info -->
+                <div class="form-section">
+                  <div class="form-section-title">Client Info</div>
+                  <div class="field-row">
+                    <div class="form-field">
+                      <div class="field-label-row">
+                        <span class="field-label">First Name</span>
+                        <span class="confidence-badge confidence-high">98%</span>
+                      </div>
+                      <input class="field-input filled" value="Darshame" readonly>
+                    </div>
+                    <div class="form-field">
+                      <div class="field-label-row">
+                        <span class="field-label">Last Name</span>
+                        <span class="confidence-badge confidence-high">99%</span>
+                      </div>
+                      <input class="field-input filled" value="Noel" readonly>
+                    </div>
+                  </div>
+                  <div class="field-row">
+                    <div class="form-field" style="flex:0 0 80px;">
+                      <div class="field-label-row">
+                        <span class="field-label">Gender</span>
+                        <span class="confidence-badge confidence-high">95%</span>
+                      </div>
+                      <input class="field-input filled" value="F" readonly>
+                    </div>
+                    <div class="form-field">
+                      <div class="field-label-row">
+                        <span class="field-label">Vehicle</span>
+                        <span class="confidence-badge confidence-high">97%</span>
+                      </div>
+                      <input class="field-input filled" value="2018 Honda Civic" readonly>
+                    </div>
+                  </div>
+                </div>
+                <!-- Accident Details -->
+                <div class="form-section">
+                  <div class="form-section-title">Accident Details</div>
+                  <div class="field-row">
+                    <div class="form-field">
+                      <div class="field-label-row">
+                        <span class="field-label">Date</span>
+                        <span class="confidence-badge confidence-high">99%</span>
+                      </div>
+                      <input class="field-input filled" value="02/20/2024" readonly>
+                    </div>
+                    <div class="form-field" style="flex:0 0 80px;">
+                      <div class="field-label-row">
+                        <span class="field-label">Injured</span>
+                        <span class="confidence-badge confidence-med">85%</span>
+                      </div>
+                      <input class="field-input filled" value="0" readonly>
+                    </div>
+                  </div>
+                  <div class="form-field">
+                    <div class="field-label-row">
+                      <span class="field-label">Location</span>
+                      <span class="confidence-badge confidence-high">96%</span>
+                    </div>
+                    <input class="field-input filled" value="123 Main St & Oak Ave, Miami" readonly>
+                  </div>
+                  <div class="form-field">
+                    <div class="field-label-row">
+                      <span class="field-label">Description</span>
+                      <span class="confidence-badge confidence-med">88%</span>
+                    </div>
+                    <textarea class="field-textarea filled" readonly>Vehicle 2 failed to yield at intersection, striking Vehicle 1 on the driver side.</textarea>
+                  </div>
+                </div>
+                <!-- Defendant -->
+                <div class="form-section">
+                  <div class="form-section-title">Defendant</div>
+                  <div class="field-row">
+                    <div class="form-field">
+                      <div class="field-label-row">
+                        <span class="field-label">Name</span>
+                        <span class="confidence-badge confidence-high">97%</span>
+                      </div>
+                      <input class="field-input filled" value="Arnaud Freese" readonly>
+                    </div>
+                    <div class="form-field">
+                      <div class="field-label-row">
+                        <span class="field-label">Plate</span>
+                        <span class="confidence-badge confidence-high">99%</span>
+                      </div>
+                      <input class="field-input filled" value="ABC 1234" readonly>
+                    </div>
+                  </div>
+                </div>
+                <!-- Clio Matter -->
+                <div class="form-section">
+                  <div class="form-section-title">Clio Matter</div>
+                  <div class="form-field">
+                    <div class="field-label-row">
+                      <span class="field-label">Linked Matter</span>
+                    </div>
+                    <div class="linked-matter">
+                      <span class="linked-icon">&#128279;</span>
+                      Noel v Freese
+                    </div>
+                  </div>
+                  <div class="form-field">
+                    <div class="field-label-row">
+                      <span class="field-label">Statute of Limitations</span>
+                    </div>
+                    <input class="field-input filled" value="02/20/2032" readonly>
+                  </div>
+                </div>
+                <!-- Email -->
+                <div class="form-section">
+                  <div class="form-section-title">Email</div>
+                  <div class="form-field">
+                    <div class="field-label-row">
+                      <span class="field-label">Send To</span>
+                    </div>
+                    <input class="field-input filled" value="talent.legal-engineer...@swans.co" readonly style="font-size:12px">
+                  </div>
+                  <div class="form-field">
+                    <div class="field-label-row">
+                      <span class="field-label">Calendly Link</span>
+                    </div>
+                    <input class="field-input filled" value="https://calendly.com/richards-law/spring" readonly style="font-size:12px">
+                  </div>
+                </div>
+              </div>
+              <!-- Sticky footer -->
+              <div class="sticky-footer">
+                <button class="btn-reset">Reset</button>
+                <button class="btn-approve">&#10003; Approve & Push</button>
+              </div>
+            </div>
+            <div class="home-indicator" style="background:var(--clio-white);position:relative;z-index:11"><div class="home-bar"></div></div>
+          </div>
+        </div>
+
+        <!-- Annotation: collapsed -->
+        <div style="position:absolute; right:-200px; top:240px;">
+          <div style="display:flex; align-items:flex-start; gap:8px;">
+            <div style="color:#60a5fa; font-size:18px; margin-top:2px;">&#8592;</div>
+            <div class="annotation-text">
+              <strong>Collapsed thumbnail (120px).</strong> Report photo pinned at top for quick reference. Tap to expand.
+            </div>
+          </div>
+        </div>
+
+        <!-- Annotation: sticky footer -->
+        <div style="position:absolute; right:-200px; bottom:80px;">
+          <div style="display:flex; align-items:flex-start; gap:8px;">
+            <div style="color:#60a5fa; font-size:18px; margin-top:2px;">&#8592;</div>
+            <div class="annotation-text">
+              <strong>Sticky footer</strong> stays visible while scrolling form fields.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━━ Screen 3b: Review (Expanded Thumbnail) ━━━ -->
+  <div class="phone-col" style="position:relative;">
+    <div class="phone-label"><span>3b</span> &mdash; Review (expanded)</div>
+    <div style="position:relative;">
+      <div class="iphone">
+        <div class="iphone-screen">
+          <div class="notch-bar">
+            <span class="status-time">9:42</span>
+            <div class="dynamic-island"></div>
+            <span class="status-icons">
+              <span style="font-size:13px">&#9679;&#9679;&#9679;&#9679;</span>
+              <span style="font-size:14px">&#128267;</span>
+            </span>
+          </div>
+          <div class="app-header">
+            <div class="app-logo">Richards <span>& Law</span></div>
+            <div class="app-avatar">AR</div>
+          </div>
+          <div class="status-bar">
+            <span class="status-check">&#10003;</span>
+            <span class="status-text">Extraction complete &mdash; review fields</span>
+          </div>
+          <!-- Thumbnail strip (EXPANDED = 300px) -->
+          <div class="thumb-strip expanded">
+            <div class="thumb-img-placeholder">
+              <div class="thumb-content" style="width:320px; padding:20px;">
+                <div style="font-size:9px; color:rgba(255,255,255,0.5); font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">Police Report #2024-08432</div>
+                <div class="tc-line"></div>
+                <div class="tc-line"></div>
+                <div class="tc-line"></div>
+                <div class="tc-line"></div>
+                <div class="tc-line"></div>
+                <div class="tc-line"></div>
+                <div class="tc-line"></div>
+                <div class="tc-line"></div>
+              </div>
+            </div>
+            <div class="thumb-toggle">
+              <div class="thumb-toggle-btn">&#9650; Collapse</div>
+            </div>
+          </div>
+          <!-- Form (pushed down, less visible) -->
+          <div class="screen-body" style="position:relative;">
+            <div class="form-scroll">
+              <div class="form-section">
+                <div class="form-section-title">Client Info</div>
+                <div class="field-row">
+                  <div class="form-field">
+                    <div class="field-label-row">
+                      <span class="field-label">First Name</span>
+                      <span class="confidence-badge confidence-high">98%</span>
+                    </div>
+                    <input class="field-input filled" value="Darshame" readonly>
+                  </div>
+                  <div class="form-field">
+                    <div class="field-label-row">
+                      <span class="field-label">Last Name</span>
+                      <span class="confidence-badge confidence-high">99%</span>
+                    </div>
+                    <input class="field-input filled" value="Noel" readonly>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="form-field" style="flex:0 0 80px;">
+                    <div class="field-label-row">
+                      <span class="field-label">Gender</span>
+                      <span class="confidence-badge confidence-high">95%</span>
+                    </div>
+                    <input class="field-input filled" value="F" readonly>
+                  </div>
+                  <div class="form-field">
+                    <div class="field-label-row">
+                      <span class="field-label">Vehicle</span>
+                      <span class="confidence-badge confidence-high">97%</span>
+                    </div>
+                    <input class="field-input filled" value="2018 Honda Civic" readonly>
+                  </div>
+                </div>
+              </div>
+              <div class="form-section">
+                <div class="form-section-title">Accident Details</div>
+                <div class="field-row">
+                  <div class="form-field">
+                    <div class="field-label-row">
+                      <span class="field-label">Date</span>
+                      <span class="confidence-badge confidence-high">99%</span>
+                    </div>
+                    <input class="field-input filled" value="02/20/2024" readonly>
+                  </div>
+                  <div class="form-field" style="flex:0 0 80px;">
+                    <div class="field-label-row">
+                      <span class="field-label">Injured</span>
+                      <span class="confidence-badge confidence-med">85%</span>
+                    </div>
+                    <input class="field-input filled" value="0" readonly>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="sticky-footer">
+              <button class="btn-reset">Reset</button>
+              <button class="btn-approve">&#10003; Approve & Push</button>
+            </div>
+          </div>
+          <div class="home-indicator" style="background:var(--clio-white);position:relative;z-index:11"><div class="home-bar"></div></div>
+        </div>
+      </div>
+
+      <!-- Annotation: expanded -->
+      <div style="position:absolute; right:-200px; top:200px;">
+        <div style="display:flex; align-items:flex-start; gap:8px;">
+          <div style="color:#60a5fa; font-size:18px; margin-top:2px;">&#8592;</div>
+          <div class="annotation-text">
+            <strong>Expanded thumbnail (300px).</strong> User taps to see full report. Form scrolls below. Tap again to collapse.
+          </div>
+        </div>
+      </div>
+
+      <!-- Annotation: form pushed down -->
+      <div style="position:absolute; right:-200px; top:580px;">
+        <div style="display:flex; align-items:flex-start; gap:8px;">
+          <div style="color:#60a5fa; font-size:18px; margin-top:2px;">&#8592;</div>
+          <div class="annotation-text">
+            <strong>Form pushed down</strong> when thumbnail expands. Still scrollable.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━━ Screen 4: Processing ━━━ -->
+  <div class="phone-col">
+    <div class="phone-label"><span>4</span> &mdash; Processing</div>
+    <div class="iphone">
+      <div class="iphone-screen">
+        <div class="notch-bar">
+          <span class="status-time">9:43</span>
+          <div class="dynamic-island"></div>
+          <span class="status-icons">
+            <span style="font-size:13px">&#9679;&#9679;&#9679;&#9679;</span>
+            <span style="font-size:14px">&#128267;</span>
+          </span>
+        </div>
+        <div class="app-header">
+          <div class="app-logo">Richards <span>& Law</span></div>
+          <div class="app-avatar">AR</div>
+        </div>
+        <div class="screen-body process-body">
+          <div class="process-card">
+            <div class="process-title">Pushing to Clio...</div>
+            <div class="process-steps">
+              <div class="step-item">
+                <div class="step-icon step-done">&#10003;</div>
+                <span class="step-label done">Update custom fields</span>
+              </div>
+              <div class="step-item">
+                <div class="step-icon step-done">&#10003;</div>
+                <span class="step-label done">Generate retainer agreement</span>
+              </div>
+              <div class="step-item">
+                <div class="step-icon step-active">&#8635;</div>
+                <span class="step-label active">Create calendar entry</span>
+              </div>
+              <div class="step-item">
+                <div class="step-icon step-pending">&#9711;</div>
+                <span class="step-label pending">Send client email</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="home-indicator" style="background:rgba(0,0,0,0.04)"><div class="home-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━━ Screen 5: Success ━━━ -->
+  <div class="phone-col">
+    <div class="phone-label"><span>5</span> &mdash; Success</div>
+    <div class="iphone">
+      <div class="iphone-screen">
+        <div class="notch-bar">
+          <span class="status-time">9:43</span>
+          <div class="dynamic-island"></div>
+          <span class="status-icons">
+            <span style="font-size:13px">&#9679;&#9679;&#9679;&#9679;</span>
+            <span style="font-size:14px">&#128267;</span>
+          </span>
+        </div>
+        <div class="app-header">
+          <div class="app-logo">Richards <span>& Law</span></div>
+          <div class="app-avatar">AR</div>
+        </div>
+        <div class="screen-body success-body">
+          <div class="success-circle">&#10003;</div>
+          <div class="success-title">All Done!</div>
+          <div class="success-summary">
+            <div class="summary-row">
+              <div class="summary-icon">&#128203;</div>
+              <span class="summary-text"><strong>Noel v Freese</strong> &mdash; fields updated</span>
+            </div>
+            <div class="summary-row">
+              <div class="summary-icon">&#128196;</div>
+              <span class="summary-text">Retainer agreement generated</span>
+            </div>
+            <div class="summary-row">
+              <div class="summary-icon">&#128197;</div>
+              <span class="summary-text">SOL deadline: <strong>02/20/2032</strong></span>
+            </div>
+            <div class="summary-row">
+              <div class="summary-icon">&#9993;</div>
+              <span class="summary-text">Email sent to client</span>
+            </div>
+          </div>
+          <button class="btn-next">Process Next Report</button>
+        </div>
+        <div class="home-indicator"><div class="home-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /showcase -->
+
+</body>
+</html>

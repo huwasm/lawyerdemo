@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design 1: Tab-Based Layout — Desktop & Tablet</title>
+<style>
+  :root {
+    --clio-blue: #0070E0;
+    --clio-blue-dark: #005BBB;
+    --clio-blue-light: #E8F2FC;
+    --clio-text: #333333;
+    --clio-text-light: #666666;
+    --clio-bg: #F5F7FA;
+    --clio-white: #FFFFFF;
+    --clio-border: #D1D9E0;
+    --clio-success: #0D9B4A;
+    --clio-success-bg: #E6F7ED;
+    --clio-warning: #E67E22;
+    --clio-warning-bg: #FFF5EB;
+    --clio-error: #D63031;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #1a1a2e;
+    color: var(--clio-text);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ── Page header ── */
+  .page-header {
+    text-align: center;
+    padding: 48px 32px 12px;
+    color: #fff;
+  }
+  .page-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .page-header h1 span {
+    color: var(--clio-blue);
+  }
+  .page-header p {
+    font-size: 16px;
+    color: #aaa;
+    max-width: 820px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ── Section containers ── */
+  .device-section {
+    padding: 40px 48px 56px;
+  }
+  .section-title {
+    color: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .section-title .badge {
+    display: inline-block;
+    background: var(--clio-blue);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-left: 10px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .section-desc {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 32px;
+    max-width: 800px;
+  }
+  .section-divider {
+    border: none;
+    border-top: 1px solid #333;
+    margin: 0 48px;
+  }
+
+  /* ── Screen grid ── */
+  .screen-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+  }
+  .screen-grid-wide {
+    display: flex;
+    gap: 48px;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .screen-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+  .screen-label {
+    color: #ccc;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 14px;
+  }
+  .screen-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--clio-blue);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  /* ── Browser window frame ── */
+  .browser-frame {
+    background: #2a2a3a;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+      0 20px 60px rgba(0,0,0,0.5),
+      0 0 0 1px rgba(255,255,255,0.06);
+    width: 100%;
+    max-width: 680px;
+  }
+  .browser-frame.desktop-size {
+    max-width: 680px;
+  }
+  .browser-titlebar {
+    background: #3a3a4a;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .browser-dots {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .browser-dots span {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+  }
+  .browser-dots .dot-red { background: #ff5f57; }
+  .browser-dots .dot-yellow { background: #febc2e; }
+  .browser-dots .dot-green { background: #28c840; }
+  .browser-urlbar {
+    flex: 1;
+    background: #22222e;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: #999;
+    font-family: 'SF Mono', 'Menlo', monospace;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .browser-urlbar .lock {
+    color: var(--clio-success);
+    font-size: 11px;
+  }
+  .browser-viewport {
+    width: 100%;
+    aspect-ratio: 1280 / 800;
+    overflow: hidden;
+    position: relative;
+    background: var(--clio-bg);
+  }
+
+  /* ── iPad frame ── */
+  .ipad-frame {
+    background: #222;
+    border-radius: 24px;
+    padding: 16px;
+    box-shadow:
+      0 20px 60px rgba(0,0,0,0.5),
+      0 0 0 2px #333,
+      inset 0 0 0 1px #444;
+    width: 100%;
+    max-width: 480px;
+  }
+  .ipad-screen {
+    width: 100%;
+    aspect-ratio: 768 / 1024;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--clio-bg);
+    position: relative;
+  }
+
+  /* ═══════════════════════════════════════
+     APP COMPONENTS (shared across devices)
+     ═══════════════════════════════════════ */
+
+  /* App header - desktop */
+  .dt-header {
+    background: var(--clio-white);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--clio-border);
+    flex-shrink: 0;
+  }
+  .dt-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .dt-logo {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--clio-blue);
+  }
+  .dt-logo span { color: var(--clio-text-light); font-weight: 400; }
+  .dt-logo-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--clio-border);
+  }
+  .dt-logo-sub {
+    font-size: 13px;
+    color: var(--clio-text-light);
+    font-weight: 500;
+  }
+  .dt-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .clio-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--clio-blue-light);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 10px;
+    color: var(--clio-blue);
+    font-weight: 600;
+  }
+  .dt-username {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--clio-text);
+  }
+  .dt-avatar {
+    width: 32px; height: 32px;
+    background: var(--clio-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* Status bar */
+  .dt-status {
+    background: var(--clio-success-bg);
+    color: var(--clio-success);
+    padding: 8px 24px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .dt-status .dot {
+    width: 7px; height: 7px;
+    background: var(--clio-success);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── Two-panel layout ── */
+  .dt-body {
+    display: flex;
+    flex: 1;
+    height: 100%;
+    min-height: 0;
+  }
+  .dt-left-panel {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--clio-border);
+    min-height: 0;
+  }
+  .dt-left-panel.w40 {
+    width: 40%;
+  }
+  .dt-right-panel {
+    width: 55%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .dt-right-panel.w60 {
+    width: 60%;
+  }
+
+  /* Upload drop zone */
+  .dt-upload-zone {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    margin: 20px;
+    border: 2px dashed var(--clio-border);
+    border-radius: 12px;
+    background: var(--clio-white);
+    text-align: center;
+    gap: 12px;
+    transition: border-color 0.2s, background 0.2s;
+    cursor: pointer;
+  }
+  .dt-upload-zone:hover {
+    border-color: var(--clio-blue);
+    background: var(--clio-blue-light);
+  }
+  .dt-upload-icon {
+    width: 56px; height: 56px;
+    background: var(--clio-blue-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: var(--clio-blue);
+  }
+  .dt-upload-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--clio-text);
+  }
+  .dt-upload-sub {
+    font-size: 12px;
+    color: var(--clio-text-light);
+  }
+  .dt-upload-btns {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .dt-upload-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid var(--clio-border);
+    background: var(--clio-white);
+    color: var(--clio-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .dt-upload-btn.primary {
+    background: var(--clio-blue);
+    color: #fff;
+    border-color: var(--clio-blue);
+  }
+
+  /* Right-panel placeholder */
+  .dt-placeholder {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--clio-text-light);
+    font-size: 14px;
+    padding: 24px;
+    text-align: center;
+  }
+  .dt-placeholder-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .dt-placeholder-icon {
+    font-size: 40px;
+    opacity: 0.3;
+  }
+
+  /* Left panel document view */
+  .dt-doc-view {
+    flex: 1;
+    background: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .dt-report-placeholder {
+    width: 70%;
+    max-width: 240px;
+    background: #fff;
+    border-radius: 4px;
+    padding: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    font-size: 8px;
+    color: #555;
+    line-height: 1.4;
+  }
+  .dt-report-placeholder .rp-header {
+    font-size: 9px;
+    font-weight: 700;
+    text-align: center;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    color: #333;
+    letter-spacing: 0.5px;
+  }
+  .dt-report-placeholder .rp-line {
+    height: 4px;
+    background: #ddd;
+    border-radius: 2px;
+    margin: 3px 0;
+  }
+  .dt-report-placeholder .rp-line.short { width: 60%; }
+  .dt-report-placeholder .rp-line.med { width: 80%; }
+  .dt-report-placeholder .rp-box {
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 5px;
+    margin: 5px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    font-size: 7px;
+  }
+  .rp-field-lbl { color: #888; font-size: 6px; text-transform: uppercase; }
+  .rp-field-val { color: #333; font-weight: 500; }
+
+  /* Left panel tab bar */
+  .dt-tab-bar {
+    display: flex;
+    background: var(--clio-white);
+    border-top: 1px solid var(--clio-border);
+    flex-shrink: 0;
+  }
+  .dt-tab-bar .tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 8px 0;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--clio-text-light);
+    border: none;
+    background: none;
+    cursor: pointer;
+    position: relative;
+  }
+  .dt-tab-bar .tab.active {
+    color: var(--clio-blue);
+    font-weight: 600;
+  }
+  .dt-tab-bar .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 12px;
+    right: 12px;
+    height: 2px;
+    background: var(--clio-blue);
+    border-radius: 2px 2px 0 0;
+  }
+  .dt-tab-bar .tab-icon {
+    font-size: 12px;
+  }
+
+  /* Right panel form */
+  .dt-form {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 20px 16px;
+    background: var(--clio-bg);
+  }
+  .dt-form-section {
+    margin-bottom: 12px;
+  }
+  .dt-form-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--clio-text-light);
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--clio-border);
+  }
+  .dt-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 10px;
+  }
+  .dt-form-grid.single-col {
+    grid-template-columns: 1fr;
+  }
+  .dt-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .dt-form-group.full-width {
+    grid-column: 1 / -1;
+  }
+  .dt-form-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--clio-text-light);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .dt-confidence {
+    font-size: 7px;
+    padding: 1px 5px;
+    border-radius: 6px;
+    font-weight: 700;
+  }
+  .dt-confidence.high {
+    background: var(--clio-success-bg);
+    color: var(--clio-success);
+  }
+  .dt-confidence.med {
+    background: var(--clio-warning-bg);
+    color: var(--clio-warning);
+  }
+  .dt-form-input {
+    padding: 5px 8px;
+    border: 1px solid var(--clio-border);
+    border-radius: 5px;
+    font-size: 11px;
+    color: var(--clio-text);
+    background: var(--clio-white);
+    font-family: inherit;
+    outline: none;
+  }
+  .dt-form-input:focus {
+    border-color: var(--clio-blue);
+    box-shadow: 0 0 0 2px rgba(0,112,224,0.1);
+  }
+  .dt-form-input.disabled {
+    background: #eee;
+    color: #999;
+  }
+  .dt-form-textarea {
+    padding: 5px 8px;
+    border: 1px solid var(--clio-border);
+    border-radius: 5px;
+    font-size: 10px;
+    color: var(--clio-text);
+    background: var(--clio-white);
+    font-family: inherit;
+    resize: none;
+    line-height: 1.3;
+    outline: none;
+  }
+  select.dt-form-input {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 24px;
+  }
+
+  /* Footer bar */
+  .dt-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: var(--clio-white);
+    border-top: 1px solid var(--clio-border);
+    flex-shrink: 0;
+  }
+  .dt-btn {
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .dt-btn-gray {
+    background: #e8e8e8;
+    color: var(--clio-text-light);
+  }
+  .dt-btn-blue {
+    background: linear-gradient(135deg, var(--clio-blue), var(--clio-blue-dark));
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,112,224,0.3);
+  }
+
+  /* Processing overlay */
+  .dt-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .dt-modal-card {
+    background: var(--clio-white);
+    border-radius: 16px;
+    padding: 24px 28px;
+    width: 380px;
+    max-width: 90%;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+  }
+  .dt-modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--clio-text);
+    margin-bottom: 18px;
+    text-align: center;
+  }
+  .dt-step-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .dt-step-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--clio-text);
+  }
+  .dt-step-icon {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 11px;
+  }
+  .dt-step-icon.done {
+    background: var(--clio-success-bg);
+    color: var(--clio-success);
+    font-weight: 700;
+  }
+  .dt-step-icon.active {
+    background: var(--clio-blue-light);
+    color: var(--clio-blue);
+    position: relative;
+  }
+  .dt-step-icon.active::after {
+    content: '';
+    position: absolute;
+    width: 8px; height: 8px;
+    border: 2px solid var(--clio-blue);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .dt-step-icon.pending {
+    background: #f0f0f0;
+    color: #bbb;
+    border: 2px solid #ddd;
+  }
+  .dt-step-text.done { color: var(--clio-success); }
+  .dt-step-text.active { color: var(--clio-blue); font-weight: 600; }
+  .dt-step-text.pending { color: #bbb; }
+
+  /* Success modal */
+  .dt-success-check {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--clio-success-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    font-size: 28px;
+    color: var(--clio-success);
+  }
+  .dt-success-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--clio-text);
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .dt-success-list {
+    list-style: none;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 18px;
+    padding: 0;
+  }
+  .dt-success-list li {
+    font-size: 12px;
+    color: var(--clio-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dt-success-list .li-check {
+    color: var(--clio-success);
+    font-weight: 700;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .dt-success-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(135deg, var(--clio-blue), var(--clio-blue-dark));
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 12px rgba(0,112,224,0.3);
+  }
+
+  /* ── Annotations ── */
+  .annot-below {
+    margin-top: 12px;
+    text-align: center;
+    color: #888;
+    font-size: 12px;
+    font-style: italic;
+    max-width: 680px;
+  }
+  .annot-below .arrow {
+    color: var(--clio-blue);
+    font-style: normal;
+  }
+  .annot-callout {
+    display: inline-block;
+    background: rgba(0,112,224,0.12);
+    color: var(--clio-blue);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border-left: 3px solid var(--clio-blue);
+    margin: 6px 0;
+    font-style: normal;
+  }
+
+  /* Annotation lines pointing to frame elements */
+  .annotation-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+    max-width: 680px;
+  }
+  .annotation-tag {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid #444;
+    color: #aaa;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .annotation-tag .at-arrow {
+    color: var(--clio-blue);
+    font-style: normal;
+    font-weight: 700;
+  }
+
+  /* ── Tablet-specific form ── */
+  .tb-form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  /* Responsive page layout */
+  @media (max-width: 1400px) {
+    .screen-grid {
+      grid-template-columns: 1fr;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================================================================
+     PAGE HEADER
+     ================================================================ -->
+<div class="page-header">
+  <h1>Design 1: <span>Tab-Based Layout</span> &mdash; Desktop &amp; Tablet</h1>
+  <p>
+    How the tab-switching concept from the mobile mockup adapts to larger screens.
+    On desktop, both panels fit side by side &mdash; tabs switch document views in the left panel.
+    On tablet, the layout compresses but maintains the two-panel split.
+  </p>
+</div>
+
+<!-- ================================================================
+     SECTION 1: DESKTOP (1280 x 800)
+     ================================================================ -->
+<div class="device-section">
+  <div class="section-title">
+    Desktop
+    <span class="badge">1280 &times; 800</span>
+  </div>
+  <div class="section-desc">
+    On desktop, tabs are unnecessary for switching between document and form &mdash; both panels fit side by side.
+    Tabs in the left panel switch between the raw document view and a structured summary.
+  </div>
+
+  <div class="screen-grid">
+
+    <!-- ── Screen A: Upload (Desktop) ── -->
+    <div class="screen-col">
+      <div class="screen-label"><span class="screen-num">A</span> Upload</div>
+      <div class="browser-frame desktop-size">
+        <div class="browser-titlebar">
+          <div class="browser-dots">
+            <span class="dot-red"></span>
+            <span class="dot-yellow"></span>
+            <span class="dot-green"></span>
+          </div>
+          <div class="browser-urlbar">
+            <span class="lock">&#9679;</span>
+            localhost:3000
+          </div>
+        </div>
+        <div class="browser-viewport" style="display:flex; flex-direction:column;">
+          <!-- Header -->
+          <div class="dt-header">
+            <div class="dt-header-left">
+              <div class="dt-logo">Richards <span>&amp; Law</span></div>
+              <div class="dt-logo-divider"></div>
+              <div class="dt-logo-sub">Intake Dashboard</div>
+            </div>
+            <div class="dt-header-right">
+              <div class="clio-badge">Powered by Clio</div>
+              <div class="dt-username">Andrew Richards</div>
+              <div class="dt-avatar">AR</div>
+            </div>
+          </div>
+          <!-- Body: two panels -->
+          <div class="dt-body" style="flex:1;">
+            <!-- Left panel: upload drop zone -->
+            <div class="dt-left-panel">
+              <div class="dt-upload-zone">
+                <div class="dt-upload-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                </div>
+                <div class="dt-upload-text">Drop police report here or click to upload</div>
+                <div class="dt-upload-sub">PDF or photo &mdash; max 20 MB</div>
+                <div class="dt-upload-btns">
+                  <button class="dt-upload-btn primary">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    Camera
+                  </button>
+                  <button class="dt-upload-btn">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    Upload PDF
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!-- Right panel: placeholder -->
+            <div class="dt-right-panel">
+              <div class="dt-placeholder">
+                <div class="dt-placeholder-inner">
+                  <div class="dt-placeholder-icon">&#128196;</div>
+                  <div>Upload a police report to get started</div>
+                  <div style="font-size:12px; color:#aaa;">AI will extract data and match to a Clio Matter</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="annot-below">Clean two-panel split &mdash; left panel for document, right for data</div>
+      <div class="annotation-group">
+        <span class="annotation-tag"><span class="at-arrow">&uarr;</span> Camera + Upload options on all devices</span>
+      </div>
+    </div>
+
+    <!-- ── Screen B: Review (Desktop) ── -->
+    <div class="screen-col">
+      <div class="screen-label"><span class="screen-num">B</span> Review</div>
+      <div class="browser-frame desktop-size">
+        <div class="browser-titlebar">
+          <div class="browser-dots">
+            <span class="dot-red"></span>
+            <span class="dot-yellow"></span>
+            <span class="dot-green"></span>
+          </div>
+          <div class="browser-urlbar">
+            <span class="lock">&#9679;</span>
+            localhost:3000
+          </div>
+        </div>
+        <div class="browser-viewport" style="display:flex; flex-direction:column;">
+          <!-- Header -->
+          <div class="dt-header">
+            <div class="dt-header-left">
+              <div class="dt-logo">Richards <span>&amp; Law</span></div>
+              <div class="dt-logo-divider"></div>
+              <div class="dt-logo-sub">Intake Dashboard</div>
+            </div>
+            <div class="dt-header-right">
+              <div class="clio-badge">Powered by Clio</div>
+              <div class="dt-username">Andrew Richards</div>
+              <div class="dt-avatar">AR</div>
+            </div>
+          </div>
+          <!-- Status bar on right -->
+          <div class="dt-status">
+            <span class="dot"></span>
+            AI extraction complete &mdash; review fields below
+          </div>
+          <!-- Body -->
+          <div class="dt-body" style="flex:1;">
+            <!-- Left: document with tabs -->
+            <div class="dt-left-panel">
+              <div class="dt-doc-view" style="flex:1;">
+                <div class="dt-report-placeholder">
+                  <div class="rp-header">Florida Traffic Crash Report</div>
+                  <div class="rp-line"></div>
+                  <div class="rp-line short"></div>
+                  <div class="rp-box">
+                    <div><div class="rp-field-lbl">Report No.</div><div class="rp-field-val">2024-00127</div></div>
+                    <div><div class="rp-field-lbl">Date</div><div class="rp-field-val">01/15/2024</div></div>
+                    <div><div class="rp-field-lbl">Vehicle 1</div><div class="rp-field-val">Reyes, Guillermo</div></div>
+                    <div><div class="rp-field-lbl">Vehicle 2</div><div class="rp-field-val">Francois, Paul</div></div>
+                  </div>
+                  <div class="rp-line"></div>
+                  <div class="rp-line med"></div>
+                  <div class="rp-line"></div>
+                  <div class="rp-line short"></div>
+                  <div class="rp-box">
+                    <div><div class="rp-field-lbl">Location</div><div class="rp-field-val">NW 7th Ave &amp; 119 St</div></div>
+                    <div><div class="rp-field-lbl">Injuries</div><div class="rp-field-val">0</div></div>
+                  </div>
+                  <div class="rp-line"></div>
+                  <div class="rp-line med"></div>
+                </div>
+              </div>
+              <!-- Tab bar at bottom of left panel -->
+              <div class="dt-tab-bar">
+                <button class="tab active">
+                  <span class="tab-icon">&#128196;</span> Document
+                </button>
+                <button class="tab">
+                  <span class="tab-icon">&#128202;</span> Summary
+                </button>
+              </div>
+            </div>
+            <!-- Right: form -->
+            <div class="dt-right-panel" style="display:flex; flex-direction:column;">
+              <div class="dt-form" style="flex:1;">
+                <!-- Client Info -->
+                <div class="dt-form-section">
+                  <div class="dt-form-section-title">Client Information</div>
+                  <div class="dt-form-grid">
+                    <div class="dt-form-group">
+                      <label class="dt-form-label">First Name <span class="dt-confidence high">95%</span></label>
+                      <input class="dt-form-input" type="text" value="Guillermo" readonly>
+                    </div>
+                    <div class="dt-form-group">
+                      <label class="dt-form-label">Last Name <span class="dt-confidence high">97%</span></label>
+                      <input class="dt-form-input" type="text" value="Reyes" readonly>
+                    </div>
+                    <div class="dt-form-group">
+                      <label class="dt-form-label">Gender <span class="dt-confidence high">92%</span></label>
+                      <select class="dt-form-input"><option selected>Male</option><option>Female</option></select>
+                    </div>
+                    <div class="dt-form-group">
+                      <label class="dt-form-label">Plate <span class="dt-confidence med">78%</span></label>
+                      <input class="dt-form-input" type="text" value="ABC1234" readonly>
+                    </div>
+                  </div>
+                </div>
+                <!-- Accident -->
+                <div class="dt-form-section">
+                  <div class="dt-form-section-title">Accident Details</div>
+                  <div class="dt-form-grid">
+                    <div class="dt-form-group">
+                      <label class="dt-form-label">Date <span class="dt-confidence high">99%</span></label>
+                      <input class="dt-form-input" type="text" value="01/15/2024" readonly>
+                    </div>
+                    <div class="dt-form-group">
+                      <label class="dt-form-label">No. Injured <span class="dt-confidence high">95%</span></label>
+                      <input class="dt-form-input" type="text" value="0" readonly>
+                    </div>
+                    <div class="dt-form-group full-width">
+                      <label class="dt-form-label">Location <span class="dt-confidence high">93%</span></label>
+                      <input class="dt-form-input" type="text" value="NW 7th Ave & NW 119th St, Miami-Dade" readonly>
+                    </div>
+                    <div class="dt-form-group full-width">
+                      <label class="dt-form-label">Description <span class="dt-confidence med">82%</span></label>
+                      <textarea class="dt-form-textarea" rows="2" readonly style="font-size:9px;">Vehicle 2 ran red light at intersection, striking Vehicle 1 on driver side. Minor vehicle damage, no injuries reported.</textarea>
+                    </div>
+                  </div>
+                </div>
+                <!-- Defendant -->
+                <div class="dt-form-section">
+                  <div class="dt-form-section-title">Defendant</div>
+                  <div class="dt-form-grid">
+                    <div class="dt-form-group">
+                      <label class="dt-form-label">Name <span class="dt-confidence high">96%</span></label>
+                      <input class="dt-form-input" type="text" value="Paul Francois" readonly>
+                    </div>
+                    <div class="dt-form-group">
+                      <label class="dt-form-label">Vehicle <span class="dt-confidence med">80%</span></label>
+                      <input class="dt-form-input" type="text" value="2019 Honda Civic" readonly>
+                    </div>
+                  </div>
+                </div>
+                <!-- Clio -->
+                <div class="dt-form-section">
+                  <div class="dt-form-section-title">Clio Integration</div>
+                  <div class="dt-form-grid">
+                    <div class="dt-form-group">
+                      <label class="dt-form-label">Linked Matter</label>
+                      <input class="dt-form-input disabled" type="text" value="Reyes v Francois (#4201)" readonly>
+                    </div>
+                    <div class="dt-form-group">
+                      <label class="dt-form-label">Statute of Limitations</label>
+                      <input class="dt-form-input disabled" type="text" value="01/15/2032 (8 yrs)" readonly>
+                    </div>
+                  </div>
+                </div>
+                <!-- Email -->
+                <div class="dt-form-section">
+                  <div class="dt-form-section-title">Email</div>
+                  <div class="dt-form-grid">
+                    <div class="dt-form-group">
+                      <label class="dt-form-label">Send To</label>
+                      <input class="dt-form-input" type="text" value="g.reyes@email.com" readonly>
+                    </div>
+                    <div class="dt-form-group">
+                      <label class="dt-form-label">Calendly Link</label>
+                      <input class="dt-form-input" type="text" value="calendly.com/richards-law/winter" readonly style="font-size:9px;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Footer -->
+              <div class="dt-footer">
+                <button class="dt-btn dt-btn-gray">Reset</button>
+                <button class="dt-btn dt-btn-blue">Approve &amp; Push to Clio</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-group">
+        <span class="annotation-tag"><span class="at-arrow">&uarr;</span> Two-column form grid on desktop</span>
+        <span class="annotation-tag"><span class="at-arrow">&larr;</span> Tabs switch document view (PDF vs Summary)</span>
+      </div>
+    </div>
+
+    <!-- ── Screen C: Processing (Desktop) ── -->
+    <div class="screen-col">
+      <div class="screen-label"><span class="screen-num">C</span> Processing</div>
+      <div class="browser-frame desktop-size">
+        <div class="browser-titlebar">
+          <div class="browser-dots">
+            <span class="dot-red"></span>
+            <span class="dot-yellow"></span>
+            <span class="dot-green"></span>
+          </div>
+          <div class="browser-urlbar">
+            <span class="lock">&#9679;</span>
+            localhost:3000
+          </div>
+        </div>
+        <div class="browser-viewport" style="display:flex; flex-direction:column; position:relative;">
+          <!-- Dimmed background app -->
+          <div class="dt-header" style="opacity:0.4;">
+            <div class="dt-header-left">
+              <div class="dt-logo">Richards <span>&amp; Law</span></div>
+              <div class="dt-logo-divider"></div>
+              <div class="dt-logo-sub">Intake Dashboard</div>
+            </div>
+            <div class="dt-header-right">
+              <div class="clio-badge">Powered by Clio</div>
+              <div class="dt-username">Andrew Richards</div>
+              <div class="dt-avatar">AR</div>
+            </div>
+          </div>
+          <div class="dt-status" style="opacity:0.4;">
+            <span class="dot"></span>
+            AI extraction complete &mdash; review fields below
+          </div>
+          <div style="flex:1; opacity:0.3; background:var(--clio-bg);"></div>
+          <!-- Modal overlay -->
+          <div class="dt-overlay">
+            <div class="dt-modal-card">
+              <div class="dt-modal-title">Pushing to Clio...</div>
+              <ul class="dt-step-list">
+                <li class="dt-step-item">
+                  <span class="dt-step-icon done">&#10003;</span>
+                  <span class="dt-step-text done">Updating Matter custom fields</span>
+                </li>
+                <li class="dt-step-item">
+                  <span class="dt-step-icon done">&#10003;</span>
+                  <span class="dt-step-text done">Generating retainer agreement</span>
+                </li>
+                <li class="dt-step-item">
+                  <span class="dt-step-icon active"></span>
+                  <span class="dt-step-text active">Creating calendar entry (SOL)</span>
+                </li>
+                <li class="dt-step-item">
+                  <span class="dt-step-icon pending"></span>
+                  <span class="dt-step-text pending">Downloading retainer PDF</span>
+                </li>
+                <li class="dt-step-item">
+                  <span class="dt-step-icon pending"></span>
+                  <span class="dt-step-text pending">Sending email to client</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="annot-below">Center modal overlay &mdash; each step confirms in real-time</div>
+    </div>
+
+    <!-- ── Screen D: Success (Desktop) ── -->
+    <div class="screen-col">
+      <div class="screen-label"><span class="screen-num">D</span> Success</div>
+      <div class="browser-frame desktop-size">
+        <div class="browser-titlebar">
+          <div class="browser-dots">
+            <span class="dot-red"></span>
+            <span class="dot-yellow"></span>
+            <span class="dot-green"></span>
+          </div>
+          <div class="browser-urlbar">
+            <span class="lock">&#9679;</span>
+            localhost:3000
+          </div>
+        </div>
+        <div class="browser-viewport" style="display:flex; flex-direction:column; position:relative;">
+          <!-- Dimmed background -->
+          <div class="dt-header" style="opacity:0.4;">
+            <div class="dt-header-left">
+              <div class="dt-logo">Richards <span>&amp; Law</span></div>
+              <div class="dt-logo-divider"></div>
+              <div class="dt-logo-sub">Intake Dashboard</div>
+            </div>
+            <div class="dt-header-right">
+              <div class="clio-badge">Powered by Clio</div>
+              <div class="dt-username">Andrew Richards</div>
+              <div class="dt-avatar">AR</div>
+            </div>
+          </div>
+          <div style="flex:1; opacity:0.3; background:var(--clio-bg);"></div>
+          <!-- Success modal -->
+          <div class="dt-overlay">
+            <div class="dt-modal-card" style="text-align:center;">
+              <div class="dt-success-check">&#10003;</div>
+              <div class="dt-success-title">All Done!</div>
+              <ul class="dt-success-list">
+                <li><span class="li-check">&#10003;</span> Matter custom fields updated</li>
+                <li><span class="li-check">&#10003;</span> Retainer agreement generated</li>
+                <li><span class="li-check">&#10003;</span> SOL deadline calendared (01/15/2032)</li>
+                <li><span class="li-check">&#10003;</span> Email sent to g.reyes@email.com</li>
+              </ul>
+              <button class="dt-success-btn">Process Next Report</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="annot-below">Green confirmation with full summary of actions taken</div>
+    </div>
+
+  </div><!-- /screen-grid -->
+</div><!-- /device-section desktop -->
+
+<hr class="section-divider">
+
+<!-- ================================================================
+     SECTION 2: TABLET (768 x 1024)
+     ================================================================ -->
+<div class="device-section">
+  <div class="section-title">
+    Tablet
+    <span class="badge">768 &times; 1024</span>
+  </div>
+  <div class="section-desc">
+    The tab concept works well on tablet &mdash; side-by-side panels still fit but narrower.
+    The form switches to a single-column layout to give each field enough space.
+  </div>
+
+  <div class="screen-grid-wide">
+
+    <!-- ── Screen A: Upload (Tablet) ── -->
+    <div class="screen-col">
+      <div class="screen-label"><span class="screen-num">A</span> Upload</div>
+      <div class="ipad-frame">
+        <div class="ipad-screen" style="display:flex; flex-direction:column;">
+          <!-- Compact header -->
+          <div class="dt-header" style="padding:8px 16px;">
+            <div class="dt-header-left">
+              <div class="dt-logo" style="font-size:15px;">Richards <span>&amp; Law</span></div>
+              <div class="dt-logo-divider"></div>
+              <div class="dt-logo-sub" style="font-size:11px;">Intake</div>
+            </div>
+            <div class="dt-header-right">
+              <div class="clio-badge" style="font-size:9px;">Powered by Clio</div>
+              <div class="dt-avatar" style="width:28px; height:28px; font-size:10px;">AR</div>
+            </div>
+          </div>
+          <!-- Full-width upload zone -->
+          <div style="flex:1; display:flex; flex-direction:column; padding:16px;">
+            <div class="dt-upload-zone" style="flex:1; margin:0;">
+              <div class="dt-upload-icon" style="width:48px; height:48px; font-size:22px;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+              </div>
+              <div class="dt-upload-text" style="font-size:13px;">Drop police report here or click to upload</div>
+              <div class="dt-upload-sub" style="font-size:11px;">PDF or photo &mdash; max 20 MB</div>
+              <div class="dt-upload-btns">
+                <button class="dt-upload-btn primary" style="font-size:11px; padding:5px 12px;">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                  Camera
+                </button>
+                <button class="dt-upload-btn" style="font-size:11px; padding:5px 12px;">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  Upload PDF
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="annot-below">Full-width upload zone on tablet &mdash; single panel before data loads</div>
+      <div class="annotation-group">
+        <span class="annotation-tag"><span class="at-arrow">&uarr;</span> Camera + Upload options on all devices</span>
+      </div>
+    </div>
+
+    <!-- ── Screen B: Review (Tablet) ── -->
+    <div class="screen-col">
+      <div class="screen-label"><span class="screen-num">B</span> Review</div>
+      <div class="ipad-frame">
+        <div class="ipad-screen" style="display:flex; flex-direction:column;">
+          <!-- Compact header -->
+          <div class="dt-header" style="padding:8px 16px;">
+            <div class="dt-header-left">
+              <div class="dt-logo" style="font-size:15px;">Richards <span>&amp; Law</span></div>
+              <div class="dt-logo-divider"></div>
+              <div class="dt-logo-sub" style="font-size:11px;">Intake</div>
+            </div>
+            <div class="dt-header-right">
+              <div class="clio-badge" style="font-size:9px;">Powered by Clio</div>
+              <div class="dt-avatar" style="width:28px; height:28px; font-size:10px;">AR</div>
+            </div>
+          </div>
+          <!-- Status -->
+          <div class="dt-status" style="padding:6px 16px; font-size:10px;">
+            <span class="dot" style="width:6px; height:6px;"></span>
+            AI extraction complete &mdash; review fields below
+          </div>
+          <!-- Body: two panels (40/60) -->
+          <div class="dt-body" style="flex:1;">
+            <!-- Left: document -->
+            <div class="dt-left-panel w40">
+              <div class="dt-doc-view" style="flex:1;">
+                <div class="dt-report-placeholder" style="width:80%; font-size:6px;">
+                  <div class="rp-header" style="font-size:7px;">Florida Traffic Crash Report</div>
+                  <div class="rp-line"></div>
+                  <div class="rp-line short"></div>
+                  <div class="rp-box" style="font-size:5px; gap:2px; padding:3px;">
+                    <div><div class="rp-field-lbl" style="font-size:5px;">Report No.</div><div class="rp-field-val">2024-00127</div></div>
+                    <div><div class="rp-field-lbl" style="font-size:5px;">Date</div><div class="rp-field-val">01/15/2024</div></div>
+                    <div><div class="rp-field-lbl" style="font-size:5px;">Vehicle 1</div><div class="rp-field-val">Reyes, G.</div></div>
+                    <div><div class="rp-field-lbl" style="font-size:5px;">Vehicle 2</div><div class="rp-field-val">Francois, P.</div></div>
+                  </div>
+                  <div class="rp-line"></div>
+                  <div class="rp-line med"></div>
+                  <div class="rp-line"></div>
+                  <div class="rp-line short"></div>
+                  <div class="rp-line"></div>
+                  <div class="rp-line med"></div>
+                  <div class="rp-line short"></div>
+                </div>
+              </div>
+              <!-- Tab bar -->
+              <div class="dt-tab-bar">
+                <button class="tab active" style="font-size:9px; padding:6px 0;">
+                  <span class="tab-icon" style="font-size:10px;">&#128196;</span> Document
+                </button>
+                <button class="tab" style="font-size:9px; padding:6px 0;">
+                  <span class="tab-icon" style="font-size:10px;">&#128202;</span> Summary
+                </button>
+              </div>
+            </div>
+            <!-- Right: single-column form -->
+            <div class="dt-right-panel w60" style="display:flex; flex-direction:column;">
+              <div class="dt-form" style="flex:1; padding:10px 14px 12px;">
+                <!-- Client Info -->
+                <div class="dt-form-section">
+                  <div class="dt-form-section-title" style="font-size:8px; margin-bottom:5px;">Client Information</div>
+                  <div class="tb-form-grid">
+                    <div class="dt-form-group">
+                      <label class="dt-form-label" style="font-size:8px;">First Name <span class="dt-confidence high" style="font-size:6px;">95%</span></label>
+                      <input class="dt-form-input" style="font-size:9px; padding:4px 6px;" type="text" value="Guillermo" readonly>
+                    </div>
+                    <div class="dt-form-group">
+                      <label class="dt-form-label" style="font-size:8px;">Last Name <span class="dt-confidence high" style="font-size:6px;">97%</span></label>
+                      <input class="dt-form-input" style="font-size:9px; padding:4px 6px;" type="text" value="Reyes" readonly>
+                    </div>
+                    <div class="dt-form-group">
+                      <label class="dt-form-label" style="font-size:8px;">Gender <span class="dt-confidence high" style="font-size:6px;">92%</span></label>
+                      <select class="dt-form-input" style="font-size:9px; padding:4px 6px;"><option selected>Male</option></select>
+                    </div>
+                    <div class="dt-form-group">
+                      <label class="dt-form-label" style="font-size:8px;">Plate <span class="dt-confidence med" style="font-size:6px;">78%</span></label>
+                      <input class="dt-form-input" style="font-size:9px; padding:4px 6px;" type="text" value="ABC1234" readonly>
+                    </div>
+                  </div>
+                </div>
+                <!-- Accident -->
+                <div class="dt-form-section">
+                  <div class="dt-form-section-title" style="font-size:8px; margin-bottom:5px;">Accident Details</div>
+                  <div class="tb-form-grid">
+                    <div class="dt-form-group">
+                      <label class="dt-form-label" style="font-size:8px;">Date <span class="dt-confidence high" style="font-size:6px;">99%</span></label>
+                      <input class="dt-form-input" style="font-size:9px; padding:4px 6px;" type="text" value="01/15/2024" readonly>
+                    </div>
+                    <div class="dt-form-group">
+                      <label class="dt-form-label" style="font-size:8px;">No. Injured <span class="dt-confidence high" style="font-size:6px;">95%</span></label>
+                      <input class="dt-form-input" style="font-size:9px; padding:4px 6px;" type="text" value="0" readonly>
+                    </div>
+                    <div class="dt-form-group">
+                      <label class="dt-form-label" style="font-size:8px;">Location <span class="dt-confidence high" style="font-size:6px;">93%</span></label>
+                      <input class="dt-form-input" style="font-size:9px; padding:4px 6px;" type="text" value="NW 7th Ave & NW 119th St" readonly>
+                    </div>
+                    <div class="dt-form-group">
+                      <label class="dt-form-label" style="font-size:8px;">Description <span class="dt-confidence med" style="font-size:6px;">82%</span></label>
+                      <textarea class="dt-form-textarea" rows="2" readonly style="font-size:8px; padding:4px 6px;">Vehicle 2 ran red light at intersection, striking Vehicle 1. No injuries.</textarea>
+                    </div>
+                  </div>
+                </div>
+                <!-- Defendant -->
+                <div class="dt-form-section">
+                  <div class="dt-form-section-title" style="font-size:8px; margin-bottom:5px;">Defendant</div>
+                  <div class="tb-form-grid">
+                    <div class="dt-form-group">
+                      <label class="dt-form-label" style="font-size:8px;">Name <span class="dt-confidence high" style="font-size:6px;">96%</span></label>
+                      <input class="dt-form-input" style="font-size:9px; padding:4px 6px;" type="text" value="Paul Francois" readonly>
+                    </div>
+                    <div class="dt-form-group">
+                      <label class="dt-form-label" style="font-size:8px;">Vehicle <span class="dt-confidence med" style="font-size:6px;">80%</span></label>
+                      <input class="dt-form-input" style="font-size:9px; padding:4px 6px;" type="text" value="2019 Honda Civic" readonly>
+                    </div>
+                  </div>
+                </div>
+                <!-- Clio -->
+                <div class="dt-form-section">
+                  <div class="dt-form-section-title" style="font-size:8px; margin-bottom:5px;">Clio Integration</div>
+                  <div class="tb-form-grid">
+                    <div class="dt-form-group">
+                      <label class="dt-form-label" style="font-size:8px;">Linked Matter</label>
+                      <input class="dt-form-input disabled" style="font-size:9px; padding:4px 6px;" type="text" value="Reyes v Francois (#4201)" readonly>
+                    </div>
+                    <div class="dt-form-group">
+                      <label class="dt-form-label" style="font-size:8px;">SOL</label>
+                      <input class="dt-form-input disabled" style="font-size:9px; padding:4px 6px;" type="text" value="01/15/2032 (8 yrs)" readonly>
+                    </div>
+                  </div>
+                </div>
+                <!-- Email -->
+                <div class="dt-form-section">
+                  <div class="dt-form-section-title" style="font-size:8px; margin-bottom:5px;">Email</div>
+                  <div class="tb-form-grid">
+                    <div class="dt-form-group">
+                      <label class="dt-form-label" style="font-size:8px;">Send To</label>
+                      <input class="dt-form-input" style="font-size:9px; padding:4px 6px;" type="text" value="g.reyes@email.com" readonly>
+                    </div>
+                    <div class="dt-form-group">
+                      <label class="dt-form-label" style="font-size:8px;">Calendly Link</label>
+                      <input class="dt-form-input" style="font-size:8px; padding:4px 6px;" type="text" value="calendly.com/richards-law/winter" readonly>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Sticky footer -->
+              <div class="dt-footer" style="padding:7px 14px;">
+                <button class="dt-btn dt-btn-gray" style="font-size:10px; padding:5px 12px;">Reset</button>
+                <button class="dt-btn dt-btn-blue" style="font-size:10px; padding:5px 12px;">Approve &amp; Push to Clio</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-group">
+        <span class="annotation-tag"><span class="at-arrow">&uarr;</span> Single-column form on tablet</span>
+        <span class="annotation-tag"><span class="at-arrow">&larr;</span> Tabs switch document view (PDF vs Summary)</span>
+      </div>
+    </div>
+
+  </div><!-- /screen-grid-wide -->
+</div><!-- /device-section tablet -->
+
+</body>
+</html>

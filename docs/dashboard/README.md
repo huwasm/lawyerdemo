@@ -18,7 +18,9 @@ UI flow, components, and design decisions for the intake dashboard.
 
 ## Design Reference
 
-- `dashboard-demo.html` in project root — interactive HTML mockup
+- Original mockup: `docs/design-mockup/dashboard/dashboard-demo.html`
+- Responsive mockups: 5 designs in `docs/design-mockup/mobile/` and `docs/design-mockup/desktop/`
+- Admin mockups: 2 designs in `docs/design-mockup/admin/`
 - Clio brand colors: `#0070E0` (blue), `#333333` (dark), `#FFFFFF` (white)
 
 ## User Flow
@@ -58,7 +60,6 @@ All built inline in `app/page.tsx` (single-file for simplicity):
 |---|---|
 | `Section` | Form section with title and border |
 | `Field` | Label + confidence badge + input |
-| `Row` | PDF preview data row |
 | `confidenceBadge()` | Color-coded confidence score (green/yellow/red) |
 
 ## Confidence Scores
@@ -86,4 +87,5 @@ All steps fire via single `POST /api/approve` call — the step animation is vis
 - **Single page app** — no routing needed, all states managed via `phase` state variable
 - **No component files** — everything in `page.tsx` to avoid premature abstraction
 - **Editable fields** — team can correct AI extraction errors before approving
-- **PDF preview** — shows extracted data in report format (not the actual PDF render) for quick verification
+- **PDF viewer** — left panel shows the actual uploaded PDF via embedded `<iframe>` with blob URL (memory-safe cleanup on reset)
+- **Responsive designs ready** — 5 mobile/desktop/tablet mockups created, waiting for design choice before implementation

@@ -15,7 +15,7 @@ Session handover notes for continuity between developers and LLM sessions.
 | File | Description | Status |
 |------|-------------|--------|
 | README.md | This file — handover conventions | active |
-| [2026-02-28_initial_build.md](2026-02-28_initial_build.md) | First build session | active |
+| [2026-02-28_initial_build.md](2026-02-28_initial_build.md) | Full build session — MVP, dual AI providers, 14 design mockups, comprehensive handover | active |
 
 ## Naming Convention
 

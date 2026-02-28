@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design 4: Split Scroll — Mobile Legal Intake</title>
+<style>
+  :root {
+    --clio-blue: #0070E0;
+    --clio-blue-dark: #005BBB;
+    --clio-blue-light: #E8F2FC;
+    --clio-text: #333333;
+    --clio-text-light: #666666;
+    --clio-bg: #F5F7FA;
+    --clio-white: #FFFFFF;
+    --clio-border: #D1D9E0;
+    --clio-success: #0D9B4A;
+    --clio-success-bg: #E6F7ED;
+    --clio-warning: #E67E22;
+    --clio-warning-bg: #FFF5EB;
+    --clio-error: #D63031;
+    --phone-w: 393px;
+    --phone-h: 852px;
+    --frame-radius: 48px;
+    --frame-bezel: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #1a1a2e;
+    color: var(--clio-text);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ---- Page Header ---- */
+  .page-header {
+    text-align: center;
+    padding: 48px 32px 12px;
+    color: #fff;
+  }
+  .page-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .page-header h1 span {
+    color: var(--clio-blue);
+  }
+  .page-header p {
+    font-size: 16px;
+    color: #a0a0b8;
+    max-width: 680px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ---- Showcase Container ---- */
+  .showcase {
+    display: flex;
+    gap: 48px;
+    padding: 40px 48px 60px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .showcase::-webkit-scrollbar {
+    height: 8px;
+  }
+  .showcase::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+  }
+  .showcase::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 4px;
+  }
+
+  /* ---- Screen Group ---- */
+  .screen-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    scroll-snap-align: center;
+    position: relative;
+  }
+  .screen-label {
+    color: #a0a0b8;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 16px;
+  }
+  .screen-label .num {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    background: var(--clio-blue);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 12px;
+    margin-right: 8px;
+    letter-spacing: 0;
+  }
+
+  /* ---- Flow arrows between phones ---- */
+  .flow-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    gap: 6px;
+    flex-shrink: 0;
+    margin-top: 20px;
+  }
+  .flow-arrow .arrow-line {
+    width: 40px;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.1), var(--clio-blue), rgba(255,255,255,0.1));
+    position: relative;
+  }
+  .flow-arrow .arrow-line::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: -4px;
+    border: 5px solid transparent;
+    border-left-color: var(--clio-blue);
+  }
+  .flow-arrow .arrow-text {
+    font-size: 10px;
+    color: #8080a0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  /* ---- iPhone Frame ---- */
+  .phone-frame {
+    width: calc(var(--phone-w) + var(--frame-bezel) * 2);
+    height: calc(var(--phone-h) + var(--frame-bezel) * 2);
+    background: #1c1c1e;
+    border-radius: var(--frame-radius);
+    padding: var(--frame-bezel);
+    box-shadow:
+      0 0 0 2px #333,
+      0 20px 60px rgba(0,0,0,0.5),
+      inset 0 0 0 1px rgba(255,255,255,0.05);
+    position: relative;
+  }
+  .phone-screen {
+    width: var(--phone-w);
+    height: var(--phone-h);
+    background: var(--clio-bg);
+    border-radius: calc(var(--frame-radius) - var(--frame-bezel));
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Dynamic Island */
+  .phone-screen::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 36px;
+    background: #1c1c1e;
+    border-radius: 20px;
+    z-index: 10;
+  }
+
+  /* Home indicator */
+  .phone-screen::after {
+    content: '';
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 134px;
+    height: 5px;
+    background: #333;
+    border-radius: 3px;
+    z-index: 10;
+  }
+
+  /* ---- Status Bar ---- */
+  .status-bar {
+    height: 54px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 28px 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--clio-text);
+    flex-shrink: 0;
+  }
+  .status-bar .time { font-size: 16px; font-weight: 700; }
+  .status-icons { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+
+  /* ---- App Header ---- */
+  .app-header {
+    background: var(--clio-white);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--clio-border);
+    flex-shrink: 0;
+  }
+  .app-logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--clio-blue);
+    letter-spacing: -0.3px;
+  }
+  .app-logo span { color: var(--clio-text); font-weight: 400; }
+  .app-avatar {
+    width: 34px;
+    height: 34px;
+    background: var(--clio-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* ---- Shared content area ---- */
+  .content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ============ SCREEN 1: Upload ============ */
+  .upload-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 32px;
+    gap: 32px;
+  }
+  .upload-icon-area {
+    width: 100px;
+    height: 100px;
+    background: var(--clio-blue-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .upload-icon-area svg {
+    width: 44px;
+    height: 44px;
+    color: var(--clio-blue);
+  }
+  .upload-buttons {
+    display: flex;
+    gap: 14px;
+    width: 100%;
+    max-width: 320px;
+  }
+  .btn-upload {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 12px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 2px solid var(--clio-blue);
+    transition: all 0.2s;
+  }
+  .btn-upload.primary {
+    background: var(--clio-blue);
+    color: #fff;
+  }
+  .btn-upload.secondary {
+    background: var(--clio-white);
+    color: var(--clio-blue);
+  }
+  .btn-upload svg {
+    width: 28px;
+    height: 28px;
+  }
+  .upload-hint {
+    font-size: 14px;
+    color: var(--clio-text-light);
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  /* ============ SCREEN 2: Extracting ============ */
+  .extract-split {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .extract-top {
+    height: 40%;
+    position: relative;
+    background: #e8e8ec;
+    overflow: hidden;
+  }
+  .extract-top .report-placeholder {
+    width: 100%;
+    height: 100%;
+    opacity: 0.35;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 6px;
+  }
+  .report-line {
+    height: 8px;
+    background: #aaa;
+    border-radius: 4px;
+  }
+  .report-line.short { width: 40%; }
+  .report-line.med { width: 65%; }
+  .report-line.long { width: 85%; }
+  .report-line.full { width: 100%; }
+  .report-line.title {
+    height: 12px;
+    width: 50%;
+    background: #888;
+    margin-bottom: 6px;
+  }
+
+  /* Scan line animation */
+  .scan-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--clio-blue), transparent);
+    box-shadow: 0 0 20px var(--clio-blue), 0 0 60px rgba(0,112,224,0.3);
+    animation: scanMove 2s ease-in-out infinite;
+    z-index: 2;
+  }
+  @keyframes scanMove {
+    0%, 100% { top: 10%; }
+    50% { top: 85%; }
+  }
+
+  .extract-overlay-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.65);
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 3;
+  }
+  .extract-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .extract-bottom {
+    height: 60%;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: var(--clio-white);
+  }
+  .skeleton-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .skeleton-label {
+    width: 90px;
+    height: 10px;
+    background: #e0e0e0;
+    border-radius: 5px;
+  }
+  .skeleton-bar {
+    height: 16px;
+    background: linear-gradient(90deg, #e8e8e8 25%, #f0f0f0 50%, #e8e8e8 75%);
+    background-size: 200% 100%;
+    border-radius: 8px;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+  .skeleton-bar.w80 { width: 80%; }
+  .skeleton-bar.w60 { width: 60%; }
+  .skeleton-bar.w90 { width: 90%; }
+  .skeleton-bar.w70 { width: 70%; }
+  .skeleton-bar.w50 { width: 50%; }
+  .skeleton-bar.w40 { width: 40%; }
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ============ SCREEN 3: Review (Split Scroll) ============ */
+  .review-status-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--clio-success-bg);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--clio-success);
+    flex-shrink: 0;
+  }
+  .review-status-bar svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .split-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Top pinned photo area */
+  .split-top {
+    height: 40%;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 4;
+    background: #d6d6db;
+    overflow: hidden;
+  }
+  .split-top-shadow {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.15));
+    z-index: 5;
+  }
+
+  /* Mock police report in the pinned area */
+  .mock-report {
+    width: 100%;
+    height: 100%;
+    padding: 16px 20px 12px;
+    background: #fff;
+    margin: 8px;
+    width: calc(100% - 16px);
+    height: calc(100% - 12px);
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+    font-family: 'Courier New', monospace;
+    font-size: 8px;
+    color: #444;
+    line-height: 1.4;
+    overflow: hidden;
+  }
+  .mock-report .report-header {
+    text-align: center;
+    font-weight: 700;
+    font-size: 9px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #222;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 4px;
+  }
+  .mock-report .report-subheader {
+    text-align: center;
+    font-size: 7.5px;
+    color: #666;
+    margin-bottom: 8px;
+  }
+  .mock-report .report-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 3px;
+  }
+  .mock-report .report-field {
+    display: flex;
+    gap: 3px;
+  }
+  .mock-report .report-field .label {
+    font-weight: 700;
+    color: #333;
+    white-space: nowrap;
+    font-size: 7px;
+    text-transform: uppercase;
+  }
+  .mock-report .report-field .value {
+    color: #555;
+    font-size: 7.5px;
+  }
+  .mock-report .report-section {
+    font-weight: 700;
+    font-size: 7.5px;
+    color: #222;
+    margin-top: 6px;
+    margin-bottom: 3px;
+    border-bottom: 0.5px solid #ddd;
+    padding-bottom: 2px;
+    text-transform: uppercase;
+  }
+  .mock-report .report-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 4px;
+  }
+  .mock-report .report-table th,
+  .mock-report .report-table td {
+    border: 0.5px solid #ccc;
+    padding: 2px 4px;
+    text-align: left;
+    font-size: 7px;
+  }
+  .mock-report .report-table th {
+    background: #f0f0f0;
+    font-weight: 700;
+    font-size: 6.5px;
+    text-transform: uppercase;
+  }
+
+  /* Bottom scrollable form area */
+  .split-bottom {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--clio-bg);
+    position: relative;
+  }
+  /* Visual overlap: form sliding under the photo */
+  .split-bottom::before {
+    content: '';
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: block;
+    height: 6px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.08), transparent);
+    z-index: 3;
+  }
+
+  .form-scroll-content {
+    padding: 16px 20px 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .form-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--clio-text);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--clio-border);
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .form-field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--clio-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .form-field-value {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--clio-text);
+    background: var(--clio-white);
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--clio-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .confidence-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
+  }
+  .confidence-high {
+    background: var(--clio-success-bg);
+    color: var(--clio-success);
+  }
+  .confidence-med {
+    background: var(--clio-warning-bg);
+    color: var(--clio-warning);
+  }
+
+  .form-row {
+    display: flex;
+    gap: 12px;
+  }
+  .form-row .form-field { flex: 1; }
+
+  /* Sticky bottom action bar */
+  .sticky-bottom-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px 20px 28px;
+    background: linear-gradient(to top, var(--clio-white) 70%, transparent);
+    display: flex;
+    gap: 12px;
+    z-index: 6;
+  }
+  .btn-reset {
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    background: var(--clio-white);
+    color: var(--clio-text-light);
+    border: 1px solid var(--clio-border);
+    cursor: pointer;
+  }
+  .btn-approve {
+    flex: 1;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    background: var(--clio-blue);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  /* ============ SCREEN 4: Processing ============ */
+  .processing-overlay {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.04);
+    padding: 20px;
+  }
+  .processing-card {
+    background: var(--clio-white);
+    border-radius: 20px;
+    padding: 32px 28px;
+    width: 100%;
+    max-width: 340px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  }
+  .processing-card h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--clio-text);
+    margin-bottom: 6px;
+  }
+  .processing-card .sub {
+    font-size: 13px;
+    color: var(--clio-text-light);
+    margin-bottom: 24px;
+  }
+  .step-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .step-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 14px;
+    color: var(--clio-text);
+  }
+  .step-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-icon.done {
+    background: var(--clio-success-bg);
+    color: var(--clio-success);
+  }
+  .step-icon.active {
+    background: var(--clio-blue-light);
+    color: var(--clio-blue);
+    position: relative;
+  }
+  .step-icon.active::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border: 2px solid var(--clio-blue);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  .step-icon.pending {
+    background: #f0f0f0;
+    color: #ccc;
+  }
+  .step-item.completed { color: var(--clio-text-light); }
+  .step-item.waiting { color: #bbb; }
+
+  /* ============ SCREEN 5: Success ============ */
+  .success-overlay {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    gap: 24px;
+    background: var(--clio-white);
+  }
+  .success-check {
+    width: 88px;
+    height: 88px;
+    background: var(--clio-success-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes popIn {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+  }
+  .success-check svg {
+    width: 44px;
+    height: 44px;
+    color: var(--clio-success);
+  }
+  .success-overlay h3 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--clio-text);
+  }
+  .success-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 300px;
+  }
+  .success-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--clio-text-light);
+    padding: 10px 16px;
+    background: var(--clio-bg);
+    border-radius: 10px;
+  }
+  .success-line svg {
+    width: 18px;
+    height: 18px;
+    color: var(--clio-success);
+    flex-shrink: 0;
+  }
+  .btn-next-report {
+    width: 100%;
+    max-width: 300px;
+    padding: 16px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    background: var(--clio-blue);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  /* ============ ANNOTATIONS ============ */
+  .annotation-wrapper {
+    position: relative;
+  }
+
+  .annotation {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #FFD700;
+    white-space: nowrap;
+    z-index: 20;
+    pointer-events: none;
+  }
+  .annotation-line {
+    width: 40px;
+    height: 2px;
+    background: rgba(255,215,0,0.5);
+    flex-shrink: 0;
+  }
+  .annotation-text {
+    padding: 4px 10px;
+    background: rgba(255,215,0,0.12);
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 6px;
+    font-size: 11px;
+    line-height: 1.3;
+  }
+  .annotation-arrow {
+    width: 0;
+    height: 0;
+    flex-shrink: 0;
+  }
+  .annotation-arrow.left {
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-right: 8px solid rgba(255,215,0,0.5);
+  }
+  .annotation-arrow.right {
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 8px solid rgba(255,215,0,0.5);
+  }
+
+  /* Bottom annotation under screen 3 */
+  .bottom-annotation {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #a0a0b8;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 20px;
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .bottom-annotation svg {
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- Page Header -->
+<div class="page-header">
+  <h1>Design 4: <span>Split Scroll</span></h1>
+  <p>The uploaded report sticks to the top 40% of the screen while the extracted data form scrolls independently underneath. Enables side-by-side reference without losing sight of the source document.</p>
+</div>
+
+<!-- Showcase -->
+<div class="showcase">
+
+  <!-- ==================== SCREEN 1: Upload ==================== -->
+  <div class="screen-group">
+    <div class="screen-label"><span class="num">1</span> Upload</div>
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <!-- Status Bar -->
+        <div class="status-bar">
+          <div class="time">9:41</div>
+          <div class="status-icons">
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4.5" y="2" width="3" height="10" rx="1"/><rect x="9" y="0.5" width="3" height="11.5" rx="1"/><rect x="13" y="0" width="3" height="12" rx="1"/></svg>
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0.5" y="0.5" width="13" height="9" rx="1.5" stroke="currentColor" fill="none" stroke-width="1"/><rect x="14" y="3" width="2" height="4" rx="0.5"/><rect x="2" y="2" width="10" height="6" rx="0.5" fill="currentColor"/></svg>
+          </div>
+        </div>
+        <!-- App Header -->
+        <div class="app-header">
+          <div class="app-logo">Richards <span>&</span> Law</div>
+          <div class="app-avatar">AR</div>
+        </div>
+        <!-- Upload Body -->
+        <div class="content-area">
+          <div class="upload-body">
+            <div class="upload-icon-area">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+            </div>
+            <div class="upload-buttons">
+              <div class="btn-upload primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Take Photo
+              </div>
+              <div class="btn-upload secondary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Upload PDF
+              </div>
+            </div>
+            <div class="upload-hint">Snap or upload a police report to begin</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div class="flow-arrow">
+    <div class="arrow-text">Upload</div>
+    <div class="arrow-line"></div>
+  </div>
+
+  <!-- ==================== SCREEN 2: Extracting ==================== -->
+  <div class="screen-group">
+    <div class="screen-label"><span class="num">2</span> Extracting</div>
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="status-bar">
+          <div class="time">9:41</div>
+          <div class="status-icons">
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4.5" y="2" width="3" height="10" rx="1"/><rect x="9" y="0.5" width="3" height="11.5" rx="1"/><rect x="13" y="0" width="3" height="12" rx="1"/></svg>
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0.5" y="0.5" width="13" height="9" rx="1.5" stroke="currentColor" fill="none" stroke-width="1"/><rect x="14" y="3" width="2" height="4" rx="0.5"/><rect x="2" y="2" width="10" height="6" rx="0.5" fill="currentColor"/></svg>
+          </div>
+        </div>
+        <div class="app-header">
+          <div class="app-logo">Richards <span>&</span> Law</div>
+          <div class="app-avatar">AR</div>
+        </div>
+        <div class="content-area">
+          <div class="extract-split">
+            <!-- Top: faded report with scan line -->
+            <div class="extract-top">
+              <div class="scan-line"></div>
+              <div class="report-placeholder">
+                <div class="report-line title"></div>
+                <div class="report-line short" style="margin-bottom:10px"></div>
+                <div class="report-line long"></div>
+                <div class="report-line full"></div>
+                <div class="report-line med"></div>
+                <div class="report-line long"></div>
+                <div class="report-line short"></div>
+                <div class="report-line full"></div>
+                <div class="report-line med"></div>
+                <div class="report-line long"></div>
+                <div class="report-line short"></div>
+                <div class="report-line full"></div>
+                <div class="report-line med" style="margin-top:8px"></div>
+                <div class="report-line long"></div>
+                <div class="report-line short"></div>
+                <div class="report-line full"></div>
+                <div class="report-line med"></div>
+                <div class="report-line long"></div>
+              </div>
+              <div class="extract-overlay-text">
+                <div class="extract-spinner"></div>
+                Analyzing report...
+              </div>
+            </div>
+            <!-- Bottom: skeleton loading -->
+            <div class="extract-bottom">
+              <div class="skeleton-group">
+                <div class="skeleton-label"></div>
+                <div class="skeleton-bar w80"></div>
+              </div>
+              <div class="skeleton-group">
+                <div class="skeleton-label" style="width:70px"></div>
+                <div class="skeleton-bar w60"></div>
+              </div>
+              <div class="skeleton-group">
+                <div class="skeleton-label" style="width:110px"></div>
+                <div class="skeleton-bar w90"></div>
+              </div>
+              <div class="skeleton-group">
+                <div class="skeleton-label" style="width:60px"></div>
+                <div class="skeleton-bar w50"></div>
+              </div>
+              <div class="skeleton-group">
+                <div class="skeleton-label" style="width:100px"></div>
+                <div class="skeleton-bar w70"></div>
+              </div>
+              <div class="skeleton-group">
+                <div class="skeleton-label" style="width:80px"></div>
+                <div class="skeleton-bar w40"></div>
+              </div>
+              <div class="skeleton-group">
+                <div class="skeleton-label" style="width:95px"></div>
+                <div class="skeleton-bar w80" style="animation-delay: 0.3s"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div class="flow-arrow">
+    <div class="arrow-text">Extract</div>
+    <div class="arrow-line"></div>
+  </div>
+
+  <!-- ==================== SCREEN 3: Review (Split Scroll) ==================== -->
+  <div class="screen-group annotation-wrapper">
+    <div class="screen-label"><span class="num">3</span> Review</div>
+
+    <!-- Left annotation: photo stays pinned -->
+    <div class="annotation" style="top: 240px; left: -195px;">
+      <div class="annotation-text">Photo stays pinned<br>to top 40%</div>
+      <div class="annotation-line"></div>
+      <div class="annotation-arrow right"></div>
+    </div>
+
+    <!-- Left annotation: form scrolls underneath -->
+    <div class="annotation" style="top: 530px; left: -195px;">
+      <div class="annotation-text">Form scrolls<br>underneath</div>
+      <div class="annotation-line"></div>
+      <div class="annotation-arrow right"></div>
+    </div>
+
+    <!-- Right annotation: shadow overlap -->
+    <div class="annotation" style="top: 395px; right: -200px;">
+      <div class="annotation-arrow left"></div>
+      <div class="annotation-line"></div>
+      <div class="annotation-text">Shadow creates<br>depth separation</div>
+    </div>
+
+    <!-- Right annotation: sticky bar -->
+    <div class="annotation" style="top: 770px; right: -200px;">
+      <div class="annotation-arrow left"></div>
+      <div class="annotation-line"></div>
+      <div class="annotation-text">Sticky action bar</div>
+    </div>
+
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="status-bar">
+          <div class="time">9:42</div>
+          <div class="status-icons">
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4.5" y="2" width="3" height="10" rx="1"/><rect x="9" y="0.5" width="3" height="11.5" rx="1"/><rect x="13" y="0" width="3" height="12" rx="1"/></svg>
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0.5" y="0.5" width="13" height="9" rx="1.5" stroke="currentColor" fill="none" stroke-width="1"/><rect x="14" y="3" width="2" height="4" rx="0.5"/><rect x="2" y="2" width="10" height="6" rx="0.5" fill="currentColor"/></svg>
+          </div>
+        </div>
+        <div class="app-header">
+          <div class="app-logo">Richards <span>&</span> Law</div>
+          <div class="app-avatar">AR</div>
+        </div>
+        <div class="content-area">
+          <!-- Green status -->
+          <div class="review-status-bar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Ready for review
+          </div>
+
+          <div class="split-container">
+            <!-- Pinned top: mock report -->
+            <div class="split-top">
+              <div class="mock-report">
+                <div class="report-header">State of Florida<br>Uniform Traffic Crash Report</div>
+                <div class="report-subheader">Long Form &mdash; Florida Dept. of Highway Safety</div>
+                <div class="report-row">
+                  <div class="report-field"><span class="label">Report #:</span> <span class="value">2024-04-3281</span></div>
+                  <div class="report-field" style="margin-left:auto"><span class="label">Date:</span> <span class="value">04/10/2024</span></div>
+                </div>
+                <div class="report-row">
+                  <div class="report-field"><span class="label">County:</span> <span class="value">Miami-Dade</span></div>
+                  <div class="report-field" style="margin-left:auto"><span class="label">Time:</span> <span class="value">14:32</span></div>
+                </div>
+                <div class="report-section">Vehicle / Party Information</div>
+                <table class="report-table">
+                  <tr>
+                    <th></th><th>Vehicle 1</th><th>Vehicle 2</th>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:700">Driver</td>
+                    <td>Hyunwoo Kim</td>
+                    <td>John Grillo (Bicyclist)</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:700">DOB</td>
+                    <td>03/15/1985</td>
+                    <td>07/22/1990</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:700">Plate</td>
+                    <td>FL ABC-1234</td>
+                    <td>N/A</td>
+                  </tr>
+                </table>
+                <div class="report-section">Crash Description</div>
+                <div style="font-size:7px; line-height:1.5; color:#555">
+                  V1 traveling NB on NW 2nd Ave. V2 (bicyclist) crossing intersection at NW 14th St. V1 failed to yield right of way. V2 struck on left side. No injuries reported at scene.
+                </div>
+              </div>
+              <div class="split-top-shadow"></div>
+            </div>
+
+            <!-- Scrollable bottom form (shown partially scrolled) -->
+            <div class="split-bottom">
+              <div class="form-scroll-content" style="margin-top: -8px;">
+                <div class="form-section-title">Client Information</div>
+
+                <div class="form-field">
+                  <div class="form-field-label">Client Name</div>
+                  <div class="form-field-value">
+                    John Grillo
+                    <span class="confidence-badge confidence-high">98%</span>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-field">
+                    <div class="form-field-label">Gender</div>
+                    <div class="form-field-value">
+                      Male
+                      <span class="confidence-badge confidence-high">95%</span>
+                    </div>
+                  </div>
+                  <div class="form-field">
+                    <div class="form-field-label">Plate</div>
+                    <div class="form-field-value">
+                      N/A - Bicyclist
+                      <span class="confidence-badge confidence-high">99%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section-title" style="margin-top: 4px;">Accident Details</div>
+
+                <div class="form-row">
+                  <div class="form-field">
+                    <div class="form-field-label">Accident Date</div>
+                    <div class="form-field-value">
+                      04/10/2024
+                      <span class="confidence-badge confidence-high">99%</span>
+                    </div>
+                  </div>
+                  <div class="form-field">
+                    <div class="form-field-label"># Injured</div>
+                    <div class="form-field-value">
+                      0
+                      <span class="confidence-badge confidence-high">97%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-field">
+                  <div class="form-field-label">Location</div>
+                  <div class="form-field-value">
+                    NW 2nd Ave & NW 14th St, Miami
+                    <span class="confidence-badge confidence-high">96%</span>
+                  </div>
+                </div>
+
+                <div class="form-field">
+                  <div class="form-field-label">Defendant Name</div>
+                  <div class="form-field-value">
+                    Hyunwoo Kim
+                    <span class="confidence-badge confidence-med">88%</span>
+                  </div>
+                </div>
+
+                <div class="form-field">
+                  <div class="form-field-label">Description</div>
+                  <div class="form-field-value" style="font-size:13px; line-height:1.5; align-items: flex-start; min-height: 70px;">
+                    V1 failed to yield right of way to bicyclist V2 at intersection. V2 struck on left side.
+                    <span class="confidence-badge confidence-high" style="margin-top:2px">94%</span>
+                  </div>
+                </div>
+
+                <!-- Extra space so form can scroll under -->
+                <div style="height: 20px;"></div>
+              </div>
+            </div>
+
+            <!-- Sticky bottom bar -->
+            <div class="sticky-bottom-bar">
+              <button class="btn-reset">Reset</button>
+              <button class="btn-approve">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Approve & Push to Clio
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-annotation">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      Key screen: split scroll keeps report visible while reviewing data
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div class="flow-arrow">
+    <div class="arrow-text">Approve</div>
+    <div class="arrow-line"></div>
+  </div>
+
+  <!-- ==================== SCREEN 4: Processing ==================== -->
+  <div class="screen-group">
+    <div class="screen-label"><span class="num">4</span> Processing</div>
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="status-bar">
+          <div class="time">9:42</div>
+          <div class="status-icons">
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4.5" y="2" width="3" height="10" rx="1"/><rect x="9" y="0.5" width="3" height="11.5" rx="1"/><rect x="13" y="0" width="3" height="12" rx="1"/></svg>
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0.5" y="0.5" width="13" height="9" rx="1.5" stroke="currentColor" fill="none" stroke-width="1"/><rect x="14" y="3" width="2" height="4" rx="0.5"/><rect x="2" y="2" width="10" height="6" rx="0.5" fill="currentColor"/></svg>
+          </div>
+        </div>
+        <div class="app-header">
+          <div class="app-logo">Richards <span>&</span> Law</div>
+          <div class="app-avatar">AR</div>
+        </div>
+        <div class="content-area">
+          <div class="processing-overlay">
+            <div class="processing-card">
+              <h3>Pushing to Clio...</h3>
+              <div class="sub">Automating your workflow</div>
+              <div class="step-list">
+                <!-- Step 1: done -->
+                <div class="step-item completed">
+                  <div class="step-icon done">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  Updating Matter custom fields
+                </div>
+                <!-- Step 2: done -->
+                <div class="step-item completed">
+                  <div class="step-icon done">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  Generating retainer agreement
+                </div>
+                <!-- Step 3: active -->
+                <div class="step-item">
+                  <div class="step-icon active">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg>
+                  </div>
+                  Creating calendar entry
+                </div>
+                <!-- Step 4: pending -->
+                <div class="step-item waiting">
+                  <div class="step-icon pending">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg>
+                  </div>
+                  Downloading retainer PDF
+                </div>
+                <!-- Step 5: pending -->
+                <div class="step-item waiting">
+                  <div class="step-icon pending">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg>
+                  </div>
+                  Sending email to client
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div class="flow-arrow">
+    <div class="arrow-text">Complete</div>
+    <div class="arrow-line"></div>
+  </div>
+
+  <!-- ==================== SCREEN 5: Success ==================== -->
+  <div class="screen-group">
+    <div class="screen-label"><span class="num">5</span> Complete</div>
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="status-bar">
+          <div class="time">9:43</div>
+          <div class="status-icons">
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4.5" y="2" width="3" height="10" rx="1"/><rect x="9" y="0.5" width="3" height="11.5" rx="1"/><rect x="13" y="0" width="3" height="12" rx="1"/></svg>
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0.5" y="0.5" width="13" height="9" rx="1.5" stroke="currentColor" fill="none" stroke-width="1"/><rect x="14" y="3" width="2" height="4" rx="0.5"/><rect x="2" y="2" width="10" height="6" rx="0.5" fill="currentColor"/></svg>
+          </div>
+        </div>
+        <div class="app-header">
+          <div class="app-logo">Richards <span>&</span> Law</div>
+          <div class="app-avatar">AR</div>
+        </div>
+        <div class="content-area">
+          <div class="success-overlay">
+            <div class="success-check">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h3>All Done!</h3>
+            <div class="success-summary">
+              <div class="success-line">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Matter fields updated in Clio
+              </div>
+              <div class="success-line">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Retainer agreement generated
+              </div>
+              <div class="success-line">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Calendar deadline set for 04/10/2032
+              </div>
+              <div class="success-line">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                Email sent to John Grillo
+              </div>
+            </div>
+            <button class="btn-next-report">Process Next Report</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /showcase -->
+
+</body>
+</html>

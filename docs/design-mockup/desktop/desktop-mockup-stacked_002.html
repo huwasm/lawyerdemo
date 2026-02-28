@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design 2: Stacked Layout — Desktop & Tablet</title>
+<style>
+  :root {
+    --clio-blue: #0070E0;
+    --clio-blue-dark: #005BBB;
+    --clio-blue-light: #E8F2FC;
+    --clio-text: #333333;
+    --clio-text-light: #666666;
+    --clio-bg: #F5F7FA;
+    --clio-white: #FFFFFF;
+    --clio-border: #D1D9E0;
+    --clio-success: #0D9B4A;
+    --clio-success-bg: #E6F7ED;
+    --clio-warning: #E67E22;
+    --clio-warning-bg: #FFF5EB;
+    --clio-error: #D63031;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #1a1a2e;
+    color: var(--clio-text);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ── Title bar ── */
+  .title-bar {
+    padding: 40px 48px 24px;
+    color: #fff;
+  }
+  .title-bar h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .title-bar h1 span {
+    color: #60a5fa;
+  }
+  .title-bar p {
+    font-size: 15px;
+    color: #94a3b8;
+    max-width: 900px;
+    line-height: 1.6;
+  }
+
+  /* ── Section dividers ── */
+  .section-header {
+    padding: 32px 48px 16px;
+    color: #fff;
+  }
+  .section-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #e2e8f0;
+    margin-bottom: 6px;
+  }
+  .section-header h2 span {
+    color: #60a5fa;
+  }
+  .section-header p {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.5;
+  }
+  .section-divider {
+    margin: 24px 48px;
+    border: none;
+    border-top: 1px solid #2d2d4e;
+  }
+
+  /* ── Desktop showcase ── */
+  .desktop-showcase {
+    padding: 0 48px 48px;
+  }
+  .desktop-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  .desktop-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .screen-label {
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+  .screen-label span {
+    color: #60a5fa;
+  }
+
+  /* ── Browser chrome frame ── */
+  .browser-frame {
+    width: 100%;
+    max-width: 640px;
+    background: #2a2a3e;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+      0 20px 60px rgba(0,0,0,0.4),
+      0 0 0 1px rgba(255,255,255,0.06);
+  }
+  .browser-titlebar {
+    height: 36px;
+    background: #3a3a52;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 8px;
+  }
+  .browser-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+  .browser-dot.red { background: #ff5f57; }
+  .browser-dot.yellow { background: #febc2e; }
+  .browser-dot.green { background: #28c840; }
+  .browser-url {
+    flex: 1;
+    margin-left: 12px;
+    height: 22px;
+    background: #22222e;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    font-size: 11px;
+    color: #64748b;
+    font-family: 'SF Mono', 'Menlo', monospace;
+  }
+  .browser-viewport {
+    width: 100%;
+    aspect-ratio: 1280 / 800;
+    background: var(--clio-bg);
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ── Desktop app header ── */
+  .desk-header {
+    height: 48px;
+    background: var(--clio-white);
+    border-bottom: 1px solid var(--clio-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    flex-shrink: 0;
+  }
+  .desk-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .desk-logo {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--clio-blue);
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+  }
+  .desk-logo span { color: var(--clio-text); font-weight: 400; }
+  .desk-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--clio-border);
+  }
+  .desk-nav {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--clio-blue);
+    letter-spacing: 0.3px;
+  }
+  .desk-badge {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--clio-text-light);
+    background: var(--clio-bg);
+    padding: 3px 8px;
+    border-radius: 10px;
+    border: 1px solid var(--clio-border);
+    white-space: nowrap;
+  }
+  .desk-header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .desk-username {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--clio-text-light);
+  }
+  .desk-avatar {
+    width: 30px;
+    height: 30px;
+    background: var(--clio-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  /* ── Desktop split layout ── */
+  .desk-split {
+    display: flex;
+    height: calc(100% - 48px);
+  }
+  .desk-left {
+    width: 45%;
+    border-right: 1px solid var(--clio-border);
+    display: flex;
+    flex-direction: column;
+    background: var(--clio-white);
+  }
+  .desk-right {
+    width: 55%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── Upload zone (desktop) ── */
+  .desk-upload-zone {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .desk-drop-area {
+    width: 85%;
+    height: 70%;
+    border: 2.5px dashed var(--clio-border);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: var(--clio-bg);
+    transition: border-color 0.2s;
+  }
+  .desk-drop-icon {
+    font-size: 40px;
+    line-height: 1;
+  }
+  .desk-drop-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--clio-text);
+  }
+  .desk-drop-sub {
+    font-size: 12px;
+    color: var(--clio-text-light);
+  }
+
+  /* ── Empty state (right panel) ── */
+  .desk-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--clio-text-light);
+  }
+  .desk-empty-icon {
+    font-size: 36px;
+    opacity: 0.4;
+  }
+  .desk-empty-text {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .desk-empty-sub {
+    font-size: 12px;
+    color: #94a3b8;
+  }
+
+  /* ── Document viewer (left panel) ── */
+  .desk-doc-viewer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #1e293b;
+  }
+  .desk-doc-toolbar {
+    height: 32px;
+    background: #334155;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .doc-tool-btn {
+    width: 24px;
+    height: 22px;
+    background: #475569;
+    border: none;
+    border-radius: 4px;
+    color: #94a3b8;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .doc-tool-btn.active {
+    background: var(--clio-blue);
+    color: #fff;
+  }
+  .doc-tool-sep {
+    width: 1px;
+    height: 16px;
+    background: #475569;
+    margin: 0 4px;
+  }
+  .doc-tool-label {
+    font-size: 10px;
+    color: #64748b;
+    margin-left: auto;
+  }
+  .desk-doc-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    position: relative;
+  }
+  .desk-doc-page {
+    width: 80%;
+    height: 90%;
+    background: rgba(255,255,255,0.08);
+    border-radius: 6px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .doc-line {
+    height: 4px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 2px;
+  }
+  .doc-line:nth-child(1) { width: 50%; background: rgba(255,255,255,0.28); }
+  .doc-line:nth-child(2) { width: 85%; }
+  .doc-line:nth-child(3) { width: 70%; }
+  .doc-line:nth-child(4) { width: 90%; }
+  .doc-line:nth-child(5) { width: 55%; }
+  .doc-line:nth-child(6) { width: 80%; }
+  .doc-line:nth-child(7) { width: 65%; }
+  .doc-line:nth-child(8) { width: 92%; }
+  .doc-line:nth-child(9) { width: 40%; }
+  .doc-line:nth-child(10) { width: 78%; }
+  .doc-line:nth-child(11) { width: 60%; }
+  .doc-line:nth-child(12) { width: 88%; }
+  .doc-line:nth-child(13) { width: 45%; }
+  .doc-line:nth-child(14) { width: 72%; }
+  .doc-line:nth-child(15) { width: 83%; }
+  .doc-line:nth-child(16) { width: 56%; }
+  .doc-line.header {
+    height: 6px;
+    background: rgba(255,255,255,0.3);
+    margin-bottom: 6px;
+  }
+  .doc-line.spacer {
+    height: 0;
+    margin-bottom: 4px;
+  }
+
+  /* ── Status bar (desktop) ── */
+  .desk-status-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--clio-success-bg);
+    border-bottom: 1px solid #b7e4c7;
+    flex-shrink: 0;
+  }
+  .desk-status-check {
+    color: var(--clio-success);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .desk-status-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: #065f1e;
+  }
+
+  /* ── Form area (desktop) ── */
+  .desk-form-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+    padding-bottom: 56px;
+  }
+  .desk-form-section {
+    margin-bottom: 16px;
+  }
+  .desk-form-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--clio-blue-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid var(--clio-blue-light);
+  }
+  .desk-field {
+    margin-bottom: 8px;
+  }
+  .desk-field-label-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 3px;
+  }
+  .desk-field-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--clio-text-light);
+  }
+  .desk-conf-badge {
+    font-size: 8px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .desk-conf-high {
+    background: var(--clio-success-bg);
+    color: var(--clio-success);
+  }
+  .desk-conf-med {
+    background: var(--clio-warning-bg);
+    color: var(--clio-warning);
+  }
+  .desk-input {
+    width: 100%;
+    height: 30px;
+    padding: 0 10px;
+    border: 1.5px solid var(--clio-border);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--clio-text);
+    background: var(--clio-white);
+    font-family: inherit;
+  }
+  .desk-input.filled {
+    border-color: var(--clio-success);
+    background: #fafffe;
+  }
+  .desk-textarea {
+    width: 100%;
+    height: 42px;
+    padding: 6px 10px;
+    border: 1.5px solid var(--clio-border);
+    border-radius: 6px;
+    font-size: 11px;
+    color: var(--clio-text);
+    background: var(--clio-white);
+    font-family: inherit;
+    resize: none;
+    line-height: 1.3;
+  }
+  .desk-textarea.filled {
+    border-color: var(--clio-success);
+    background: #fafffe;
+  }
+  .desk-field-row {
+    display: flex;
+    gap: 8px;
+  }
+  .desk-field-row .desk-field {
+    flex: 1;
+  }
+  .desk-linked-matter {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px;
+    background: var(--clio-blue-light);
+    border: 1.5px solid var(--clio-blue);
+    border-radius: 6px;
+    font-size: 11px;
+    color: var(--clio-blue-dark);
+    font-weight: 600;
+  }
+
+  /* ── Sticky footer (desktop) ── */
+  .desk-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--clio-white);
+    border-top: 1px solid var(--clio-border);
+    padding: 8px 16px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+  }
+  .desk-btn-reset {
+    padding: 0 16px;
+    height: 32px;
+    border: 1.5px solid var(--clio-border);
+    border-radius: 8px;
+    background: var(--clio-white);
+    color: var(--clio-text-light);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .desk-btn-approve {
+    flex: 1;
+    height: 32px;
+    border: none;
+    border-radius: 8px;
+    background: var(--clio-blue);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+
+  /* ── Processing overlay ── */
+  .desk-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+  }
+  .desk-modal {
+    width: 280px;
+    background: var(--clio-white);
+    border-radius: 14px;
+    padding: 24px 20px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    text-align: center;
+  }
+  .desk-modal-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--clio-text);
+    margin-bottom: 16px;
+  }
+  .desk-steps {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .desk-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--clio-text);
+  }
+  .desk-step-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .desk-step-done {
+    background: var(--clio-success-bg);
+    color: var(--clio-success);
+  }
+  .desk-step-active {
+    background: var(--clio-blue-light);
+    color: var(--clio-blue);
+    animation: spin-icon 1s linear infinite;
+  }
+  @keyframes spin-icon {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .desk-step-pending {
+    background: #f1f5f9;
+    color: #94a3b8;
+  }
+  .desk-step-label { font-weight: 500; }
+  .desk-step-label.done { color: var(--clio-success); }
+  .desk-step-label.active { color: var(--clio-blue); font-weight: 600; }
+  .desk-step-label.pending { color: #94a3b8; }
+
+  /* ── Success modal ── */
+  .desk-success-circle {
+    width: 56px;
+    height: 56px;
+    background: var(--clio-success-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: var(--clio-success);
+    box-shadow: 0 0 0 8px rgba(13,155,74,0.08);
+    margin: 0 auto 12px;
+  }
+  .desk-success-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--clio-text);
+    margin-bottom: 14px;
+  }
+  .desk-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .desk-summary-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--clio-bg);
+    border-radius: 8px;
+    font-size: 11px;
+  }
+  .desk-summary-icon {
+    width: 20px;
+    height: 20px;
+    background: var(--clio-success-bg);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+  .desk-summary-text {
+    color: var(--clio-text);
+    font-weight: 500;
+  }
+  .desk-btn-next {
+    width: 100%;
+    height: 34px;
+    border: none;
+    border-radius: 10px;
+    background: var(--clio-blue);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ═══════════════════════════════════════════
+     TABLET SECTION
+     ═══════════════════════════════════════════ */
+
+  .tablet-showcase {
+    padding: 0 48px 48px;
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .tablet-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* ── iPad frame ── */
+  .ipad-frame {
+    width: 400px;
+    background: #2a2a3e;
+    border-radius: 24px;
+    padding: 16px;
+    box-shadow:
+      0 0 0 2px #3a3a52,
+      0 20px 60px rgba(0,0,0,0.45);
+    position: relative;
+  }
+  .ipad-camera {
+    width: 10px;
+    height: 10px;
+    background: #1a1a2a;
+    border-radius: 50%;
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: inset 0 0 0 1px #333;
+    z-index: 5;
+  }
+  .ipad-screen {
+    width: 100%;
+    aspect-ratio: 768 / 1024;
+    background: var(--clio-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .ipad-home-bar {
+    width: 100px;
+    height: 4px;
+    background: #3a3a52;
+    border-radius: 2px;
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+  }
+
+  /* ── Tablet header ── */
+  .tab-header {
+    height: 44px;
+    background: var(--clio-white);
+    border-bottom: 1px solid var(--clio-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    flex-shrink: 0;
+  }
+  .tab-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .tab-logo {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--clio-blue);
+    letter-spacing: -0.2px;
+  }
+  .tab-logo span { color: var(--clio-text); font-weight: 400; }
+  .tab-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--clio-border);
+  }
+  .tab-nav {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--clio-blue);
+  }
+  .tab-badge {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--clio-text-light);
+    background: var(--clio-bg);
+    padding: 2px 6px;
+    border-radius: 8px;
+    border: 1px solid var(--clio-border);
+  }
+  .tab-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tab-username {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--clio-text-light);
+  }
+  .tab-avatar {
+    width: 26px;
+    height: 26px;
+    background: var(--clio-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  /* ── Tablet upload zone ── */
+  .tab-upload-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .tab-upload-zone {
+    width: 80%;
+    height: 55%;
+    border: 2.5px dashed var(--clio-border);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: var(--clio-white);
+  }
+  .tab-upload-icon { font-size: 48px; line-height: 1; }
+  .tab-upload-title { font-size: 16px; font-weight: 700; color: var(--clio-text); }
+  .tab-upload-sub { font-size: 12px; color: var(--clio-text-light); }
+  .tab-upload-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .tab-upload-btn {
+    padding: 6px 16px;
+    border-radius: 10px;
+    border: 1.5px solid var(--clio-border);
+    background: var(--clio-white);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--clio-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .tab-upload-btn.primary {
+    background: var(--clio-blue);
+    color: #fff;
+    border-color: var(--clio-blue);
+  }
+
+  /* ── Tablet review ── */
+  .tab-status-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--clio-success-bg);
+    border-bottom: 1px solid #b7e4c7;
+    flex-shrink: 0;
+  }
+  .tab-status-check {
+    color: var(--clio-success);
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .tab-status-text {
+    font-size: 11px;
+    font-weight: 600;
+    color: #065f1e;
+  }
+
+  /* Tablet thumbnail section */
+  .tab-thumb-section {
+    height: 120px;
+    background: #1e293b;
+    position: relative;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .tab-thumb-inner {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #334155, #475569);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tab-thumb-doc {
+    width: 200px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 6px;
+  }
+  .tab-thumb-line {
+    height: 3px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 2px;
+    margin-bottom: 4px;
+  }
+  .tab-thumb-line:nth-child(1) { width: 60%; }
+  .tab-thumb-line:nth-child(2) { width: 85%; }
+  .tab-thumb-line:nth-child(3) { width: 50%; }
+  .tab-thumb-line:nth-child(4) { width: 75%; }
+  .tab-thumb-line:nth-child(5) { width: 40%; }
+  .tab-thumb-line:nth-child(6) { width: 90%; }
+  .tab-thumb-line:nth-child(7) { width: 55%; }
+  .tab-thumb-toolbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 26px;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+  }
+  .tab-thumb-tool-label {
+    font-size: 9px;
+    color: #94a3b8;
+    font-weight: 600;
+  }
+  .tab-thumb-toggle {
+    font-size: 9px;
+    color: #fff;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    border-radius: 8px;
+    padding: 2px 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  /* ── Tablet form ── */
+  .tab-form-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 16px;
+    padding-bottom: 56px;
+  }
+  .tab-form-section {
+    margin-bottom: 14px;
+  }
+  .tab-form-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--clio-blue-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 2px solid var(--clio-blue-light);
+  }
+  .tab-field {
+    margin-bottom: 7px;
+  }
+  .tab-field-label-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 2px;
+  }
+  .tab-field-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--clio-text-light);
+  }
+  .tab-conf-badge {
+    font-size: 7px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 5px;
+    text-transform: uppercase;
+  }
+  .tab-conf-high {
+    background: var(--clio-success-bg);
+    color: var(--clio-success);
+  }
+  .tab-conf-med {
+    background: var(--clio-warning-bg);
+    color: var(--clio-warning);
+  }
+  .tab-input {
+    width: 100%;
+    height: 26px;
+    padding: 0 8px;
+    border: 1.5px solid var(--clio-border);
+    border-radius: 6px;
+    font-size: 11px;
+    color: var(--clio-text);
+    background: var(--clio-white);
+    font-family: inherit;
+  }
+  .tab-input.filled {
+    border-color: var(--clio-success);
+    background: #fafffe;
+  }
+  .tab-textarea {
+    width: 100%;
+    height: 36px;
+    padding: 5px 8px;
+    border: 1.5px solid var(--clio-border);
+    border-radius: 6px;
+    font-size: 10px;
+    color: var(--clio-text);
+    background: var(--clio-white);
+    font-family: inherit;
+    resize: none;
+    line-height: 1.3;
+  }
+  .tab-textarea.filled {
+    border-color: var(--clio-success);
+    background: #fafffe;
+  }
+  .tab-field-row {
+    display: flex;
+    gap: 8px;
+  }
+  .tab-field-row .tab-field {
+    flex: 1;
+  }
+  .tab-linked-matter {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 8px;
+    background: var(--clio-blue-light);
+    border: 1.5px solid var(--clio-blue);
+    border-radius: 6px;
+    font-size: 10px;
+    color: var(--clio-blue-dark);
+    font-weight: 600;
+  }
+
+  /* ── Tablet footer ── */
+  .tab-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--clio-white);
+    border-top: 1px solid var(--clio-border);
+    padding: 8px 16px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+  }
+  .tab-btn-reset {
+    padding: 0 14px;
+    height: 30px;
+    border: 1.5px solid var(--clio-border);
+    border-radius: 8px;
+    background: var(--clio-white);
+    color: var(--clio-text-light);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .tab-btn-approve {
+    flex: 1;
+    height: 30px;
+    border: none;
+    border-radius: 8px;
+    background: var(--clio-blue);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  /* ── Annotations ── */
+  .annotations-row {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 20px 48px 40px;
+  }
+  .annotation-card {
+    background: rgba(96,165,250,0.08);
+    border: 1px solid rgba(96,165,250,0.2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    max-width: 240px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .annotation-icon {
+    width: 28px;
+    height: 28px;
+    background: rgba(96,165,250,0.15);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+  .annotation-card-text {
+    font-size: 12px;
+    color: #94a3b8;
+    line-height: 1.5;
+  }
+  .annotation-card-text strong {
+    color: #60a5fa;
+    display: block;
+    margin-bottom: 2px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ Title Bar ═══════════════ -->
+<div class="title-bar">
+  <h1>Design 2: <span>Stacked Layout</span> &mdash; Desktop & Tablet</h1>
+  <p>On desktop, the stacked concept becomes a persistent side-by-side split. On tablet, the collapsible thumbnail from mobile gets more breathing room &mdash; 200px preview with expand toggle. The document panel stays always-visible on desktop, while tablet preserves the collapse/expand interaction from the mobile design.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 1: DESKTOP (1280x800)
+     ═══════════════════════════════════════════════ -->
+<div class="section-header">
+  <h2><span>Section 1:</span> Desktop (1280 &times; 800)</h2>
+  <p>Browser window frame. Side-by-side split: left panel is the always-visible document viewer, right panel is the intake form. No collapsing needed at this width.</p>
+</div>
+
+<div class="desktop-showcase">
+  <div class="desktop-grid">
+
+    <!-- ━━━ Screen A: Upload ━━━ -->
+    <div class="desktop-col">
+      <div class="screen-label"><span>A</span> &mdash; Upload</div>
+      <div class="browser-frame">
+        <div class="browser-titlebar">
+          <div class="browser-dot red"></div>
+          <div class="browser-dot yellow"></div>
+          <div class="browser-dot green"></div>
+          <div class="browser-url">localhost:3000</div>
+        </div>
+        <div class="browser-viewport">
+          <!-- Header -->
+          <div class="desk-header">
+            <div class="desk-header-left">
+              <div class="desk-logo">Richards <span>& Law</span></div>
+              <div class="desk-divider"></div>
+              <div class="desk-nav">Intake</div>
+              <div class="desk-badge">Powered by Clio</div>
+            </div>
+            <div class="desk-header-right">
+              <div class="desk-username">Andrew Richards</div>
+              <div class="desk-avatar">AR</div>
+            </div>
+          </div>
+          <!-- Split -->
+          <div class="desk-split">
+            <div class="desk-left">
+              <div class="desk-upload-zone">
+                <div class="desk-drop-area">
+                  <div class="desk-drop-icon">&#128196;</div>
+                  <div class="desk-drop-title">Drop police report here</div>
+                  <div class="desk-drop-sub">PDF or photo</div>
+                </div>
+              </div>
+            </div>
+            <div class="desk-right">
+              <div class="desk-empty">
+                <div class="desk-empty-icon">&#128203;</div>
+                <div class="desk-empty-text">Upload a report to begin</div>
+                <div class="desk-empty-sub">Extracted data will appear here</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ━━━ Screen B: Review ━━━ -->
+    <div class="desktop-col">
+      <div class="screen-label"><span>B</span> &mdash; Review</div>
+      <div class="browser-frame">
+        <div class="browser-titlebar">
+          <div class="browser-dot red"></div>
+          <div class="browser-dot yellow"></div>
+          <div class="browser-dot green"></div>
+          <div class="browser-url">localhost:3000</div>
+        </div>
+        <div class="browser-viewport">
+          <!-- Header -->
+          <div class="desk-header">
+            <div class="desk-header-left">
+              <div class="desk-logo">Richards <span>& Law</span></div>
+              <div class="desk-divider"></div>
+              <div class="desk-nav">Intake</div>
+              <div class="desk-badge">Powered by Clio</div>
+            </div>
+            <div class="desk-header-right">
+              <div class="desk-username">Andrew Richards</div>
+              <div class="desk-avatar">AR</div>
+            </div>
+          </div>
+          <!-- Split -->
+          <div class="desk-split">
+            <!-- Left: Document viewer -->
+            <div class="desk-left" style="background: #1e293b;">
+              <div class="desk-doc-toolbar">
+                <button class="doc-tool-btn">-</button>
+                <button class="doc-tool-btn" style="font-size:9px;">100%</button>
+                <button class="doc-tool-btn">+</button>
+                <div class="doc-tool-sep"></div>
+                <button class="doc-tool-btn active">Fit</button>
+                <div class="doc-tool-label">noel_report.pdf</div>
+              </div>
+              <div class="desk-doc-content">
+                <div class="desk-doc-page">
+                  <div class="doc-line header" style="width:45%;"></div>
+                  <div class="doc-line" style="width:65%;"></div>
+                  <div class="doc-line spacer"></div>
+                  <div class="doc-line header" style="width:35%;"></div>
+                  <div class="doc-line" style="width:88%;"></div>
+                  <div class="doc-line" style="width:72%;"></div>
+                  <div class="doc-line" style="width:90%;"></div>
+                  <div class="doc-line" style="width:55%;"></div>
+                  <div class="doc-line spacer"></div>
+                  <div class="doc-line header" style="width:40%;"></div>
+                  <div class="doc-line" style="width:82%;"></div>
+                  <div class="doc-line" style="width:68%;"></div>
+                  <div class="doc-line" style="width:95%;"></div>
+                  <div class="doc-line" style="width:60%;"></div>
+                  <div class="doc-line" style="width:78%;"></div>
+                  <div class="doc-line" style="width:50%;"></div>
+                </div>
+              </div>
+            </div>
+            <!-- Right: Form -->
+            <div class="desk-right">
+              <div class="desk-status-bar">
+                <span class="desk-status-check">&#10003;</span>
+                <span class="desk-status-text">Extraction complete &mdash; review fields</span>
+              </div>
+              <div class="desk-form-scroll">
+                <!-- Client Info -->
+                <div class="desk-form-section">
+                  <div class="desk-form-title">Client Info</div>
+                  <div class="desk-field-row">
+                    <div class="desk-field">
+                      <div class="desk-field-label-row">
+                        <span class="desk-field-label">First Name</span>
+                        <span class="desk-conf-badge desk-conf-high">98%</span>
+                      </div>
+                      <input class="desk-input filled" value="Darshame" readonly>
+                    </div>
+                    <div class="desk-field">
+                      <div class="desk-field-label-row">
+                        <span class="desk-field-label">Last Name</span>
+                        <span class="desk-conf-badge desk-conf-high">99%</span>
+                      </div>
+                      <input class="desk-input filled" value="Noel" readonly>
+                    </div>
+                  </div>
+                  <div class="desk-field-row">
+                    <div class="desk-field" style="flex:0 0 60px;">
+                      <div class="desk-field-label-row">
+                        <span class="desk-field-label">Gender</span>
+                        <span class="desk-conf-badge desk-conf-high">95%</span>
+                      </div>
+                      <input class="desk-input filled" value="F" readonly>
+                    </div>
+                    <div class="desk-field">
+                      <div class="desk-field-label-row">
+                        <span class="desk-field-label">Registration Plate / Vehicle</span>
+                        <span class="desk-conf-badge desk-conf-high">97%</span>
+                      </div>
+                      <input class="desk-input filled" value="2018 Honda Civic" readonly>
+                    </div>
+                  </div>
+                  <div class="desk-field">
+                    <div class="desk-field-label-row">
+                      <span class="desk-field-label">Address</span>
+                      <span class="desk-conf-badge desk-conf-med">82%</span>
+                    </div>
+                    <input class="desk-input filled" value="145 Oak St, Apt 3B, Miami FL 33130" readonly>
+                  </div>
+                </div>
+                <!-- Accident Details -->
+                <div class="desk-form-section">
+                  <div class="desk-form-title">Accident Details</div>
+                  <div class="desk-field-row">
+                    <div class="desk-field">
+                      <div class="desk-field-label-row">
+                        <span class="desk-field-label">Date</span>
+                        <span class="desk-conf-badge desk-conf-high">99%</span>
+                      </div>
+                      <input class="desk-input filled" value="02/20/2024" readonly>
+                    </div>
+                    <div class="desk-field" style="flex:0 0 60px;">
+                      <div class="desk-field-label-row">
+                        <span class="desk-field-label">Injured</span>
+                        <span class="desk-conf-badge desk-conf-high">96%</span>
+                      </div>
+                      <input class="desk-input filled" value="0" readonly>
+                    </div>
+                  </div>
+                  <div class="desk-field">
+                    <div class="desk-field-label-row">
+                      <span class="desk-field-label">Location</span>
+                      <span class="desk-conf-badge desk-conf-high">94%</span>
+                    </div>
+                    <input class="desk-input filled" value="NW 7th Ave & NW 54th St, Miami" readonly>
+                  </div>
+                  <div class="desk-field">
+                    <div class="desk-field-label-row">
+                      <span class="desk-field-label">Description</span>
+                      <span class="desk-conf-badge desk-conf-med">85%</span>
+                    </div>
+                    <textarea class="desk-textarea filled" readonly>V1 failed to stop at red light, colliding with V2 at intersection. No injuries reported.</textarea>
+                  </div>
+                </div>
+                <!-- Defendant -->
+                <div class="desk-form-section">
+                  <div class="desk-form-title">Defendant</div>
+                  <div class="desk-field-row">
+                    <div class="desk-field">
+                      <div class="desk-field-label-row">
+                        <span class="desk-field-label">Name</span>
+                        <span class="desk-conf-badge desk-conf-high">97%</span>
+                      </div>
+                      <input class="desk-input filled" value="Arnaud Freese" readonly>
+                    </div>
+                    <div class="desk-field">
+                      <div class="desk-field-label-row">
+                        <span class="desk-field-label">Vehicle</span>
+                        <span class="desk-conf-badge desk-conf-high">96%</span>
+                      </div>
+                      <input class="desk-input filled" value="2020 Toyota Camry" readonly>
+                    </div>
+                  </div>
+                </div>
+                <!-- Clio -->
+                <div class="desk-form-section">
+                  <div class="desk-form-title">Clio Integration</div>
+                  <div class="desk-field">
+                    <div class="desk-field-label-row">
+                      <span class="desk-field-label">Linked Matter</span>
+                    </div>
+                    <div class="desk-linked-matter">
+                      &#128279; Noel v Freese &mdash; #4521
+                    </div>
+                  </div>
+                  <div class="desk-field">
+                    <div class="desk-field-label-row">
+                      <span class="desk-field-label">Statute of Limitations</span>
+                    </div>
+                    <input class="desk-input filled" value="02/20/2032 (8 years)" readonly>
+                  </div>
+                </div>
+                <!-- Email -->
+                <div class="desk-form-section">
+                  <div class="desk-form-title">Email</div>
+                  <div class="desk-field">
+                    <div class="desk-field-label-row">
+                      <span class="desk-field-label">Send To</span>
+                    </div>
+                    <input class="desk-input filled" value="talent.legal-engineer...@swans.co" readonly>
+                  </div>
+                  <div class="desk-field">
+                    <div class="desk-field-label-row">
+                      <span class="desk-field-label">Calendly Link</span>
+                    </div>
+                    <input class="desk-input filled" value="calendly.com/richards-law/feb" readonly>
+                  </div>
+                </div>
+              </div>
+              <!-- Footer -->
+              <div class="desk-footer">
+                <button class="desk-btn-reset">Reset</button>
+                <button class="desk-btn-approve">&#10003; Approve & Send</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ━━━ Screen C: Processing ━━━ -->
+    <div class="desktop-col">
+      <div class="screen-label"><span>C</span> &mdash; Processing</div>
+      <div class="browser-frame">
+        <div class="browser-titlebar">
+          <div class="browser-dot red"></div>
+          <div class="browser-dot yellow"></div>
+          <div class="browser-dot green"></div>
+          <div class="browser-url">localhost:3000</div>
+        </div>
+        <div class="browser-viewport">
+          <!-- Header -->
+          <div class="desk-header">
+            <div class="desk-header-left">
+              <div class="desk-logo">Richards <span>& Law</span></div>
+              <div class="desk-divider"></div>
+              <div class="desk-nav">Intake</div>
+              <div class="desk-badge">Powered by Clio</div>
+            </div>
+            <div class="desk-header-right">
+              <div class="desk-username">Andrew Richards</div>
+              <div class="desk-avatar">AR</div>
+            </div>
+          </div>
+          <!-- Split (dimmed with overlay) -->
+          <div class="desk-split" style="position:relative;">
+            <div class="desk-left" style="background: #1e293b; opacity: 0.5;">
+              <div class="desk-doc-toolbar">
+                <button class="doc-tool-btn">-</button>
+                <button class="doc-tool-btn" style="font-size:9px;">100%</button>
+                <button class="doc-tool-btn">+</button>
+                <div class="doc-tool-sep"></div>
+                <button class="doc-tool-btn active">Fit</button>
+                <div class="doc-tool-label">noel_report.pdf</div>
+              </div>
+              <div class="desk-doc-content">
+                <div class="desk-doc-page">
+                  <div class="doc-line header" style="width:45%;"></div>
+                  <div class="doc-line" style="width:65%;"></div>
+                  <div class="doc-line" style="width:88%;"></div>
+                  <div class="doc-line" style="width:72%;"></div>
+                  <div class="doc-line" style="width:55%;"></div>
+                  <div class="doc-line" style="width:82%;"></div>
+                  <div class="doc-line" style="width:68%;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="desk-right" style="opacity: 0.3;">
+              <div class="desk-status-bar">
+                <span class="desk-status-check">&#10003;</span>
+                <span class="desk-status-text">Extraction complete</span>
+              </div>
+              <div style="flex:1;background:var(--clio-bg);"></div>
+            </div>
+            <!-- Modal overlay -->
+            <div class="desk-overlay">
+              <div class="desk-modal">
+                <div class="desk-modal-title">Processing Intake...</div>
+                <div class="desk-steps">
+                  <div class="desk-step">
+                    <div class="desk-step-icon desk-step-done">&#10003;</div>
+                    <span class="desk-step-label done">Update Clio custom fields</span>
+                  </div>
+                  <div class="desk-step">
+                    <div class="desk-step-icon desk-step-done">&#10003;</div>
+                    <span class="desk-step-label done">Generate retainer agreement</span>
+                  </div>
+                  <div class="desk-step">
+                    <div class="desk-step-icon desk-step-active">&#8635;</div>
+                    <span class="desk-step-label active">Create calendar reminder</span>
+                  </div>
+                  <div class="desk-step">
+                    <div class="desk-step-icon desk-step-pending">&#8226;</div>
+                    <span class="desk-step-label pending">Send email to client</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ━━━ Screen D: Success ━━━ -->
+    <div class="desktop-col">
+      <div class="screen-label"><span>D</span> &mdash; Success</div>
+      <div class="browser-frame">
+        <div class="browser-titlebar">
+          <div class="browser-dot red"></div>
+          <div class="browser-dot yellow"></div>
+          <div class="browser-dot green"></div>
+          <div class="browser-url">localhost:3000</div>
+        </div>
+        <div class="browser-viewport">
+          <!-- Header -->
+          <div class="desk-header">
+            <div class="desk-header-left">
+              <div class="desk-logo">Richards <span>& Law</span></div>
+              <div class="desk-divider"></div>
+              <div class="desk-nav">Intake</div>
+              <div class="desk-badge">Powered by Clio</div>
+            </div>
+            <div class="desk-header-right">
+              <div class="desk-username">Andrew Richards</div>
+              <div class="desk-avatar">AR</div>
+            </div>
+          </div>
+          <!-- Split (dimmed with overlay) -->
+          <div class="desk-split" style="position:relative;">
+            <div class="desk-left" style="background: #1e293b; opacity: 0.3;">
+              <div class="desk-doc-toolbar">
+                <button class="doc-tool-btn">-</button>
+                <button class="doc-tool-btn" style="font-size:9px;">100%</button>
+                <button class="doc-tool-btn">+</button>
+              </div>
+              <div class="desk-doc-content">
+                <div class="desk-doc-page">
+                  <div class="doc-line header" style="width:45%;"></div>
+                  <div class="doc-line" style="width:65%;"></div>
+                  <div class="doc-line" style="width:88%;"></div>
+                  <div class="doc-line" style="width:72%;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="desk-right" style="opacity: 0.3;">
+              <div style="flex:1;background:var(--clio-bg);"></div>
+            </div>
+            <!-- Success modal -->
+            <div class="desk-overlay">
+              <div class="desk-modal" style="width:300px;">
+                <div class="desk-success-circle">&#10003;</div>
+                <div class="desk-success-title">Intake Complete</div>
+                <div class="desk-summary">
+                  <div class="desk-summary-row">
+                    <div class="desk-summary-icon">&#128203;</div>
+                    <span class="desk-summary-text">Custom fields updated on <strong>Noel v Freese</strong></span>
+                  </div>
+                  <div class="desk-summary-row">
+                    <div class="desk-summary-icon">&#128196;</div>
+                    <span class="desk-summary-text">Retainer agreement generated</span>
+                  </div>
+                  <div class="desk-summary-row">
+                    <div class="desk-summary-icon">&#128197;</div>
+                    <span class="desk-summary-text">SOL reminder set for <strong>02/20/2032</strong></span>
+                  </div>
+                  <div class="desk-summary-row">
+                    <div class="desk-summary-icon">&#9993;</div>
+                    <span class="desk-summary-text">Email sent to client</span>
+                  </div>
+                </div>
+                <button class="desk-btn-next">Next Case &#8594;</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Desktop annotations ── -->
+<div class="annotations-row">
+  <div class="annotation-card">
+    <div class="annotation-icon">&#128065;</div>
+    <div class="annotation-card-text">
+      <strong>Document always visible on desktop</strong>
+      45% left panel keeps the police report in view at all times &mdash; no toggling needed at this screen width.
+    </div>
+  </div>
+  <div class="annotation-card">
+    <div class="annotation-icon">&#128269;</div>
+    <div class="annotation-card-text">
+      <strong>Zoom toolbar for document viewer</strong>
+      Zoom in/out, percentage indicator, and "Fit" button for quickly adjusting the report view while reviewing data.
+    </div>
+  </div>
+  <div class="annotation-card">
+    <div class="annotation-icon">&#9638;</div>
+    <div class="annotation-card-text">
+      <strong>Two-column form on desktop, adapts on tablet</strong>
+      Field pairs laid out side-by-side on desktop. Tablet uses the same pattern where space allows, single-column otherwise.
+    </div>
+  </div>
+  <div class="annotation-card">
+    <div class="annotation-icon">&#9881;</div>
+    <div class="annotation-card-text">
+      <strong>Overlay modals for processing</strong>
+      Processing and success states use centered modals over the dimmed split view, keeping spatial context intact.
+    </div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 2: TABLET (768x1024)
+     ═══════════════════════════════════════════════ -->
+<div class="section-header">
+  <h2><span>Section 2:</span> Tablet (768 &times; 1024)</h2>
+  <p>iPad-style portrait frame. The stacked concept stays true to mobile &mdash; collapsible document preview at top, scrollable form below, but with more horizontal breathing room for two-column field rows.</p>
+</div>
+
+<div class="tablet-showcase">
+
+  <!-- ━━━ Tablet Screen A: Upload ━━━ -->
+  <div class="tablet-col">
+    <div class="screen-label"><span>A</span> &mdash; Upload</div>
+    <div class="ipad-frame">
+      <div class="ipad-camera"></div>
+      <div class="ipad-screen">
+        <!-- Tablet Header -->
+        <div class="tab-header">
+          <div class="tab-header-left">
+            <div class="tab-logo">Richards <span>& Law</span></div>
+            <div class="tab-divider"></div>
+            <div class="tab-nav">Intake</div>
+            <div class="tab-badge">Powered by Clio</div>
+          </div>
+          <div class="tab-header-right">
+            <div class="tab-username">Andrew Richards</div>
+            <div class="tab-avatar">AR</div>
+          </div>
+        </div>
+        <!-- Upload body -->
+        <div class="tab-upload-body">
+          <div class="tab-upload-zone">
+            <div class="tab-upload-icon">&#128247;</div>
+            <div class="tab-upload-title">Upload police report</div>
+            <div class="tab-upload-sub">Drop file here or choose an option</div>
+            <div class="tab-upload-buttons">
+              <button class="tab-upload-btn">&#128247; Camera</button>
+              <button class="tab-upload-btn primary">&#128196; Choose File</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ipad-home-bar"></div>
+    </div>
+  </div>
+
+  <!-- ━━━ Tablet Screen B: Review ━━━ -->
+  <div class="tablet-col">
+    <div class="screen-label"><span>B</span> &mdash; Review</div>
+    <div class="ipad-frame">
+      <div class="ipad-camera"></div>
+      <div class="ipad-screen">
+        <!-- Tablet Header -->
+        <div class="tab-header">
+          <div class="tab-header-left">
+            <div class="tab-logo">Richards <span>& Law</span></div>
+            <div class="tab-divider"></div>
+            <div class="tab-nav">Intake</div>
+            <div class="tab-badge">Powered by Clio</div>
+          </div>
+          <div class="tab-header-right">
+            <div class="tab-username">Andrew Richards</div>
+            <div class="tab-avatar">AR</div>
+          </div>
+        </div>
+        <!-- Status bar -->
+        <div class="tab-status-bar">
+          <span class="tab-status-check">&#10003;</span>
+          <span class="tab-status-text">Extraction complete &mdash; review fields</span>
+        </div>
+        <!-- Thumbnail section with toolbar -->
+        <div class="tab-thumb-section">
+          <div class="tab-thumb-toolbar">
+            <span class="tab-thumb-tool-label">noel_report.pdf</span>
+            <button class="tab-thumb-toggle">&#9660; Expand</button>
+          </div>
+          <div class="tab-thumb-inner">
+            <div class="tab-thumb-doc">
+              <div class="tab-thumb-line"></div>
+              <div class="tab-thumb-line"></div>
+              <div class="tab-thumb-line"></div>
+              <div class="tab-thumb-line"></div>
+              <div class="tab-thumb-line"></div>
+              <div class="tab-thumb-line"></div>
+              <div class="tab-thumb-line"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Form -->
+        <div style="flex:1; display:flex; flex-direction:column; position:relative; overflow:hidden;">
+          <div class="tab-form-scroll">
+            <!-- Client Info -->
+            <div class="tab-form-section">
+              <div class="tab-form-title">Client Info</div>
+              <div class="tab-field-row">
+                <div class="tab-field">
+                  <div class="tab-field-label-row">
+                    <span class="tab-field-label">First Name</span>
+                    <span class="tab-conf-badge tab-conf-high">98%</span>
+                  </div>
+                  <input class="tab-input filled" value="Darshame" readonly>
+                </div>
+                <div class="tab-field">
+                  <div class="tab-field-label-row">
+                    <span class="tab-field-label">Last Name</span>
+                    <span class="tab-conf-badge tab-conf-high">99%</span>
+                  </div>
+                  <input class="tab-input filled" value="Noel" readonly>
+                </div>
+              </div>
+              <div class="tab-field-row">
+                <div class="tab-field" style="flex:0 0 50px;">
+                  <div class="tab-field-label-row">
+                    <span class="tab-field-label">Gender</span>
+                    <span class="tab-conf-badge tab-conf-high">95%</span>
+                  </div>
+                  <input class="tab-input filled" value="F" readonly>
+                </div>
+                <div class="tab-field">
+                  <div class="tab-field-label-row">
+                    <span class="tab-field-label">Vehicle / Plate</span>
+                    <span class="tab-conf-badge tab-conf-high">97%</span>
+                  </div>
+                  <input class="tab-input filled" value="2018 Honda Civic" readonly>
+                </div>
+              </div>
+              <div class="tab-field">
+                <div class="tab-field-label-row">
+                  <span class="tab-field-label">Address</span>
+                  <span class="tab-conf-badge tab-conf-med">82%</span>
+                </div>
+                <input class="tab-input filled" value="145 Oak St, Apt 3B, Miami FL 33130" readonly>
+              </div>
+            </div>
+            <!-- Accident Details -->
+            <div class="tab-form-section">
+              <div class="tab-form-title">Accident Details</div>
+              <div class="tab-field-row">
+                <div class="tab-field">
+                  <div class="tab-field-label-row">
+                    <span class="tab-field-label">Date</span>
+                    <span class="tab-conf-badge tab-conf-high">99%</span>
+                  </div>
+                  <input class="tab-input filled" value="02/20/2024" readonly>
+                </div>
+                <div class="tab-field" style="flex:0 0 50px;">
+                  <div class="tab-field-label-row">
+                    <span class="tab-field-label">Injured</span>
+                    <span class="tab-conf-badge tab-conf-high">96%</span>
+                  </div>
+                  <input class="tab-input filled" value="0" readonly>
+                </div>
+              </div>
+              <div class="tab-field">
+                <div class="tab-field-label-row">
+                  <span class="tab-field-label">Location</span>
+                  <span class="tab-conf-badge tab-conf-high">94%</span>
+                </div>
+                <input class="tab-input filled" value="NW 7th Ave & NW 54th St, Miami" readonly>
+              </div>
+              <div class="tab-field">
+                <div class="tab-field-label-row">
+                  <span class="tab-field-label">Description</span>
+                  <span class="tab-conf-badge tab-conf-med">85%</span>
+                </div>
+                <textarea class="tab-textarea filled" readonly>V1 failed to stop at red light, colliding with V2 at intersection.</textarea>
+              </div>
+            </div>
+            <!-- Defendant -->
+            <div class="tab-form-section">
+              <div class="tab-form-title">Defendant</div>
+              <div class="tab-field-row">
+                <div class="tab-field">
+                  <div class="tab-field-label-row">
+                    <span class="tab-field-label">Name</span>
+                    <span class="tab-conf-badge tab-conf-high">97%</span>
+                  </div>
+                  <input class="tab-input filled" value="Arnaud Freese" readonly>
+                </div>
+                <div class="tab-field">
+                  <div class="tab-field-label-row">
+                    <span class="tab-field-label">Vehicle</span>
+                    <span class="tab-conf-badge tab-conf-high">96%</span>
+                  </div>
+                  <input class="tab-input filled" value="2020 Toyota Camry" readonly>
+                </div>
+              </div>
+            </div>
+            <!-- Clio -->
+            <div class="tab-form-section">
+              <div class="tab-form-title">Clio Integration</div>
+              <div class="tab-field">
+                <div class="tab-field-label-row">
+                  <span class="tab-field-label">Linked Matter</span>
+                </div>
+                <div class="tab-linked-matter">
+                  &#128279; Noel v Freese &mdash; #4521
+                </div>
+              </div>
+              <div class="tab-field-row">
+                <div class="tab-field">
+                  <div class="tab-field-label-row">
+                    <span class="tab-field-label">SOL Date</span>
+                  </div>
+                  <input class="tab-input filled" value="02/20/2032" readonly>
+                </div>
+                <div class="tab-field">
+                  <div class="tab-field-label-row">
+                    <span class="tab-field-label">Calendly</span>
+                  </div>
+                  <input class="tab-input filled" value="calendly.com/richards-law/feb" readonly>
+                </div>
+              </div>
+            </div>
+            <!-- Email -->
+            <div class="tab-form-section">
+              <div class="tab-form-title">Email</div>
+              <div class="tab-field">
+                <div class="tab-field-label-row">
+                  <span class="tab-field-label">Send To</span>
+                </div>
+                <input class="tab-input filled" value="talent.legal-engineer...@swans.co" readonly>
+              </div>
+            </div>
+          </div>
+          <!-- Sticky footer -->
+          <div class="tab-footer">
+            <button class="tab-btn-reset">Reset</button>
+            <button class="tab-btn-approve">&#10003; Approve & Send</button>
+          </div>
+        </div>
+      </div>
+      <div class="ipad-home-bar"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Tablet annotations ── -->
+<div class="annotations-row" style="padding-bottom: 64px;">
+  <div class="annotation-card">
+    <div class="annotation-icon">&#128260;</div>
+    <div class="annotation-card-text">
+      <strong>Collapsible preview preserved on tablet</strong>
+      120px collapsed thumbnail with expand/collapse toggle, same interaction as mobile but with more room for the document content.
+    </div>
+  </div>
+  <div class="annotation-card">
+    <div class="annotation-icon">&#9638;</div>
+    <div class="annotation-card-text">
+      <strong>Two-column form fields on tablet</strong>
+      Wider viewport allows name, date, and defendant fields to sit side-by-side while description stays full-width.
+    </div>
+  </div>
+  <div class="annotation-card">
+    <div class="annotation-icon">&#128247;</div>
+    <div class="annotation-card-text">
+      <strong>Camera + File buttons on tablet</strong>
+      Upload screen offers explicit camera and file picker buttons, better suited to tablet interaction than drag-and-drop.
+    </div>
+  </div>
+  <div class="annotation-card">
+    <div class="annotation-icon">&#128205;</div>
+    <div class="annotation-card-text">
+      <strong>Sticky footer with action buttons</strong>
+      Reset and Approve buttons pinned to bottom of viewport, always accessible regardless of form scroll position.
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

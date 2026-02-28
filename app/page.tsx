@@ -102,6 +102,7 @@ function buildLocationString(loc: ExtractionData["accident_location"]): string {
 export default function Dashboard() {
   const [phase, setPhase] = useState<Phase>("upload");
   const [fileName, setFileName] = useState("");
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [extraction, setExtraction] = useState<ExtractionData | null>(null);
   const [match, setMatch] = useState<MatchResult | null>(null);
   const [matches, setMatches] = useState<MatchResult[]>([]);
@@ -130,6 +131,10 @@ export default function Dashboard() {
   const handleFile = useCallback(async (file: File) => {
     setError("");
     setFileName(file.name);
+    // Create a blob URL so the original PDF can be displayed in the left panel
+    if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+    const blobUrl = URL.createObjectURL(file);
+    setPdfUrl(blobUrl);
     setPhase("extracting");
 
     try {
@@ -323,8 +328,10 @@ export default function Dashboard() {
   // --- Reset ---
 
   function handleReset() {
+    if (pdfUrl) URL.revokeObjectURL(pdfUrl);
     setPhase("upload");
     setFileName("");
+    setPdfUrl(null);
     setExtraction(null);
     setMatch(null);
     setMatches([]);
@@ -419,44 +426,17 @@ export default function Dashboard() {
             </div>
           )}
 
-          {phase !== "upload" && (
-            <div className="flex flex-1 flex-col items-center justify-center bg-gray-100 p-6">
-              <div className="w-full max-w-md rounded border border-gray-300 bg-white p-8 font-mono text-xs leading-relaxed">
-                <div className="mb-3 border-b-2 border-gray-800 pb-2 text-center text-sm font-bold">
-                  STATE OF NEW YORK — POLICE ACCIDENT REPORT
-                  <br />
-                  MV-104AN
-                </div>
-                {extraction && (
-                  <>
-                    <Row label="Date of Accident" value={extraction.accident_date} />
-                    <Row label="Time" value={extraction.accident_time} />
-                    <Row label="Location" value={buildLocationString(extraction.accident_location)} />
-                    <hr className="my-2 border-gray-300" />
-                    <div className="mb-1 font-bold">
-                      VEHICLE 1 {match?.matchedVehicle === 1 ? "(Client)" : ""}
-                    </div>
-                    <Row label="Driver" value={`${extraction.vehicle_1.driver_name_last}, ${extraction.vehicle_1.driver_name_first}`} />
-                    <Row label="Sex" value={extraction.vehicle_1.sex} />
-                    <Row label="Plate" value={extraction.vehicle_1.plate_number || "N/A"} />
-                    <hr className="my-2 border-gray-300" />
-                    <div className="mb-1 font-bold">
-                      VEHICLE 2 {match?.matchedVehicle === 2 ? "(Client)" : ""}
-                      {extraction.vehicle_2.is_pedestrian ? " — PEDESTRIAN" : ""}
-                      {extraction.vehicle_2.is_bicyclist ? " — BICYCLIST" : ""}
-                    </div>
-                    <Row label="Driver" value={`${extraction.vehicle_2.driver_name_last}, ${extraction.vehicle_2.driver_name_first}`} />
-                    <Row label="Sex" value={extraction.vehicle_2.sex} />
-                    <Row label="Plate" value={extraction.vehicle_2.plate_number || "N/A"} />
-                    <hr className="my-2 border-gray-300" />
-                    <Row label="No. Injured" value={String(extraction.no_injured)} />
-                    <div className="mt-2 text-[10px] italic text-gray-600">
-                      {extraction.officer_notes?.slice(0, 200)}
-                      {(extraction.officer_notes?.length || 0) > 200 ? "..." : ""}
-                    </div>
-                  </>
-                )}
-              </div>
+          {phase !== "upload" && pdfUrl && (
+            <iframe
+              src={pdfUrl}
+              className="flex-1 w-full"
+              title="Police Report PDF"
+            />
+          )}
+
+          {phase !== "upload" && !pdfUrl && (
+            <div className="flex flex-1 items-center justify-center bg-gray-100 text-sm text-clio-text-light">
+              PDF preview not available
             </div>
           )}
         </div>
@@ -735,11 +715,3 @@ function Field({
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex gap-2">
-      <span className="min-w-[140px] font-bold">{label}:</span>
-      <span className="text-clio-blue">{value}</span>
-    </div>
-  );
-}
