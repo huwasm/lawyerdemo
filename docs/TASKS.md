@@ -198,6 +198,44 @@ Before the "Approve" button activates, operator must check off items like:
 
 ---
 
+## Phase 10B: Session Persistence & Redo / Overwrite Logic
+
+### Problem
+When the dashboard has a report loaded (extracted data, matched matter, review in progress) and the page reloads — everything is lost. All state is in React `useState`, nothing survives a refresh.
+
+### What's needed
+
+**A) Save state to database (Supabase)**
+- After extraction → save extracted JSON + filename + status "draft" to `intake_reports`
+- After match → update row with `matter_id`
+- On page load → check for in-progress drafts, offer to resume
+- After approve → update status to "approved" or "error"
+- This means Phase 12 (Supabase) is a prerequisite for this, or we implement both together
+
+**B) Redo / Retry logic**
+- If approve partially fails (e.g. custom fields updated but retainer generation failed):
+  - Traffic light shows: ✅ Fields → ✅ Retainer → ❌ Calendar → ⏳ Email
+  - "Retry" button appears next to failed steps
+  - Retry only re-runs the failed step(s), not the whole pipeline
+- Questions to investigate (DO NOT CHECK NOW, just track):
+  - Can we `PATCH /matters/{id}` again with same custom fields? (overwrite safe?)
+  - Can we `POST /document_automations` again? (creates duplicate retainer?)
+  - Can we `POST /calendar_entries` again? (creates duplicate calendar entry?)
+  - Does Clio have idempotency keys or upsert behavior?
+
+**C) Report history & status**
+- Processed reports list (table view) with traffic light status per report
+- Columns: Date, Filename, Matter, Client, Status (green/yellow/red), Actions
+- Click to expand → see audit log per step
+- Filter: All / Completed / Failed / In Progress
+- "Redo" button on failed reports → reopens review screen with saved data
+
+### Dependencies
+- Requires Phase 12 (Supabase) to be done first (or done together)
+- Approve API route needs to be refactored to support per-step retry
+
+---
+
 ## Phase 12: Supabase — Audit Trail & Deduplication
 
 ### Why

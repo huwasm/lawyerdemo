@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python3 -c \":*)"
+      "Bash(python3 -c \":*)",
+      "mcp__supabase__get_publishable_keys",
+      "mcp__supabase__get_project_url",
+      "Bash(npm install @supabase/supabase-js)",
+      "Bash(curl -s -X POST http://localhost:3001/api/extract -F \"file=@/Users/user/code/lawyerdemo/sample-data/GUILLERMO_REYES_v_LIONEL_FRANCOIS_et_al_EXHIBIT_S__XX.pdf\")"
     ]
   }
 }

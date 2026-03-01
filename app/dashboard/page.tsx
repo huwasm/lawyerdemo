@@ -49,6 +49,15 @@ interface MatchResult {
   clientEmail: string;
 }
 
+interface SavedReport {
+  id: string;
+  filename: string;
+  created_at: string;
+  ai_provider: string;
+  status: string;
+  extraction_ms: number;
+}
+
 type Phase = "upload" | "extracting" | "review" | "processing" | "success";
 
 type ProcessingStep = {
@@ -116,15 +125,30 @@ export default function Dashboard() {
   const [clientGender, setClientGender] = useState("M");
   const [clientPlate, setClientPlate] = useState("");
   const [clientAddress, setClientAddress] = useState("");
+  const [clientCity, setClientCity] = useState("");
+  const [clientState, setClientState] = useState("");
+  const [clientZip, setClientZip] = useState("");
   const [accidentDate, setAccidentDate] = useState("");
   const [noInjured, setNoInjured] = useState(0);
   const [accidentLocation, setAccidentLocation] = useState("");
   const [officerNotes, setOfficerNotes] = useState("");
-  const [defendantName, setDefendantName] = useState("");
+  const [defendantFirst, setDefendantFirst] = useState("");
+  const [defendantLast, setDefendantLast] = useState("");
   const [defendantVehicle, setDefendantVehicle] = useState("");
   const [clientEmail, setClientEmail] = useState("");
+  const [accidentTime, setAccidentTime] = useState("");
+  const [showAccidentTime, setShowAccidentTime] = useState(false);
   const [matterId, setMatterId] = useState(0);
   const [statuteDate, setStatuteDate] = useState("");
+
+  // QA audit mode
+  const [showAudit, setShowAudit] = useState(false);
+  const [fieldAudit, setFieldAudit] = useState<Record<string, boolean>>({});
+
+  // Saved reports
+  const [savedReports, setSavedReports] = useState<SavedReport[]>([]);
+  const [showSaved, setShowSaved] = useState(false);
+  const [loadingReport, setLoadingReport] = useState(false);
 
   // --- Upload ---
 
@@ -193,16 +217,16 @@ export default function Dashboard() {
     setClientLast(m.clientLast);
     setClientGender(clientVehicle.sex || "M");
     setClientPlate(clientVehicle.plate_number || "N/A");
-    setClientAddress(
-      [clientVehicle.address, clientVehicle.city, clientVehicle.state, clientVehicle.zip]
-        .filter(Boolean)
-        .join(", ")
-    );
+    setClientAddress(clientVehicle.address || "");
+    setClientCity(clientVehicle.city || "");
+    setClientState(clientVehicle.state || "");
+    setClientZip(clientVehicle.zip || "");
     setAccidentDate(data.accident_date);
     setNoInjured(data.no_injured);
     setAccidentLocation(buildLocationString(data.accident_location));
     setOfficerNotes(data.officer_notes);
-    setDefendantName(`${m.defendantFirst} ${m.defendantLast}`);
+    setDefendantFirst(m.defendantFirst);
+    setDefendantLast(m.defendantLast);
     setDefendantVehicle(
       [defendantVehicle_.vehicle_year, defendantVehicle_.vehicle_make, defendantVehicle_.vehicle_type]
         .filter(Boolean)
@@ -210,6 +234,7 @@ export default function Dashboard() {
     );
     setClientEmail(m.clientEmail);
     setMatterId(m.matter.id);
+    setAccidentTime(data.accident_time || "");
 
     const sol = computeStatuteDate(data.accident_date, 8);
     setStatuteDate(sol);
@@ -220,16 +245,16 @@ export default function Dashboard() {
     setClientLast(data.vehicle_1.driver_name_last);
     setClientGender(data.vehicle_1.sex || "M");
     setClientPlate(data.vehicle_1.plate_number || "N/A");
-    setClientAddress(
-      [data.vehicle_1.address, data.vehicle_1.city, data.vehicle_1.state, data.vehicle_1.zip]
-        .filter(Boolean)
-        .join(", ")
-    );
+    setClientAddress(data.vehicle_1.address || "");
+    setClientCity(data.vehicle_1.city || "");
+    setClientState(data.vehicle_1.state || "");
+    setClientZip(data.vehicle_1.zip || "");
     setAccidentDate(data.accident_date);
     setNoInjured(data.no_injured);
     setAccidentLocation(buildLocationString(data.accident_location));
     setOfficerNotes(data.officer_notes);
-    setDefendantName(`${data.vehicle_2.driver_name_first} ${data.vehicle_2.driver_name_last}`);
+    setDefendantFirst(data.vehicle_2.driver_name_first);
+    setDefendantLast(data.vehicle_2.driver_name_last);
     setDefendantVehicle(
       [data.vehicle_2.vehicle_year, data.vehicle_2.vehicle_make, data.vehicle_2.vehicle_type]
         .filter(Boolean)
@@ -237,6 +262,7 @@ export default function Dashboard() {
     );
     setClientEmail(process.env.NEXT_PUBLIC_HACKATHON_EMAIL || "");
     setMatterId(0);
+    setAccidentTime(data.accident_time || "");
 
     const sol = computeStatuteDate(data.accident_date, 8);
     setStatuteDate(sol);
@@ -288,7 +314,7 @@ export default function Dashboard() {
               clientGender,
               accidentDate,
               accidentLocation,
-              defendantName,
+              defendantName: `${defendantFirst} ${defendantLast}`.trim(),
               registrationPlate: clientPlate,
               noInjured,
               officerNotes,
@@ -325,6 +351,17 @@ export default function Dashboard() {
     }
   }
 
+  // --- QA Audit helpers ---
+
+  function auditProps(key: string) {
+    if (!showAudit) return {};
+    return {
+      auditKey: key,
+      auditChecked: fieldAudit[key] || false,
+      onAuditToggle: () => setFieldAudit((prev) => ({ ...prev, [key]: !prev[key] })),
+    };
+  }
+
   // --- Reset ---
 
   function handleReset() {
@@ -342,12 +379,19 @@ export default function Dashboard() {
     setClientGender("M");
     setClientPlate("");
     setClientAddress("");
+    setClientCity("");
+    setClientState("");
+    setClientZip("");
     setAccidentDate("");
     setNoInjured(0);
     setAccidentLocation("");
     setOfficerNotes("");
-    setDefendantName("");
+    setDefendantFirst("");
+    setDefendantLast("");
     setDefendantVehicle("");
+    setAccidentTime("");
+    setShowAccidentTime(false);
+    setFieldAudit({});
     setClientEmail("");
     setMatterId(0);
     setStatuteDate("");
@@ -451,9 +495,27 @@ export default function Dashboard() {
             </div>
           )}
           {phase === "review" && (
-            <div className="flex items-center gap-2 bg-clio-success-bg px-5 py-3 text-sm text-clio-success">
-              <div className="h-2 w-2 rounded-full bg-current" />
-              AI extraction complete — review fields below
+            <div className="flex items-center justify-between bg-clio-success-bg px-5 py-3 text-sm">
+              <div className="flex items-center gap-2 text-clio-success">
+                <div className="h-2 w-2 rounded-full bg-current" />
+                AI extraction complete — review fields below
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAudit(!showAudit)}
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
+                  showAudit
+                    ? "bg-orange-100 text-orange-700"
+                    : "bg-white/60 text-clio-text-light hover:bg-white"
+                }`}
+              >
+                {showAudit ? "Hide" : "Show"} QA
+                {showAudit && Object.keys(fieldAudit).length > 0 && (
+                  <span className="rounded-full bg-orange-200 px-1.5 text-[10px]">
+                    {Object.values(fieldAudit).filter(Boolean).length}/{Object.keys(fieldAudit).length}
+                  </span>
+                )}
+              </button>
             </div>
           )}
 
@@ -497,52 +559,82 @@ export default function Dashboard() {
               {/* Client Info */}
               <Section title={`Client Information${match ? ` (Vehicle ${match.matchedVehicle})` : ""}`}>
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="First Name" confidence={extraction?.confidence?.vehicle_1_name}>
+                  <Field label="First Name" confidence={extraction?.confidence?.vehicle_1_name} {...auditProps("clientFirst")}>
                     <input className="input-field input-ai" value={clientFirst} onChange={(e) => setClientFirst(e.target.value)} />
                   </Field>
-                  <Field label="Last Name" confidence={extraction?.confidence?.vehicle_1_name}>
+                  <Field label="Last Name" confidence={extraction?.confidence?.vehicle_1_name} {...auditProps("clientLast")}>
                     <input className="input-field input-ai" value={clientLast} onChange={(e) => setClientLast(e.target.value)} />
                   </Field>
-                  <Field label="Gender">
+                  <Field label="Address" full {...auditProps("clientAddress")}>
+                    <input className="input-field input-ai" value={clientAddress} onChange={(e) => setClientAddress(e.target.value)} />
+                  </Field>
+                  <Field label="City or Town" {...auditProps("clientCity")}>
+                    <input className="input-field input-ai" value={clientCity} onChange={(e) => setClientCity(e.target.value)} />
+                  </Field>
+                  <Field label="State" {...auditProps("clientState")}>
+                    <input className="input-field input-ai" value={clientState} onChange={(e) => setClientState(e.target.value)} />
+                  </Field>
+                  <Field label="Zip Code" {...auditProps("clientZip")}>
+                    <input className="input-field input-ai" value={clientZip} onChange={(e) => setClientZip(e.target.value)} />
+                  </Field>
+                  <Field label="Gender" {...auditProps("clientGender")}>
                     <select className="input-field input-ai" value={clientGender} onChange={(e) => setClientGender(e.target.value)}>
                       <option value="M">Male (his/him)</option>
                       <option value="F">Female (her/she)</option>
                     </select>
                   </Field>
-                  <Field label="Registration Plate" confidence={extraction?.confidence?.plate_number}>
+                  <Field label="Registration Plate" confidence={extraction?.confidence?.plate_number} {...auditProps("clientPlate")}>
                     <input className="input-field input-ai" value={clientPlate} onChange={(e) => setClientPlate(e.target.value)} />
-                  </Field>
-                  <Field label="Client Address" full>
-                    <input className="input-field input-ai" value={clientAddress} onChange={(e) => setClientAddress(e.target.value)} />
                   </Field>
                 </div>
               </Section>
 
               {/* Accident Details */}
-              <Section title="Accident Details">
+              <div className="mb-6">
+                <div className="mb-3 flex items-center justify-between border-b border-clio-border pb-2">
+                  <h3 className="text-xs font-bold uppercase tracking-wide text-clio-text-light">
+                    Accident Details
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowAccidentTime(!showAccidentTime)}
+                    className="flex items-center gap-1 rounded px-2 py-0.5 text-xs text-clio-text-light transition-colors hover:bg-gray-100 hover:text-clio-text"
+                  >
+                    {showAccidentTime ? "Hide" : "Show"} Time
+                    <span className="text-[10px]">{showAccidentTime ? "\u25B2" : "\u25BC"}</span>
+                  </button>
+                </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="Date of Accident" confidence={extraction?.confidence?.accident_date}>
+                  <Field label="Date of Accident" confidence={extraction?.confidence?.accident_date} {...auditProps("accidentDate")}>
                     <input className="input-field input-ai" value={accidentDate} onChange={(e) => setAccidentDate(e.target.value)} />
                   </Field>
-                  <Field label="Number Injured" confidence={extraction?.confidence?.no_injured}>
+                  <Field label="Number Injured" confidence={extraction?.confidence?.no_injured} {...auditProps("noInjured")}>
                     <input className="input-field input-ai" type="number" value={noInjured} onChange={(e) => setNoInjured(parseInt(e.target.value) || 0)} />
                   </Field>
-                  <Field label="Accident Location" confidence={extraction?.confidence?.accident_location} full>
+                  {showAccidentTime && (
+                    <Field label="Time of Accident" confidence={extraction?.confidence?.accident_time} {...auditProps("accidentTime")}>
+                      <input className="input-field input-ai" value={accidentTime} onChange={(e) => setAccidentTime(e.target.value)} />
+                    </Field>
+                  )}
+                  <Field label="Accident Location" confidence={extraction?.confidence?.accident_location} full {...auditProps("accidentLocation")}>
                     <input className="input-field input-ai" value={accidentLocation} onChange={(e) => setAccidentLocation(e.target.value)} />
                   </Field>
-                  <Field label="Accident Description (officer notes)" confidence={extraction?.confidence?.officer_notes} full>
+                  <Field label="Accident Description (officer notes)" confidence={extraction?.confidence?.officer_notes} full {...auditProps("officerNotes")}>
                     <textarea className="input-field input-ai min-h-[80px] resize-y" value={officerNotes} onChange={(e) => setOfficerNotes(e.target.value)} />
                   </Field>
                 </div>
-              </Section>
+              </div>
 
               {/* Defendant */}
               <Section title="Defendant">
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="Defendant Name" confidence={extraction?.confidence?.vehicle_2_name}>
-                    <input className="input-field input-ai" value={defendantName} onChange={(e) => setDefendantName(e.target.value)} />
+                  <Field label="First Name" confidence={extraction?.confidence?.vehicle_2_name} {...auditProps("defendantFirst")}>
+                    <input className="input-field input-ai" value={defendantFirst} onChange={(e) => setDefendantFirst(e.target.value)} />
                   </Field>
-                  <Field label="Defendant Vehicle">
+                  <Field label="Last Name" confidence={extraction?.confidence?.vehicle_2_name} {...auditProps("defendantLast")}>
+                    <input className="input-field input-ai" value={defendantLast} onChange={(e) => setDefendantLast(e.target.value)} />
+                  </Field>
+                  <Field label="Defendant Vehicle" full {...auditProps("defendantVehicle")}>
                     <input className="input-field input-ai" value={defendantVehicle} onChange={(e) => setDefendantVehicle(e.target.value)} />
                   </Field>
                 </div>
@@ -697,17 +789,34 @@ function Field({
   label,
   confidence,
   full,
+  auditKey,
+  auditChecked,
+  onAuditToggle,
   children,
 }: {
   label: string;
   confidence?: number;
   full?: boolean;
+  auditKey?: string;
+  auditChecked?: boolean;
+  onAuditToggle?: () => void;
   children: React.ReactNode;
 }) {
   return (
     <div className={`flex flex-col gap-1 ${full ? "col-span-2" : ""}`}>
       <div className="flex items-center justify-between">
-        <label className="text-xs font-semibold text-clio-text-light">{label}</label>
+        <div className="flex items-center gap-1.5">
+          {auditKey !== undefined && (
+            <input
+              type="checkbox"
+              checked={auditChecked || false}
+              onChange={onAuditToggle}
+              className="h-3.5 w-3.5 cursor-pointer rounded border-gray-300 accent-green-600"
+              title={auditChecked ? "Marked correct" : "Mark as correct"}
+            />
+          )}
+          <label className="text-xs font-semibold text-clio-text-light">{label}</label>
+        </div>
         {confidenceBadge(confidence)}
       </div>
       {children}
