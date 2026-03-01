@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarding — Lawyer Boss (Admin Setup) — Richards & Law (Design Mockup)</title>
+<style>
+  /* ============================================================
+     ROOT / TOKENS
+     ============================================================ */
+  :root {
+    --clio-blue: #0070E0;
+    --clio-blue-dark: #005BBB;
+    --clio-blue-light: #E8F2FC;
+    --clio-text: #333333;
+    --clio-text-light: #666666;
+    --clio-bg: #F5F7FA;
+    --clio-white: #FFFFFF;
+    --clio-border: #D1D9E0;
+    --clio-success: #0D9B4A;
+    --clio-success-bg: #E6F7ED;
+    --clio-warning: #E67E22;
+    --clio-warning-bg: #FFF5EB;
+    --clio-error: #D63031;
+    --clio-error-bg: #FDEDEE;
+    --radius: 8px;
+    --radius-lg: 12px;
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-card-hover: 0 4px 12px rgba(0,0,0,0.08);
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font);
+    background: #1a1a2e;
+    color: var(--clio-text);
+    line-height: 1.5;
+    padding: 48px 0 80px;
+  }
+
+  /* ============================================================
+     PRESENTATION WRAPPER — dark background with browser frames
+     ============================================================ */
+  .presentation-label {
+    text-align: center;
+    color: #8888aa;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .presentation-title {
+    text-align: center;
+    color: #e0e0f0;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+  .presentation-subtitle {
+    text-align: center;
+    color: #8888aa;
+    font-size: 15px;
+    font-weight: 400;
+    margin-bottom: 56px;
+  }
+
+  .screen-section {
+    max-width: 1340px;
+    margin: 0 auto 64px;
+    padding: 0 30px;
+  }
+  .screen-label {
+    color: #b0b0cc;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-left: 4px;
+  }
+
+  /* Browser frame */
+  .browser-frame {
+    background: #2a2a3e;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .browser-chrome {
+    background: #3a3a50;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .browser-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .browser-dots span {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    display: block;
+  }
+  .browser-dots span:nth-child(1) { background: #ff5f57; }
+  .browser-dots span:nth-child(2) { background: #ffbd2e; }
+  .browser-dots span:nth-child(3) { background: #28c840; }
+  .browser-url {
+    flex: 1;
+    background: #22222e;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: #8888aa;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+  .browser-viewport {
+    width: 1280px;
+    min-height: 800px;
+    background: var(--clio-bg);
+    overflow: hidden;
+  }
+
+  /* ============================================================
+     APP HEADER
+     ============================================================ */
+  .app-header {
+    background: var(--clio-white);
+    border-bottom: 1px solid var(--clio-border);
+    padding: 0 28px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--clio-blue);
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+  }
+  .logo-divider {
+    color: var(--clio-border);
+    font-weight: 300;
+    font-size: 20px;
+    margin: 0 4px;
+  }
+  .logo-sub {
+    font-size: 15px;
+    color: var(--clio-text-light);
+    font-weight: 400;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .header-user {
+    font-size: 13px;
+    color: var(--clio-text);
+    font-weight: 500;
+  }
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--clio-blue);
+    color: var(--clio-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* ============================================================
+     ONBOARDING CONTENT AREA
+     ============================================================ */
+  .onboarding-content {
+    padding: 40px 60px 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Step indicator */
+  .step-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--clio-blue-light);
+    color: var(--clio-blue);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .onboarding-heading {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--clio-text);
+    text-align: center;
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+    max-width: 680px;
+  }
+  .onboarding-subheading {
+    font-size: 15px;
+    color: var(--clio-text-light);
+    text-align: center;
+    margin-bottom: 36px;
+    max-width: 560px;
+    line-height: 1.6;
+  }
+
+  /* ============================================================
+     STEP 1 — ROI STATS
+     ============================================================ */
+  .roi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    width: 100%;
+    max-width: 780px;
+    margin-bottom: 32px;
+  }
+  .roi-card {
+    background: var(--clio-white);
+    border-radius: var(--radius-lg);
+    padding: 28px 24px;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--clio-border);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .roi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--clio-blue);
+  }
+  .roi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--clio-blue-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+  }
+  .roi-icon svg {
+    width: 24px;
+    height: 24px;
+    color: var(--clio-blue);
+  }
+  .roi-stat {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--clio-blue);
+    margin-bottom: 4px;
+    letter-spacing: -0.5px;
+  }
+  .roi-label {
+    font-size: 13px;
+    color: var(--clio-text-light);
+    line-height: 1.4;
+  }
+
+  .description-box {
+    background: var(--clio-white);
+    border-radius: var(--radius-lg);
+    padding: 24px 28px;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--clio-border);
+    width: 100%;
+    max-width: 780px;
+    margin-bottom: 32px;
+  }
+  .description-box p {
+    font-size: 14px;
+    color: var(--clio-text);
+    line-height: 1.7;
+  }
+
+  /* CTA Buttons */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--clio-blue);
+    color: var(--clio-white);
+    font-size: 15px;
+    font-weight: 600;
+    padding: 12px 32px;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    text-decoration: none;
+  }
+  .btn-primary:hover {
+    background: var(--clio-blue-dark);
+  }
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--clio-text-light);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    transition: color 0.15s ease;
+    text-decoration: none;
+  }
+  .btn-back:hover {
+    color: var(--clio-text);
+  }
+  .btn-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 4px;
+  }
+
+  /* Progress bar */
+  .progress-bar-container {
+    width: 100%;
+    max-width: 780px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--clio-border);
+  }
+  .progress-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--clio-text-light);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .progress-track {
+    width: 100%;
+    height: 6px;
+    background: #E2E6EC;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--clio-blue);
+    transition: width 0.3s ease;
+  }
+
+  /* ============================================================
+     STEP 2 — CHECKLIST SETTINGS
+     ============================================================ */
+  .settings-card {
+    background: var(--clio-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--clio-border);
+    width: 100%;
+    max-width: 780px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .settings-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--clio-border);
+  }
+  .settings-item:last-child {
+    border-bottom: none;
+  }
+
+  /* Toggle switch */
+  .toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+  .toggle-slider {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #C8CED6;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .toggle-slider::after {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--clio-white);
+    top: 3px;
+    left: 3px;
+    transition: transform 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  .toggle input:checked + .toggle-slider {
+    background: var(--clio-blue);
+  }
+  .toggle input:checked + .toggle-slider::after {
+    transform: translateX(20px);
+  }
+
+  .settings-text {
+    flex: 1;
+  }
+  .settings-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--clio-text);
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .settings-desc {
+    font-size: 13px;
+    color: var(--clio-text-light);
+    line-height: 1.5;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .tag-required {
+    background: var(--clio-blue-light);
+    color: var(--clio-blue);
+  }
+  .tag-optional {
+    background: var(--clio-bg);
+    color: var(--clio-text-light);
+  }
+
+  .settings-note {
+    background: var(--clio-blue-light);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    width: 100%;
+    max-width: 780px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .settings-note svg {
+    width: 18px;
+    height: 18px;
+    color: var(--clio-blue);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .settings-note p {
+    font-size: 13px;
+    color: var(--clio-blue-dark);
+    line-height: 1.5;
+  }
+
+  /* ============================================================
+     STEP 3 — INTEGRATION STATUS
+     ============================================================ */
+  .integration-list {
+    width: 100%;
+    max-width: 780px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .integration-card {
+    background: var(--clio-white);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--clio-border);
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .integration-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .integration-icon.green {
+    background: var(--clio-success-bg);
+  }
+  .integration-icon.yellow {
+    background: var(--clio-warning-bg);
+  }
+  .integration-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+  .integration-icon.green svg {
+    color: var(--clio-success);
+  }
+  .integration-icon.yellow svg {
+    color: var(--clio-warning);
+  }
+  .integration-text {
+    flex: 1;
+  }
+  .integration-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--clio-text);
+    margin-bottom: 2px;
+  }
+  .integration-status {
+    font-size: 13px;
+    color: var(--clio-text-light);
+    line-height: 1.5;
+  }
+  .integration-detail {
+    font-size: 12px;
+    color: var(--clio-text-light);
+    margin-top: 2px;
+  }
+  .status-connected {
+    color: var(--clio-success);
+    font-weight: 500;
+  }
+  .status-warning {
+    color: var(--clio-warning);
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<!-- ================================================================
+     PRESENTATION HEADER
+     ================================================================ -->
+<div style="padding: 0 30px; max-width: 1340px; margin: 0 auto 40px;">
+  <div class="presentation-label">Onboarding &mdash; Firm Administrator</div>
+  <div class="presentation-title">Admin Setup for Andrew Richards</div>
+  <div class="presentation-subtitle">3-step setup for firm owners and attorneys</div>
+</div>
+
+<!-- ================================================================
+     STEP 1 — WELCOME & ROI
+     ================================================================ -->
+<div class="screen-section">
+  <div class="screen-label">Step 1 &mdash; Welcome &amp; ROI</div>
+  <div class="browser-frame">
+    <div class="browser-chrome">
+      <div class="browser-dots"><span></span><span></span><span></span></div>
+      <div class="browser-url">localhost:3001/onboarding/admin</div>
+    </div>
+    <div class="browser-viewport">
+
+      <!-- App Header -->
+      <div class="app-header">
+        <div class="header-left">
+          <span class="logo">Richards &amp; Law</span>
+          <span class="logo-divider">|</span>
+          <span class="logo-sub">Smart Intake</span>
+        </div>
+        <div class="header-right">
+          <span class="header-user">Andrew Richards</span>
+          <div class="avatar">AR</div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="onboarding-content">
+        <div class="step-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Step 1 of 3
+        </div>
+
+        <h1 class="onboarding-heading">Welcome, Andrew. Here's What Smart Intake Does for Your Firm.</h1>
+        <p class="onboarding-subheading">One-click automation from police report to client email — after your team verifies the data.</p>
+
+        <!-- ROI Cards -->
+        <div class="roi-grid">
+          <!-- Card 1: Time -->
+          <div class="roi-card">
+            <div class="roi-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="roi-stat">45 min &rarr; 3 min</div>
+            <div class="roi-label">Average intake time per case</div>
+          </div>
+          <!-- Card 2: Accuracy -->
+          <div class="roi-card">
+            <div class="roi-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+            </div>
+            <div class="roi-stat">99.2%</div>
+            <div class="roi-label">Data accuracy with AI extraction</div>
+          </div>
+          <!-- Card 3: Savings -->
+          <div class="roi-card">
+            <div class="roi-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div class="roi-stat">12 hrs/week</div>
+            <div class="roi-label">Staff time saved on manual entry</div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="description-box">
+          <p>Smart Intake reads police report PDFs, extracts all relevant data, matches to the right Clio Matter, generates the retainer agreement, sets the statute of limitations deadline, and emails the client &mdash; all in one click after your team verifies the data.</p>
+        </div>
+
+        <!-- CTA -->
+        <button class="btn-primary">
+          Set Up Your Firm
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+
+        <!-- Progress -->
+        <div class="progress-bar-container">
+          <div class="progress-label">Step 1 of 3</div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width: 33.33%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     STEP 2 — CONFIGURE CHECKLIST
+     ================================================================ -->
+<div class="screen-section">
+  <div class="screen-label">Step 2 &mdash; Configure Checklist</div>
+  <div class="browser-frame">
+    <div class="browser-chrome">
+      <div class="browser-dots"><span></span><span></span><span></span></div>
+      <div class="browser-url">localhost:3001/onboarding/admin/checklist</div>
+    </div>
+    <div class="browser-viewport">
+
+      <!-- App Header -->
+      <div class="app-header">
+        <div class="header-left">
+          <span class="logo">Richards &amp; Law</span>
+          <span class="logo-divider">|</span>
+          <span class="logo-sub">Smart Intake</span>
+        </div>
+        <div class="header-right">
+          <span class="header-user">Andrew Richards</span>
+          <div class="avatar">AR</div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="onboarding-content">
+        <div class="step-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Step 2 of 3
+        </div>
+
+        <h1 class="onboarding-heading">Configure the Pre-Approve Checklist</h1>
+        <p class="onboarding-subheading">Control which verification steps your team must complete before approving a report.</p>
+
+        <!-- Settings Card -->
+        <div class="settings-card">
+          <!-- Item 1: ON -->
+          <div class="settings-item">
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+            <div class="settings-text">
+              <div class="settings-name">
+                Client name matches Clio Matter
+                <span class="tag tag-required">Required</span>
+              </div>
+              <div class="settings-desc">Verify the extracted client name matches the contact on the linked Clio Matter.</div>
+            </div>
+          </div>
+
+          <!-- Item 2: ON -->
+          <div class="settings-item">
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+            <div class="settings-text">
+              <div class="settings-name">
+                Accident date is correct
+                <span class="tag tag-required">Required</span>
+              </div>
+              <div class="settings-desc">Confirm the extracted accident date matches the date shown on the police report.</div>
+            </div>
+          </div>
+
+          <!-- Item 3: ON -->
+          <div class="settings-item">
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+            <div class="settings-text">
+              <div class="settings-name">
+                Defendant name is correct
+                <span class="tag tag-required">Required</span>
+              </div>
+              <div class="settings-desc">Verify the at-fault party name extracted from the report is accurate.</div>
+            </div>
+          </div>
+
+          <!-- Item 4: OFF -->
+          <div class="settings-item">
+            <label class="toggle">
+              <input type="checkbox">
+              <span class="toggle-slider"></span>
+            </label>
+            <div class="settings-text">
+              <div class="settings-name">
+                All vehicle/pedestrian info verified
+                <span class="tag tag-optional">Optional</span>
+              </div>
+              <div class="settings-desc">Check that vehicle details, registration plates, and pedestrian/bicyclist info are correct.</div>
+            </div>
+          </div>
+
+          <!-- Item 5: OFF -->
+          <div class="settings-item">
+            <label class="toggle">
+              <input type="checkbox">
+              <span class="toggle-slider"></span>
+            </label>
+            <div class="settings-text">
+              <div class="settings-name">
+                Officer notes reviewed
+                <span class="tag tag-optional">Optional</span>
+              </div>
+              <div class="settings-desc">Review the narrative and officer observations for any discrepancies or missing details.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info Note -->
+        <div class="settings-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <p>Your team will only see enabled items. They must check all enabled items before the Approve button activates.</p>
+        </div>
+
+        <!-- Buttons -->
+        <div class="btn-row">
+          <a href="#" class="btn-back">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Back
+          </a>
+          <button class="btn-primary">
+            Save &amp; Continue
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-bar-container">
+          <div class="progress-label">Step 2 of 3</div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width: 66.66%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     STEP 3 — INTEGRATION STATUS
+     ================================================================ -->
+<div class="screen-section">
+  <div class="screen-label">Step 3 &mdash; Integration Status</div>
+  <div class="browser-frame">
+    <div class="browser-chrome">
+      <div class="browser-dots"><span></span><span></span><span></span></div>
+      <div class="browser-url">localhost:3001/onboarding/admin/integrations</div>
+    </div>
+    <div class="browser-viewport">
+
+      <!-- App Header -->
+      <div class="app-header">
+        <div class="header-left">
+          <span class="logo">Richards &amp; Law</span>
+          <span class="logo-divider">|</span>
+          <span class="logo-sub">Smart Intake</span>
+        </div>
+        <div class="header-right">
+          <span class="header-user">Andrew Richards</span>
+          <div class="avatar">AR</div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="onboarding-content">
+        <div class="step-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          Step 3 of 3
+        </div>
+
+        <h1 class="onboarding-heading">Your Integrations</h1>
+        <p class="onboarding-subheading">Everything is connected and ready to go.</p>
+
+        <!-- Integration List -->
+        <div class="integration-list">
+
+          <!-- 1. Clio Manage -->
+          <div class="integration-card">
+            <div class="integration-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="integration-text">
+              <div class="integration-name">Clio Manage</div>
+              <div class="integration-status"><span class="status-connected">Connected</span> &mdash; EU Account (App ID: 4100)</div>
+              <div class="integration-detail">8 custom fields configured</div>
+            </div>
+          </div>
+
+          <!-- 2. AI Provider -->
+          <div class="integration-card">
+            <div class="integration-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="integration-text">
+              <div class="integration-name">AI Provider</div>
+              <div class="integration-status"><span class="status-connected">OpenAI GPT-4o (active)</span> &mdash; Anthropic Claude (standby)</div>
+              <div class="integration-detail">Primary extraction and email generation</div>
+            </div>
+          </div>
+
+          <!-- 3. Email (Resend) — warning -->
+          <div class="integration-card">
+            <div class="integration-icon yellow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="integration-text">
+              <div class="integration-name">Email (Resend)</div>
+              <div class="integration-status"><span class="status-warning">API key configured</span></div>
+              <div class="integration-detail">Sending to: huwas003@gmail.com</div>
+            </div>
+          </div>
+
+          <!-- 4. Calendar -->
+          <div class="integration-card">
+            <div class="integration-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="integration-text">
+              <div class="integration-name">Calendar</div>
+              <div class="integration-status"><span class="status-connected">Connected</span> &mdash; Calendar ID: 437603</div>
+              <div class="integration-detail">SOL = accident date + 8 years</div>
+            </div>
+          </div>
+
+          <!-- 5. Retainer Template -->
+          <div class="integration-card">
+            <div class="integration-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="integration-text">
+              <div class="integration-name">Retainer Template</div>
+              <div class="integration-status"><span class="status-connected">Connected</span> &mdash; Template ID: 359618</div>
+              <div class="integration-detail">Auto-generated via Clio Document Automation</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- CTA -->
+        <div class="btn-row">
+          <a href="#" class="btn-back">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Back
+          </a>
+          <button class="btn-primary" style="padding: 14px 40px; font-size: 16px;">
+            Go to Admin Dashboard
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-bar-container">
+          <div class="progress-label">Step 3 of 3</div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width: 100%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

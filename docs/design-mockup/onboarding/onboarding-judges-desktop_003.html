@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarding — Hackathon Judges Demo (Desktop)</title>
+<style>
+  /* ============================================================
+     ROOT / TOKENS
+     ============================================================ */
+  :root {
+    --clio-blue: #0070E0;
+    --clio-blue-dark: #005BBB;
+    --clio-blue-light: #E8F2FC;
+    --clio-text: #333333;
+    --clio-text-light: #666666;
+    --clio-bg: #F5F7FA;
+    --clio-white: #FFFFFF;
+    --clio-border: #D1D9E0;
+    --clio-success: #0D9B4A;
+    --clio-success-bg: #E6F7ED;
+    --clio-warning: #E67E22;
+    --clio-warning-bg: #FFF5EB;
+    --clio-error: #D63031;
+    --clio-error-bg: #FDEDEE;
+    --radius: 8px;
+    --radius-lg: 12px;
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font);
+    background: #1a1a2e;
+    color: var(--clio-text);
+    line-height: 1.5;
+    padding: 48px 0 80px;
+  }
+
+  /* ============================================================
+     PRESENTATION HEADER (above browser frame)
+     ============================================================ */
+  .presentation-label {
+    text-align: center;
+    color: #8888aa;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .presentation-title {
+    text-align: center;
+    color: #e0e0f0;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+  .presentation-subtitle {
+    text-align: center;
+    color: #8888aa;
+    font-size: 15px;
+    font-weight: 400;
+    margin-bottom: 48px;
+  }
+
+  /* ============================================================
+     SCREEN SECTION
+     ============================================================ */
+  .screen-section {
+    max-width: 1340px;
+    margin: 0 auto 64px;
+    padding: 0 30px;
+  }
+
+  /* ============================================================
+     BROWSER FRAME
+     ============================================================ */
+  .browser-frame {
+    background: #2a2a3e;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .browser-chrome {
+    background: #3a3a50;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .browser-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .browser-dots span {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    display: block;
+  }
+  .browser-dots span:nth-child(1) { background: #ff5f57; }
+  .browser-dots span:nth-child(2) { background: #ffbd2e; }
+  .browser-dots span:nth-child(3) { background: #28c840; }
+  .browser-url {
+    flex: 1;
+    background: #22222e;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: #8888aa;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+  .browser-viewport {
+    width: 1280px;
+    min-height: 800px;
+    background: var(--clio-bg);
+    overflow: hidden;
+  }
+
+  /* ============================================================
+     APP HEADER
+     ============================================================ */
+  .app-header {
+    background: var(--clio-white);
+    border-bottom: 1px solid var(--clio-border);
+    padding: 0 28px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--clio-blue);
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+  }
+  .logo-divider {
+    color: var(--clio-border);
+    font-weight: 300;
+    font-size: 20px;
+    margin: 0 4px;
+  }
+  .logo-sub {
+    font-size: 15px;
+    color: var(--clio-text-light);
+    font-weight: 400;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .demo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    background: var(--clio-blue-light);
+    color: var(--clio-blue);
+  }
+  .demo-badge svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ============================================================
+     HERO SECTION
+     ============================================================ */
+  .hero {
+    text-align: center;
+    padding: 56px 48px 48px;
+    background: linear-gradient(180deg, var(--clio-white) 0%, var(--clio-bg) 100%);
+    border-bottom: 1px solid var(--clio-border);
+  }
+  .hero-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, var(--clio-blue) 0%, var(--clio-blue-dark) 100%);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,112,224,0.25);
+  }
+  .hero-icon svg {
+    width: 36px;
+    height: 36px;
+    color: #fff;
+  }
+  .hero h1 {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--clio-text);
+    letter-spacing: -0.5px;
+    margin-bottom: 10px;
+  }
+  .hero h1 span {
+    color: var(--clio-blue);
+  }
+  .hero-subtitle {
+    font-size: 17px;
+    color: var(--clio-text-light);
+    max-width: 560px;
+    margin: 0 auto 24px;
+    line-height: 1.6;
+  }
+  .hero-badges {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1.5px solid;
+  }
+  .hero-badge.blue {
+    color: var(--clio-blue);
+    border-color: var(--clio-blue);
+    background: var(--clio-blue-light);
+  }
+  .hero-badge.green {
+    color: var(--clio-success);
+    border-color: var(--clio-success);
+    background: var(--clio-success-bg);
+  }
+  .hero-badge svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  /* ============================================================
+     CONTENT AREA
+     ============================================================ */
+  .content-area {
+    padding: 40px 48px 56px;
+  }
+
+  /* ============================================================
+     PROBLEM / SOLUTION
+     ============================================================ */
+  .section-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--clio-text);
+    margin-bottom: 6px;
+    letter-spacing: -0.3px;
+  }
+  .section-desc {
+    text-align: center;
+    font-size: 14px;
+    color: var(--clio-text-light);
+    margin-bottom: 28px;
+  }
+
+  .problem-solution {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+  .ps-card {
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    border: 1px solid;
+  }
+  .ps-card.problem {
+    background: #FEF5F5;
+    border-color: #F5C6C6;
+  }
+  .ps-card.solution {
+    background: #F0FAF4;
+    border-color: #B8E6CA;
+  }
+  .ps-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .ps-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .ps-icon.red {
+    background: var(--clio-error);
+  }
+  .ps-icon.green {
+    background: var(--clio-success);
+  }
+  .ps-icon svg {
+    width: 20px;
+    height: 20px;
+    color: #fff;
+  }
+  .ps-card-header h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--clio-text);
+  }
+  .ps-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .ps-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--clio-text);
+    line-height: 1.5;
+  }
+  .ps-list li .bullet {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .ps-list li .bullet.red {
+    background: var(--clio-error-bg);
+    color: var(--clio-error);
+  }
+  .ps-list li .bullet.green {
+    background: var(--clio-success-bg);
+    color: var(--clio-success);
+  }
+  .ps-list li .bullet svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* ============================================================
+     5-STEP PIPELINE
+     ============================================================ */
+  .pipeline-section {
+    margin-bottom: 48px;
+  }
+  .pipeline {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0;
+    padding: 8px 0;
+  }
+  .pipeline-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 160px;
+    position: relative;
+  }
+  .pipeline-node {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--clio-white);
+    border: 2.5px solid var(--clio-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0,112,224,0.12);
+    transition: all 0.2s ease;
+  }
+  .pipeline-node svg {
+    width: 26px;
+    height: 26px;
+    color: var(--clio-blue);
+  }
+  .pipeline-num {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--clio-blue);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+  }
+  .pipeline-label {
+    margin-top: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--clio-text);
+    text-align: center;
+  }
+  .pipeline-desc {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--clio-text-light);
+    text-align: center;
+    line-height: 1.4;
+  }
+  .pipeline-arrow {
+    display: flex;
+    align-items: center;
+    height: 64px;
+    margin: 0 -8px;
+    z-index: 1;
+  }
+  .pipeline-arrow svg {
+    width: 48px;
+    height: 16px;
+    color: var(--clio-blue);
+    opacity: 0.5;
+  }
+
+  /* ============================================================
+     BEFORE & AFTER
+     ============================================================ */
+  .before-after-section {
+    margin-bottom: 48px;
+  }
+  .before-after {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .ba-card {
+    border-radius: var(--radius-lg);
+    background: var(--clio-white);
+    border: 1px solid var(--clio-border);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+  .ba-header {
+    padding: 16px 24px;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--clio-border);
+  }
+  .ba-header.before {
+    background: #FEF5F5;
+    color: var(--clio-error);
+  }
+  .ba-header.after {
+    background: #F0FAF4;
+    color: var(--clio-success);
+  }
+  .ba-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 22px;
+    font-weight: 800;
+  }
+  .ba-time svg {
+    width: 18px;
+    height: 18px;
+  }
+  .ba-body {
+    padding: 20px 24px;
+  }
+
+  /* Before card — messy form simulation */
+  .messy-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .messy-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .messy-label {
+    width: 100px;
+    font-size: 11px;
+    color: var(--clio-text-light);
+    text-align: right;
+    font-weight: 500;
+  }
+  .messy-field {
+    flex: 1;
+    height: 28px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    background: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .messy-field .scribble {
+    position: absolute;
+    top: 5px;
+    left: 8px;
+    font-size: 12px;
+    color: #888;
+    font-family: 'Brush Script MT', 'Comic Sans MS', cursive;
+    transform: rotate(-1deg);
+    white-space: nowrap;
+  }
+  .messy-field.error {
+    border-color: var(--clio-error);
+    background: var(--clio-error-bg);
+  }
+  .messy-field.error .scribble {
+    color: var(--clio-error);
+    text-decoration: line-through;
+  }
+  .messy-note {
+    font-size: 10px;
+    color: var(--clio-error);
+    font-style: italic;
+    text-align: center;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .messy-note svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* After card — clean Clio fields */
+  .clean-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .clean-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .clean-label {
+    width: 100px;
+    font-size: 11px;
+    color: var(--clio-text-light);
+    text-align: right;
+    font-weight: 500;
+  }
+  .clean-field {
+    flex: 1;
+    height: 28px;
+    border-radius: 4px;
+    border: 1px solid var(--clio-success);
+    background: var(--clio-success-bg);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    font-size: 12px;
+    color: var(--clio-text);
+    font-weight: 500;
+    gap: 6px;
+  }
+  .clean-field .check {
+    color: var(--clio-success);
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+  .clean-note {
+    font-size: 10px;
+    color: var(--clio-success);
+    font-weight: 600;
+    text-align: center;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .clean-note svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* ============================================================
+     TECH STACK
+     ============================================================ */
+  .tech-section {
+    margin-bottom: 48px;
+  }
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+  }
+  .tech-card {
+    background: var(--clio-white);
+    border-radius: var(--radius);
+    border: 1px solid var(--clio-border);
+    padding: 20px 16px;
+    text-align: center;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .tech-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+  .tech-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tech-icon svg {
+    width: 22px;
+    height: 22px;
+    color: #fff;
+  }
+  .tech-icon.nextjs { background: #000; }
+  .tech-icon.ai { background: linear-gradient(135deg, #8B5CF6, #6D28D9); }
+  .tech-icon.clio { background: var(--clio-blue); }
+  .tech-icon.email { background: var(--clio-success); }
+  .tech-icon.deploy { background: #333; }
+  .tech-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--clio-text);
+    margin-bottom: 3px;
+  }
+  .tech-desc {
+    font-size: 12px;
+    color: var(--clio-text-light);
+  }
+
+  /* ============================================================
+     CTA SECTION
+     ============================================================ */
+  .cta-section {
+    text-align: center;
+    padding: 40px 48px;
+    background: linear-gradient(180deg, var(--clio-bg) 0%, var(--clio-white) 100%);
+    border-top: 1px solid var(--clio-border);
+  }
+  .cta-section h2 {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--clio-text);
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+  }
+  .cta-subtitle {
+    font-size: 15px;
+    color: var(--clio-text-light);
+    max-width: 480px;
+    margin: 0 auto 28px;
+    line-height: 1.6;
+  }
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 36px;
+    background: linear-gradient(135deg, var(--clio-blue) 0%, var(--clio-blue-dark) 100%);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,112,224,0.3);
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+  .cta-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0,112,224,0.4);
+  }
+  .cta-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+  .cta-link {
+    display: block;
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--clio-blue);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .cta-link:hover {
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     PRESENTATION HEADER (above browser frame)
+     ============================================================ -->
+<div style="padding: 0 30px;">
+  <div class="presentation-label">ONBOARDING &mdash; HACKATHON JUDGES</div>
+  <div class="presentation-title">Demo Experience for Evaluators</div>
+  <div class="presentation-subtitle">Single-page overview for Swans Applied AI Hackathon judges</div>
+</div>
+
+<!-- ============================================================
+     BROWSER FRAME
+     ============================================================ -->
+<div class="screen-section">
+  <div class="browser-frame">
+    <div class="browser-chrome">
+      <div class="browser-dots"><span></span><span></span><span></span></div>
+      <div class="browser-url">localhost:3001/demo</div>
+    </div>
+    <div class="browser-viewport">
+
+      <!-- APP HEADER -->
+      <div class="app-header">
+        <div class="header-left">
+          <span class="logo">Richards &amp; Law</span>
+          <span class="logo-divider">|</span>
+          <span class="logo-sub">Smart Intake</span>
+        </div>
+        <div class="header-right">
+          <div class="demo-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+            Demo Mode
+          </div>
+        </div>
+      </div>
+
+      <!-- HERO -->
+      <div class="hero">
+        <div class="hero-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="12" y1="12" x2="12" y2="18"/></svg>
+        </div>
+        <h1><span>Smart Intake</span> by Richards &amp; Law</h1>
+        <p class="hero-subtitle">AI-powered police report processing for personal injury law firms</p>
+        <div class="hero-badges">
+          <span class="hero-badge blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            Swans Applied AI Hackathon 2026
+          </span>
+          <span class="hero-badge green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Built with Clio + AI
+          </span>
+        </div>
+      </div>
+
+      <!-- CONTENT AREA -->
+      <div class="content-area">
+
+        <!-- PROBLEM / SOLUTION -->
+        <div class="section-title">The Problem &amp; Our Solution</div>
+        <div class="section-desc">From manual bottleneck to automated pipeline</div>
+        <div class="problem-solution">
+          <!-- Problem -->
+          <div class="ps-card problem">
+            <div class="ps-card-header">
+              <div class="ps-icon red">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              </div>
+              <h3>The Problem</h3>
+            </div>
+            <ul class="ps-list">
+              <li>
+                <span class="bullet red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+                Manual intake takes 45+ minutes per case
+              </li>
+              <li>
+                <span class="bullet red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+                Data entry errors lead to missed deadlines
+              </li>
+              <li>
+                <span class="bullet red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+                Retainer agreements delayed by days
+              </li>
+              <li>
+                <span class="bullet red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+                No audit trail for compliance
+              </li>
+            </ul>
+          </div>
+          <!-- Solution -->
+          <div class="ps-card solution">
+            <div class="ps-card-header">
+              <div class="ps-icon green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <h3>Our Solution</h3>
+            </div>
+            <ul class="ps-list">
+              <li>
+                <span class="bullet green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                AI extracts all data in under 60 seconds
+              </li>
+              <li>
+                <span class="bullet green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                99%+ accuracy with human verification
+              </li>
+              <li>
+                <span class="bullet green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                Retainer generated and emailed instantly
+              </li>
+              <li>
+                <span class="bullet green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                Full audit trail with Supabase logging
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 5-STEP PIPELINE -->
+        <div class="pipeline-section">
+          <div class="section-title">How It Works</div>
+          <div class="section-desc">Five steps from police report to completed case file</div>
+          <div class="pipeline">
+            <!-- Step 1 -->
+            <div class="pipeline-step">
+              <div class="pipeline-node">
+                <span class="pipeline-num">1</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <div class="pipeline-label">Upload</div>
+              <div class="pipeline-desc">PDF or camera capture</div>
+            </div>
+            <!-- Arrow -->
+            <div class="pipeline-arrow">
+              <svg viewBox="0 0 48 16"><path d="M0 8h42M36 2l8 6-8 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <!-- Step 2 -->
+            <div class="pipeline-step">
+              <div class="pipeline-node">
+                <span class="pipeline-num">2</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              </div>
+              <div class="pipeline-label">Extract</div>
+              <div class="pipeline-desc">AI reads the report</div>
+            </div>
+            <!-- Arrow -->
+            <div class="pipeline-arrow">
+              <svg viewBox="0 0 48 16"><path d="M0 8h42M36 2l8 6-8 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <!-- Step 3 -->
+            <div class="pipeline-step">
+              <div class="pipeline-node">
+                <span class="pipeline-num">3</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </div>
+              <div class="pipeline-label">Review</div>
+              <div class="pipeline-desc">Human verifies data</div>
+            </div>
+            <!-- Arrow -->
+            <div class="pipeline-arrow">
+              <svg viewBox="0 0 48 16"><path d="M0 8h42M36 2l8 6-8 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <!-- Step 4 -->
+            <div class="pipeline-step">
+              <div class="pipeline-node">
+                <span class="pipeline-num">4</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <div class="pipeline-label">Approve</div>
+              <div class="pipeline-desc">One-click automation</div>
+            </div>
+            <!-- Arrow -->
+            <div class="pipeline-arrow">
+              <svg viewBox="0 0 48 16"><path d="M0 8h42M36 2l8 6-8 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <!-- Step 5 -->
+            <div class="pipeline-step">
+              <div class="pipeline-node">
+                <span class="pipeline-num">5</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="pipeline-label">Complete</div>
+              <div class="pipeline-desc">Clio + Email + Calendar</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BEFORE & AFTER -->
+        <div class="before-after-section">
+          <div class="section-title">Before &amp; After</div>
+          <div class="section-desc">The same case, two very different experiences</div>
+          <div class="before-after">
+            <!-- Before -->
+            <div class="ba-card">
+              <div class="ba-header before">
+                <span>Before Smart Intake</span>
+                <span class="ba-time">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  45 min
+                </span>
+              </div>
+              <div class="ba-body">
+                <div class="messy-form">
+                  <div class="messy-row">
+                    <span class="messy-label">Client Name</span>
+                    <div class="messy-field"><span class="scribble">G. Reyes... Guillrmo?</span></div>
+                  </div>
+                  <div class="messy-row">
+                    <span class="messy-label">Accident Date</span>
+                    <div class="messy-field error"><span class="scribble">Jan 15 2026?</span></div>
+                  </div>
+                  <div class="messy-row">
+                    <span class="messy-label">Location</span>
+                    <div class="messy-field"><span class="scribble">Main St &amp; 5th... or 3rd?</span></div>
+                  </div>
+                  <div class="messy-row">
+                    <span class="messy-label">Defendant</span>
+                    <div class="messy-field error"><span class="scribble">Francois, Franc...</span></div>
+                  </div>
+                  <div class="messy-row">
+                    <span class="messy-label">Plate #</span>
+                    <div class="messy-field"><span class="scribble">ABC 1234??</span></div>
+                  </div>
+                  <div class="messy-note">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    Errors found during review &mdash; re-entry required
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- After -->
+            <div class="ba-card">
+              <div class="ba-header after">
+                <span>After Smart Intake</span>
+                <span class="ba-time">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  3 min
+                </span>
+              </div>
+              <div class="ba-body">
+                <div class="clean-form">
+                  <div class="clean-row">
+                    <span class="clean-label">Client Name</span>
+                    <div class="clean-field">
+                      <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      Guillermo Reyes
+                    </div>
+                  </div>
+                  <div class="clean-row">
+                    <span class="clean-label">Accident Date</span>
+                    <div class="clean-field">
+                      <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      01/15/2026
+                    </div>
+                  </div>
+                  <div class="clean-row">
+                    <span class="clean-label">Location</span>
+                    <div class="clean-field">
+                      <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      Main St &amp; 5th Ave, Orlando, FL
+                    </div>
+                  </div>
+                  <div class="clean-row">
+                    <span class="clean-label">Defendant</span>
+                    <div class="clean-field">
+                      <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      Jean-Pierre Francois
+                    </div>
+                  </div>
+                  <div class="clean-row">
+                    <span class="clean-label">Plate #</span>
+                    <div class="clean-field">
+                      <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      ABC 1234
+                    </div>
+                  </div>
+                  <div class="clean-note">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    All fields verified &mdash; pushed to Clio automatically
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TECH STACK -->
+        <div class="tech-section">
+          <div class="section-title">Tech Stack</div>
+          <div class="section-desc">Modern tools powering every step of the pipeline</div>
+          <div class="tech-grid">
+            <div class="tech-card">
+              <div class="tech-icon nextjs">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              </div>
+              <div class="tech-name">Next.js 14</div>
+              <div class="tech-desc">Frontend &amp; API</div>
+            </div>
+            <div class="tech-card">
+              <div class="tech-icon ai">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 1 4 4c0 1.95-1.4 3.57-3.25 3.92A4.001 4.001 0 0 1 16 14v1"/><path d="M8 14a4 4 0 0 1 3.25-3.92A4.001 4.001 0 0 1 8 6a4 4 0 0 1 4 4"/><circle cx="12" cy="18" r="3"/></svg>
+              </div>
+              <div class="tech-name">OpenAI / Claude</div>
+              <div class="tech-desc">AI Extraction</div>
+            </div>
+            <div class="tech-card">
+              <div class="tech-icon clio">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              </div>
+              <div class="tech-name">Clio Manage</div>
+              <div class="tech-desc">Legal CRM</div>
+            </div>
+            <div class="tech-card">
+              <div class="tech-icon email">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </div>
+              <div class="tech-name">Resend</div>
+              <div class="tech-desc">Email Delivery</div>
+            </div>
+            <div class="tech-card">
+              <div class="tech-icon deploy">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/></svg>
+              </div>
+              <div class="tech-name">Vercel</div>
+              <div class="tech-desc">Deployment</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /content-area -->
+
+      <!-- CTA -->
+      <div class="cta-section">
+        <h2>Ready to Try It?</h2>
+        <p class="cta-subtitle">Upload the sample Guillermo Reyes police report to see the full pipeline in action.</p>
+        <a href="#" class="cta-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Run Demo Report
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a href="#" class="cta-link">Or go to the full dashboard &rarr;</a>
+      </div>
+
+    </div><!-- /browser-viewport -->
+  </div><!-- /browser-frame -->
+</div><!-- /screen-section -->
+
+</body>
+</html>

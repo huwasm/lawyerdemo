@@ -84,12 +84,11 @@ Built the complete Next.js 14 application from scratch in a single session. The 
 
 ## In Progress
 
+- [ ] **Phase 3-10**: Backend testing (extraction, match, PATCH, retainer, calendar, email, E2E, edge cases)
+- [ ] **Phase 11**: Onboarding screens — design spec written in `docs/TASKS.md`, not yet built
 - [ ] **Pick intake design** — user to review 5 mobile + 5 desktop mockups (001-005)
 - [ ] **Pick admin design** — user to review 2 admin designs (001 or 002)
-- [ ] **Mobile implementation** — plan approved (`.claude/plans/abstract-fluttering-meteor.md`)
 - [ ] Test OpenAI extraction with a police report PDF
-- [ ] Fill `.env.local` with real US Clio credentials
-- [ ] Set Vercel environment variables
 
 ---
 
@@ -111,7 +110,9 @@ lawyerdemo/
 ├── app/
 │   ├── layout.tsx              Root layout (metadata)
 │   ├── globals.css             Tailwind + Clio brand colors
-│   ├── page.tsx                Dashboard UI (all 5 phases)
+│   ├── page.tsx                Redirect → /dashboard
+│   ├── dashboard/
+│   │   └── page.tsx            Dashboard UI (all 5 phases)
 │   └── api/
 │       ├── extract/route.ts    PDF upload → AI extraction
 │       ├── match/route.ts      Extracted names → Clio Matter match
@@ -148,18 +149,33 @@ lawyerdemo/
 
 ---
 
+## Completed (Session 2 — Feb 28 evening)
+
+- [x] **Phase 0**: Route rename — `app/page.tsx` → `app/dashboard/page.tsx`, new redirect at `/`
+- [x] **Phase 1**: `.env.vercel` created with all 24 env vars, added to `.gitignore`
+- [x] **Phase 2**: 8 Clio custom fields created (6 via API, 2 manually), all IDs in `.env.local` + `.env.vercel`
+- [x] Port changed from 3000 → 3001 (user uses 3000 for another project)
+- [x] `HACKATHON_EMAIL` changed to `huwas003@gmail.com` in both env files
+- [x] `docs/TASKS.md` created — full 15-phase backlog with flow diagram, field table, Supabase schema
+- [x] Phase 11 (Onboarding) design spec written — Dashboard Operator screen with pre-approve checklist, no-match handling, traffic light status
+
+---
+
 ## Next Steps (Priority Order)
 
-1. Pick designs — review mockups in browser, choose intake (001-005) + admin (001/002)
-2. Implement responsive layout + camera capture + image support
-3. Set up US Clio account (VPN if in EU)
-4. Create 8 custom fields in Clio and get field IDs
-5. Upload retainer template (convert brackets to Clio curly format)
-6. Create 5 test Matters with contacts and assigned attorney
-7. Fill `.env.local` with all real values
-8. Test all 5 police reports (correct client ID, pronouns, conditional paragraphs)
-9. Set Vercel env vars and verify production
-10. Record 15-min video walkthrough
+1. **Phase 3**: Test AI extraction (upload Guillermo Reyes PDF, verify all fields)
+2. **Phase 4**: Test Clio Match (verify `/api/match` finds EU Matter 14525933)
+3. **Phase 5**: Test custom field PATCH (verify 8 fields populate in Clio)
+4. **Phase 6**: Test retainer generation (verify doc created + downloadable)
+5. **Phase 7**: Test calendar entry (SOL = accident date + 8 years)
+6. **Phase 8**: Test email (needs Resend key — may skip)
+7. **Phase 9**: Full E2E (upload → extract → review → approve → all green)
+8. **Phase 10**: Edge case extraction (Noel, Castillo, Grillo, Vincent)
+9. **Phase 11**: Build onboarding screens (spec in TASKS.md)
+10. **Phase 12**: Supabase audit trail + dedup
+11. **Phase 13**: Swap to US Clio account
+12. **Phase 14**: UI polish + mobile
+13. **Phase 15**: Deploy + submit
 
 ---
 

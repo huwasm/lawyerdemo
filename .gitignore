@@ -8,6 +8,7 @@ sample-data/
 # ----------------------------
 .env
 .env.local
+.env.vercel
 .env.development.local
 .env.production.local
 
