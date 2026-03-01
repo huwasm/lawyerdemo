@@ -1,0 +1,32 @@
+Field Name,Field Name in Clio,Clio Env Variable,JSON Path (extracted_json),Source,Used In,Always Visible
+Date of Accident,Accident Date,CLIO_FIELD_ACCIDENT_DATE,accident_date,AI Extraction,Custom Fields / Calendar (SOL) / Email Draft,Yes
+Day of Week,—,—,—,Computed from accident_date,Display only,No (toggle)
+Time of Accident,—,—,accident_time,AI Extraction,Display only,No (toggle)
+No. of Vehicles,—,—,no_vehicles,AI Extraction,Display only,No (toggle)
+Number Injured,Number Injured,CLIO_FIELD_NUMBER_INJURED,no_injured,AI Extraction,Custom Fields,Yes
+No. Killed,—,—,no_killed,AI Extraction,Display only,No (toggle)
+Client First Name,—,—,vehicle_X.driver_name_first,AI Extraction + Clio Match,Email Draft / Retainer / Email Send,Yes
+Client Last Name,—,—,vehicle_X.driver_name_last,AI Extraction + Clio Match,Retainer filename / Email Send,Yes
+Client Address,—,—,vehicle_X.address,AI Extraction,Display only,Yes
+Client City or Town,—,—,vehicle_X.city,AI Extraction,Display only,Yes
+Client State,—,—,vehicle_X.state,AI Extraction,Display only,Yes
+Client Zip Code,—,—,vehicle_X.zip,AI Extraction,Display only,Yes
+Sex / Gender,Client Gender,CLIO_FIELD_CLIENT_GENDER,vehicle_X.sex,AI Extraction,Custom Fields (Male/Female),Yes
+Registration Plate,Registration Plate,CLIO_FIELD_REGISTRATION_PLATE,vehicle_X.plate_number,AI Extraction,Custom Fields,Yes
+State of Reg.,—,—,vehicle_X.plate_state,AI Extraction,Display only,No (toggle)
+Vehicle Year & Make,—,—,vehicle_X.vehicle_year + vehicle_make,AI Extraction,Display only,No (toggle)
+Vehicle Type,—,—,vehicle_X.vehicle_type,AI Extraction,Display only,No (toggle)
+Ins. Code,—,—,vehicle_X.ins_code,AI Extraction,Display only,No (toggle)
+Defendant First Name,Defendant Name (combined),CLIO_FIELD_DEFENDANT_NAME,vehicle_Y.driver_name_first,AI Extraction + Clio Match,Custom Fields (first + last),Yes
+Defendant Last Name,Defendant Name (combined),CLIO_FIELD_DEFENDANT_NAME,vehicle_Y.driver_name_last,AI Extraction + Clio Match,Custom Fields (first + last),Yes
+Defendant Vehicle,—,—,vehicle_Y.vehicle_year + make + type,AI Extraction,Display only,Yes
+Vehicle (flag),—,—,NOT (is_bicyclist OR is_pedestrian),Computed,Display only,No (toggle)
+Bicyclist (flag),—,—,vehicle_Y.is_bicyclist,AI Extraction,Display only,No (toggle)
+Pedestrian (flag),—,—,vehicle_Y.is_pedestrian,AI Extraction,Display only,No (toggle)
+Other Pedestrian (flag),—,—,vehicle_Y.is_other_pedestrian,AI Extraction,Display only,No (toggle)
+Accident Location,Accident Location,CLIO_FIELD_ACCIDENT_LOCATION,accident_location.road + intersecting_street + borough,AI Extraction (combined),Custom Fields,Yes
+Accident Description,Accident Description,CLIO_FIELD_ACCIDENT_DESCRIPTION,officer_notes,AI Extraction,Custom Fields / Email Draft,Yes
+Linked Matter,—,—,—,Clio Match API,All pipeline steps (matter ID),Yes
+Statute of Limitations,Statute of Limitations Date,CLIO_FIELD_STATUTE_DATE,—,Computed (accident_date + 8 years),Custom Fields / Calendar Entry,Yes
+Client Email,—,—,—,Clio Match API (contact email),Email Send,Yes
+Calendly Link,—,—,—,Computed (month → office/virtual),Email body,Yes

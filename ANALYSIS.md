@@ -1,6 +1,6 @@
 # Hackathon Problem Analysis — Full Report
-**Date:** 2026-02-28
-**Version:** 3.0 — Complete rewrite with all findings
+**Date:** 2026-03-01
+**Version:** 3.1 — Updated extraction fields (ins_code, is_other_pedestrian, full field mapping)
 
 ---
 
@@ -18,7 +18,7 @@
 - 5 fields needed by the retainer/email are NOT in the police report (law firm name, attorney name, statute date, client email, Calendly link)
 - 2 API calls still untested: PDF download from Clio, contact email address string retrieval
 
-**Tech stack:** Next.js (React + Tailwind) → Vercel. Claude Vision for OCR. Clio API v4. Resend for email.
+**Tech stack:** Next.js 14 (React + Tailwind) → Vercel. Dual AI (Claude Vision / GPT-4o) for OCR. Clio API v4. Supabase (DB + Storage). Resend for email.
 
 ---
 
@@ -218,15 +218,23 @@ Our 5 test PDFs are court filings from NYSCEF (New York State Courts Electronic 
 |---|---|---|---|
 | All Driver Names | Box 2 — Driver Name V1 + V2 | Client/Defendant matching | AI extracts ALL names, system matches to Clio |
 | Date of Accident | Box 1 — Month/Day/Year | Retainer + Email + Statute calc | Always present |
+| Time of Accident | Box 1 — Time | Display only | HH:MM format |
+| No. Vehicles | Box 1 — "No. Vehicles" | Display only | Usually 1 or 2 |
+| No. Injured | Box 1 — "No. Injured" | Retainer conditional logic | 0 = property only, >0 = bodily injury paragraph |
+| No. Killed | Box 1 — "No. Killed" | Display only | Usually 0 |
 | Accident Location | Box 28/29 — Road + intersection + borough | Retainer | Combine road + intersection + borough |
 | Client's Reg. Plate | Box 4/5 — Plate Number | Retainer | Empty if client is pedestrian/cyclist |
-| No. Injured | Box 1 — "No. Injured" | Retainer conditional logic | 0 = property only, >0 = bodily injury paragraph |
 | Client Gender (Sex) | Box 3 — Sex field | Retainer (his/her, he/she) | M or F |
+| Insurance Code | Box — Ins. Code | Display only | Company code (e.g. "0042") |
 | Officer's Notes | Box 30 — Accident Description | Email narrative | Free text, always present |
-| Client Address | Box 2/4 — Address | Clio Contact | Street, City, State, Zip |
+| Client Address | Box 2/4 — Address, City, State, Zip | Clio Contact | Street, City, State, Zip |
 | Client Vehicle Info | Box 4/5 — Year, Make, Type | Context | May be "BIKE" or empty for pedestrian |
 | Defendant Vehicle Info | Box 4/5 — other party | Context | May be empty |
 | Defendant Address | Box 2/4 — other party | Clio Contact | Always present |
+| Vehicle/Bicyclist/Pedestrian flags | Checkboxes at top of V1/V2 | Display + logic | `is_pedestrian`, `is_bicyclist`, `is_other_pedestrian` per vehicle |
+| Date of Birth | Box 3 — Date of Birth | Display only | Per driver |
+
+**Full field mapping:** See `docs/field-mapping.csv` for all 32 fields with Clio mapping, JSON paths, and pipeline usage.
 
 ### Fields NOT in the Police Report (come from elsewhere)
 
@@ -388,18 +396,18 @@ curl "/api/v4/contacts/{CONTACT_ID}?fields=id,name,email_addresses"
 
 ## Custom Fields Needed in Clio
 
-Currently have 3 test fields on EU account. For the real US account:
+8 custom fields on Matters (Defendant Name = First + Last combined = 1 field, but 2 CSV rows):
 
-| Field Name | Clio Type | Used For |
-|---|---|---|
-| Accident Date | date | Retainer + Statute calc |
-| Accident Location | text_line | Retainer |
-| Defendant Name | text_line | Retainer |
-| Client Gender | picklist (M/F) | Retainer pronoun logic (his/her) |
-| Registration Plate | text_line | Retainer |
-| Number Injured | numeric | Retainer conditional logic |
-| Accident Description | text_area | Email personalization |
-| Statute of Limitations Date | date | Calendar entry (derived: accident + 8 years) |
+| Field Name | Clio Type | Env Var | Used For |
+|---|---|---|---|
+| Accident Date | date | `CLIO_FIELD_ACCIDENT_DATE` | Retainer + Statute calc |
+| Accident Location | text_line | `CLIO_FIELD_ACCIDENT_LOCATION` | Retainer |
+| Defendant Name | text_line | `CLIO_FIELD_DEFENDANT_NAME` | Retainer (First + Last combined) |
+| Client Gender | picklist (Male/Female) | `CLIO_FIELD_CLIENT_GENDER` | Retainer pronoun logic (his/her) |
+| Registration Plate | text_line | `CLIO_FIELD_REGISTRATION_PLATE` | Retainer |
+| Number Injured | numeric | `CLIO_FIELD_NUMBER_INJURED` | Retainer conditional logic |
+| Accident Description | text_area | `CLIO_FIELD_ACCIDENT_DESCRIPTION` | Email personalization |
+| Statute of Limitations Date | date | `CLIO_FIELD_STATUTE_DATE` | Calendar entry (derived: accident + 8 years) |
 
 ---
 
@@ -430,4 +438,4 @@ Currently have 3 test fields on EU account. For the real US account:
 
 ---
 
-*Status: Analysis complete. 2 minor API tests remaining (PDF download + email address string). All critical patterns proven. Client matching logic defined. Ready for solution build.*
+*Status: Analysis complete. App built, dual AI providers working, Supabase persistence added. 2 minor API tests remaining (PDF download + email address string). Full field mapping in `docs/field-mapping.csv`. All critical patterns proven. Testing pipeline phases 3-10 next.*

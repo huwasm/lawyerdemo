@@ -1,7 +1,7 @@
 ---
 title: Handover Notes
 created: 2026-02-28
-updated: 2026-02-28
+updated: 2026-03-01
 status: active
 author: claude+user
 ---
@@ -16,6 +16,7 @@ Session handover notes for continuity between developers and LLM sessions.
 |------|-------------|--------|
 | README.md | This file — handover conventions | active |
 | [2026-02-28_initial_build.md](2026-02-28_initial_build.md) | Full build session — MVP, dual AI providers, 14 design mockups, comprehensive handover | active |
+| [2026-03-01_dashboard_ui_refinement.md](2026-03-01_dashboard_ui_refinement.md) | Dashboard UI restructure, defendant flags, field-mapping CSV, new extraction fields, docs update | active |
 
 ## Naming Convention
 

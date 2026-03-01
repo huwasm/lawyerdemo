@@ -53,16 +53,43 @@ export async function getMatter(matterId: number): Promise<ClioMatter> {
 export interface CustomFieldUpdate {
   custom_field: { id: number };
   value: string | number;
+  id?: number; // existing value ID — needed to update, not duplicate
 }
 
 export async function updateMatterCustomFields(
   matterId: number,
   fields: CustomFieldUpdate[]
 ) {
+  // Step 1: Get existing custom field values on this Matter
+  const matterData = await clioFetch(
+    `/api/v4/matters/${matterId}?fields=id,custom_field_values{id,custom_field}`
+  );
+
+  const existingValues: { id: number; custom_field: { id: number } }[] =
+    matterData.data?.custom_field_values || [];
+
+  // Step 2: Build a map of custom_field_id → existing value ID
+  const existingMap = new Map<number, number>();
+  for (const ev of existingValues) {
+    if (ev.custom_field?.id) {
+      existingMap.set(ev.custom_field.id, ev.id);
+    }
+  }
+
+  // Step 3: Merge — if field already has a value, include its ID to update (not create duplicate)
+  const mergedFields = fields.map((f) => {
+    const existingId = existingMap.get(f.custom_field.id);
+    if (existingId) {
+      return { ...f, id: existingId };
+    }
+    return f;
+  });
+
+  // Step 4: PATCH with merged fields
   return clioFetch(`/api/v4/matters/${matterId}`, {
     method: "PATCH",
     body: JSON.stringify({
-      data: { custom_field_values: fields },
+      data: { custom_field_values: mergedFields },
     }),
   });
 }

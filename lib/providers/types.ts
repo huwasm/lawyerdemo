@@ -34,8 +34,10 @@ export interface VehicleInfo {
   vehicle_year: string;
   vehicle_make: string;
   vehicle_type: string;
+  ins_code: string;
   is_pedestrian: boolean;
   is_bicyclist: boolean;
+  is_other_pedestrian: boolean;
 }
 
 export interface AIProvider {
@@ -50,16 +52,61 @@ export interface DraftInput {
 }
 
 export const EXTRACTION_PROMPT = `You are extracting data from a NYC police accident report (MV-104AN form).
-Extract ALL of the following fields. Return valid JSON only — no markdown, no explanation.
+Return valid JSON only — no markdown, no explanation.
 
-IMPORTANT:
-- Extract ALL people/names from the report (Vehicle 1, Vehicle 2, pedestrians, cyclists)
-- Vehicle 2 may be a PEDESTRIAN or BICYCLIST — check the checkboxes at the top of the form
-- If pedestrian/bicyclist, vehicle info (plate, make, year) will be empty — use empty strings
-- The "Sex" field uses M or F
-- For accident_date, use MM/DD/YYYY format
-- For borough, use one of: Bronx, Kings, New York, Queens, Richmond
-- Include a "confidence" object with 0-100 scores for key fields
+## MV-104AN FORM LAYOUT (read fields from these exact positions):
+
+ROW 1 (top of form):
+  Box 1: Accident No. (e.g. "MV-2022-071-000314")
+  Box 2: Complaint Number
+  Then checkboxes: AMENDED REPORT
+
+ROW 2 (header stats — 6 SEPARATE labeled boxes, left to right):
+  Box A: Accident Date (Month | Day | Year)
+  Box B: Day of Week
+  Box C: Military Time
+  Box D: No. of Vehicles    ← labeled "No. of Vehicles" — read the number DIRECTLY UNDER this label
+  Box E: No. Injured        ← labeled "No. Injured" — read the number DIRECTLY UNDER this label
+  Box F: No. Killed         ← labeled "No. Killed" — read the number DIRECTLY UNDER this label
+
+  ⚠️ CRITICAL: Boxes D, E, F are the THREE rightmost boxes in this row.
+  They are SEPARATE columns. Each has its LABEL on top and a SINGLE NUMBER below.
+  Do NOT read across boxes. Read ONLY the digit under each label.
+  Common values: 0, 1, 2. Most reports have No. Injured = 0 and No. Killed = 0.
+
+ROW 3-4: VEHICLE 1 section (left half) and VEHICLE 2 section (right half), side by side:
+  Each vehicle section has checkboxes at top: ☐ VEHICLE  ☐ BICYCLIST  ☐ PEDESTRIAN  ☐ OTHER PEDESTRIAN
+  Then: License ID / Driver Name (LAST, FIRST) / Date of Birth / Sex (M or F)
+  Then: Address / City / State / Zip
+  Then a row of small boxes (left to right):
+    - "Plate Number": the license plate (letters + digits, e.g. "DYY7657", "AZ2874", "T698783C"). Do NOT include state.
+    - "State of Lic." or "State of Reg.": 2-letter state code (e.g. "NY", "NJ"). This is SEPARATE from plate number.
+    - "Vehicle Year & Make": year + manufacturer (e.g. "2018 MAZDA", "2017 ME BE")
+    - "Vehicle Type": body style code (e.g. "SW/SUV", "SEDAN", "VAN", "BIKE")
+    - "Ins. Co. Code": 3-5 digit insurance company code, LAST box in this row (e.g. "639", "042", "11433"). May look like a number.
+
+BOTTOM SECTION:
+  Accident Location: road name + intersecting street
+  Borough: one of Bronx, Kings, New York, Queens, Richmond
+  Officer narrative / accident description (free text block)
+
+## EXTRACTION RULES:
+- Extract ALL people/names from BOTH vehicles (V1 + V2)
+- Vehicle 2 may be a PEDESTRIAN or BICYCLIST — check the checkboxes. If so, vehicle fields (plate, make, year, ins_code) will be empty — use ""
+- "plate_number" is ONLY the plate text (e.g. "DYY7657") — do NOT prepend the state. "plate_state" is the separate 2-letter state code.
+- "ins_code" is the Insurance Company Code — the LAST small box in the vehicle info row. It's a 3-5 digit number. Extract for BOTH vehicles if present, otherwise "".
+- Sex uses M or F
+- accident_date: use MM/DD/YYYY format
+- accident_time: use HH:MM (from "Military Time" box)
+- Borough must be one of: Bronx, Kings, New York, Queens, Richmond
+- Confidence scores: 0-100 for how certain you are about each key field
+
+## DOUBLE-CHECK (mandatory):
+1. Look at Box D label → what number is under it? That is "no_vehicles".
+2. Look at Box E label → what number is under it? That is "no_injured".
+3. Look at Box F label → what number is under it? That is "no_killed".
+4. Write your readings into "header_raw" (see JSON below) so we can verify.
+5. Confirm: are the values in no_vehicles, no_injured, no_killed matching your Box D, E, F readings?
 
 Return this exact JSON structure:
 {
@@ -87,8 +134,10 @@ Return this exact JSON structure:
     "vehicle_year": "",
     "vehicle_make": "",
     "vehicle_type": "",
+    "ins_code": "",
     "is_pedestrian": false,
-    "is_bicyclist": false
+    "is_bicyclist": false,
+    "is_other_pedestrian": false
   },
   "vehicle_2": {
     "driver_name_last": "",
@@ -104,21 +153,26 @@ Return this exact JSON structure:
     "vehicle_year": "",
     "vehicle_make": "",
     "vehicle_type": "",
+    "ins_code": "",
     "is_pedestrian": false,
-    "is_bicyclist": false
+    "is_bicyclist": false,
+    "is_other_pedestrian": false
   },
   "officer_notes": "",
   "all_persons_involved": [
     {"name": "LAST, FIRST", "age": 0, "sex": "M"}
   ],
+  "header_raw": "Box D=2, Box E=0, Box F=0",
   "confidence": {
     "accident_date": 99,
     "accident_location": 90,
     "vehicle_1_name": 95,
     "vehicle_2_name": 95,
     "no_injured": 95,
+    "no_killed": 95,
     "officer_notes": 85,
-    "plate_number": 90
+    "plate_number": 90,
+    "ins_code": 80
   }
 }`;
 

@@ -235,53 +235,34 @@ Authorization: Bearer TOKEN
 
 ## AI EXTRACTION PROMPT
 
-When sending the police report image to Claude Vision, use a structured prompt that returns JSON. The AI should extract ALL people/names from the report (not just Vehicle 1). Example prompt structure:
+The extraction prompt lives in `lib/providers/types.ts` (single source of truth). It instructs the AI to return structured JSON from the MV-104AN form. Key points:
 
+- Extracts ALL names from both vehicles (V1 + V2), plus pedestrians/cyclists
+- Vehicle 2 may be PEDESTRIAN, BICYCLIST, or OTHER PEDESTRIAN — the AI checks the form checkboxes
+- `ins_code` is the insurance company code on the form (e.g. "0042")
+- `is_other_pedestrian` covers the "OTHER PEDESTRIAN" checkbox on the form
+- If pedestrian/bicyclist, vehicle info (plate, make, year, ins_code) will be empty strings
+- Confidence scores (0-100) are self-reported by AI for 7 key fields
+
+### VehicleInfo fields extracted per vehicle:
 ```
-You are extracting data from a NYC police accident report (MV-104AN form).
-Extract ALL of the following fields. Return valid JSON only.
-
-{
-  "accident_date": "MM/DD/YYYY",
-  "accident_time": "HH:MM",
-  "no_injured": number,
-  "no_killed": number,
-  "no_vehicles": number,
-  "accident_location": {
-    "road": "street name",
-    "intersecting_street": "street name",
-    "borough": "one of: Bronx, Kings, New York, Queens, Richmond"
-  },
-  "vehicle_1": {
-    "driver_name_last": "",
-    "driver_name_first": "",
-    "sex": "M or F",
-    "date_of_birth": "MM/DD/YYYY",
-    "address": "full address",
-    "city": "",
-    "state": "",
-    "zip": "",
-    "plate_number": "",
-    "plate_state": "",
-    "vehicle_year": "",
-    "vehicle_make": "",
-    "vehicle_type": "",
-    "is_pedestrian": false,
-    "is_bicyclist": false
-  },
-  "vehicle_2": {
-    // same structure as vehicle_1
-    // may be a pedestrian or bicyclist — check the checkboxes at top
-    // if pedestrian/bicyclist, plate and vehicle info may be empty
-  },
-  "officer_notes": "full text of accident description",
-  "all_persons_involved": [
-    {"name": "LAST, FIRST", "age": number, "sex": "M/F"}
-  ]
-}
+driver_name_first, driver_name_last, sex, date_of_birth,
+address, city, state, zip,
+plate_number, plate_state, vehicle_year, vehicle_make, vehicle_type, ins_code,
+is_pedestrian, is_bicyclist, is_other_pedestrian
 ```
 
-**Important:** The AI must handle that Vehicle 2 can be a PEDESTRIAN or BICYCLIST (checked at the top of the form). In those cases, vehicle info will be empty.
+### Top-level fields:
+```
+accident_date (MM/DD/YYYY), accident_time (HH:MM),
+no_injured, no_killed, no_vehicles,
+accident_location { road, intersecting_street, borough },
+vehicle_1, vehicle_2,
+officer_notes, all_persons_involved,
+confidence
+```
+
+**Important:** The AI must handle that Vehicle 2 can be a PEDESTRIAN, BICYCLIST, or OTHER PEDESTRIAN (checked at the top of the form). In those cases, vehicle info will be empty.
 
 ---
 
@@ -358,69 +339,84 @@ Andrew Richards
 
 ---
 
-## PROJECT FILE STRUCTURE
+## PROJECT FILE STRUCTURE (Current)
 
 ```
-/
-├── CLAUDE_CODE_BRIEFING.md     ← This file
-├── ANALYSIS.md                  ← Full problem analysis with all findings
-├── dashboard-demo.html          ← UI mockup (interactive HTML)
-├── Retainer Agreement - Richards & Law [Hackathon].docx  ← Template
-├── Retainer Agreement - Richards & Law [Hackathon].pdf   ← Template (visual)
-├── Swans Applied AI Hackathon - The Challenge Brief .pdf ← Rules
-├── Example of All Expected Outputs - Hackathon 2026-01.pdf ← Expected emails
-├── GUILLERMO_REYES_v_LIONEL_FRANCOIS_et_al_EXHIBIT_S__XX.pdf  ← Test report 1
-├── DARSHAME_NOEL_v_FRANCIS_E_FREESE_et_al_EXHIBIT_S__XX.pdf   ← Test report 2
-├── FAUSTO_CASTILLO_v_CHIMIE_DORJEE_et_al_EXHIBIT_S__31.pdf    ← Test report 3
-├── JOHN_GRILLO_v_JOHN_GRILLO_EXHIBIT_S__16.pdf                ← Test report 4
-├── MARDOCHEE_VINCENT_v_MARDOCHEE_VINCENT_EXHIBIT_S__16.pdf    ← Test report 5
-└── app/                         ← Next.js app (TO BE CREATED)
-    ├── package.json
-    ├── next.config.js
-    ├── tailwind.config.js
-    ├── app/
-    │   ├── layout.tsx
-    │   ├── page.tsx             ← Main dashboard page
-    │   └── api/
-    │       ├── extract/route.ts ← Claude Vision extraction endpoint
-    │       ├── match/route.ts   ← Clio Matter matching endpoint
-    │       ├── approve/route.ts ← Full approval pipeline (Clio + email)
-    │       └── clio/
-    │           ├── matters.ts   ← Clio API helpers
-    │           ├── documents.ts
-    │           ├── calendar.ts
-    │           └── auth.ts      ← OAuth token management
-    ├── components/
-    │   ├── UploadZone.tsx
-    │   ├── FieldsForm.tsx
-    │   ├── MatchBadge.tsx
-    │   ├── ProcessingOverlay.tsx
-    │   └── SuccessScreen.tsx
-    └── lib/
-        ├── clio.ts              ← Clio API client
-        ├── extraction.ts        ← Claude Vision prompt + parser
-        ├── email.ts             ← Resend email sender
-        └── calendly.ts          ← Seasonal link logic
+lawyerdemo/
+├── CLAUDE.md                    ← Project instructions (read first)
+├── CLAUDE_CODE_BRIEFING.md      ← This file — full technical spec
+├── ANALYSIS.md                  ← Problem analysis + test cases
+├── app/
+│   ├── layout.tsx               Root layout (metadata)
+│   ├── globals.css              Tailwind + Clio brand colors
+│   ├── page.tsx                 Redirect → /dashboard
+│   ├── dashboard/
+│   │   └── page.tsx             Dashboard UI (~950 lines, all 5 phases)
+│   └── api/
+│       ├── extract/route.ts     PDF upload → AI extraction → Supabase save
+│       ├── match/route.ts       Extracted names → Clio Matter match
+│       ├── approve/route.ts     Full pipeline (Clio + retainer + calendar + email)
+│       └── reports/route.ts     Saved reports list + load (with signed PDF URL)
+├── lib/
+│   ├── clio.ts                  Clio API v4 client (all proven endpoints)
+│   ├── supabase.ts              Supabase client (DB + Storage)
+│   ├── extraction.ts            Thin wrapper → ai.ts → provider
+│   ├── email.ts                 AI-drafted email + Resend sender
+│   ├── calendly.ts              Seasonal Calendly link logic
+│   ├── ai.ts                    Provider router (env flags)
+│   └── providers/
+│       ├── types.ts             AIProvider interface, extraction prompt, VehicleInfo, parser
+│       ├── anthropic.ts         Claude Sonnet implementation
+│       └── openai.ts            GPT-4o implementation
+├── docs/
+│   ├── field-mapping.csv        All 32 fields → Clio mapping, JSON paths, pipeline usage
+│   ├── _handover/               Session handover notes
+│   └── design-mockup/           14 HTML mockups (mobile, desktop, admin)
+├── supabase/
+│   └── migrations/              DB migration files
+├── sample-data/                 5 test police report PDFs
+└── .env.example                 All env vars documented
 ```
 
 ---
 
 ## ENVIRONMENT VARIABLES NEEDED
 
+See `.env.example` for all variables. Total: 30 env vars across 6 groups.
+
 ```env
-# Clio API
+# Clio API (6)
 CLIO_BASE_URL=https://eu.app.clio.com    # or https://app.clio.com for US
-CLIO_CLIENT_ID=gAB5MWWemVFYpBqt5Mf2WRpPdxDVegujAcp2q0oC
-CLIO_CLIENT_SECRET=8EcCDxt37YFwhqukLFwUem3fI6B3TIrqzxxgjHlj
-CLIO_ACCESS_TOKEN=4100-AG4QXLlqfZeQnba00GNqiQirGbSvuqBTLPT
+CLIO_CLIENT_ID=
+CLIO_CLIENT_SECRET=
+CLIO_ACCESS_TOKEN=
+CLIO_CALENDAR_ID=                        # from GET /calendars (NOT User ID!)
+CLIO_TEMPLATE_ID=                        # from GET /document_templates
 
-# Claude API (for Vision extraction + email drafting)
-ANTHROPIC_API_KEY=your_key_here
+# Clio Custom Field IDs (8) — from GET /custom_fields after creating them
+CLIO_FIELD_ACCIDENT_DATE=
+CLIO_FIELD_ACCIDENT_LOCATION=
+CLIO_FIELD_DEFENDANT_NAME=
+CLIO_FIELD_CLIENT_GENDER=
+CLIO_FIELD_REGISTRATION_PLATE=
+CLIO_FIELD_NUMBER_INJURED=
+CLIO_FIELD_ACCIDENT_DESCRIPTION=
+CLIO_FIELD_STATUTE_DATE=
 
-# Resend (for sending email)
-RESEND_API_KEY=your_key_here
+# AI Provider Switch (set one to true) (4)
+AI_PROVIDER_ANTHROPIC=true
+AI_PROVIDER_OPENAI=false
+ANTHROPIC_API_KEY=
+OPENAI_API_KEY=
 
-# Hardcoded values
+# Supabase (2)
+NEXT_PUBLIC_SUPABASE_URL=               # from Supabase project settings
+SUPABASE_SERVICE_ROLE_KEY=              # from Supabase project settings → API
+
+# Email (1)
+RESEND_API_KEY=
+
+# App Config (5)
 LAW_FIRM_NAME=Richards & Law
 ATTORNEY_NAME=Andrew Richards
 STATUTE_YEARS=8
@@ -431,15 +427,19 @@ HACKATHON_EMAIL=talent.legal-engineer.hackathon.automation-email@swans.co
 
 ---
 
-## KNOWN ISSUES TO SOLVE DURING BUILD
+## KNOWN ISSUES
 
-1. **Contact email retrieval** — `GET /contacts/{id}?fields=email_addresses` returns IDs but not the actual address. Nested field syntax `email_addresses{id,address}` failed. Try different approaches or just hardcode the hackathon email address for now.
+1. **Contact email retrieval** — `GET /contacts/{id}?fields=email_addresses` returns IDs but not the actual address. Nested field syntax `email_addresses{id,address}` failed. Fallback: uses `HACKATHON_EMAIL` env var.
 
-2. **PDF download from Clio** — `GET /documents/{id}/download` returned empty. Try `GET /document_versions/{version_id}/download`. May return binary or a redirect URL. If it fails, try `GET /documents/{id}?fields=id,name,content_type` for a download URL.
+2. **PDF download from Clio** — `GET /documents/{id}/download` returned empty. Try `GET /document_versions/{version_id}/download`. May return binary or a redirect URL. Email still sends even if download fails (retainer step is non-blocking).
 
-3. **US Clio account** — Currently testing on EU (`eu.app.clio.com`). For final submission, need a US account (`app.clio.com`). APIs are identical, only base URL changes. May need VPN to create US account from EU.
+3. **US Clio account** — Currently testing on EU (`eu.app.clio.com`). For final submission, need a US account (`app.clio.com`). APIs are identical, only base URL changes.
 
 4. **OAuth token refresh** — Current token may expire. Need to implement token refresh using `grant_type=refresh_token` or re-authorize.
+
+5. **Clio updateMatterCustomFields** — When existing custom field values are present on a Matter, the PATCH may fail or overwrite. Need to test with pre-populated fields.
+
+6. **Number Injured extraction** — Vincent case returned `no_injured=2`, ANALYSIS.md expects 0. Needs prompt tuning or post-extraction verification.
 
 ---
 
