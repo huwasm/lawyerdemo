@@ -151,12 +151,28 @@ export default function Dashboard() {
   const [defendantFirst, setDefendantFirst] = useState("");
   const [defendantLast, setDefendantLast] = useState("");
   const [defendantVehicle, setDefendantVehicle] = useState("");
-  const [defendantIsVehicle, setDefendantIsVehicle] = useState(true);
-  const [defendantVehicleNum, setDefendantVehicleNum] = useState(2);
+  const [defendantIsVehicle, setDefendantIsVehicle] = useState(false);
+  const [defendantVehicleNum, setDefendantVehicleNum] = useState(0);
   const [defendantIsBicyclist, setDefendantIsBicyclist] = useState(false);
   const [defendantIsPedestrian, setDefendantIsPedestrian] = useState(false);
   const [defendantIsOtherPed, setDefendantIsOtherPed] = useState(false);
   const [showDefendantFlags, setShowDefendantFlags] = useState(false);
+  const [defendantPlate, setDefendantPlate] = useState("");
+  const [defendantPlateState, setDefendantPlateState] = useState("");
+  const [defendantVehicleYearMake, setDefendantVehicleYearMake] = useState("");
+  const [defendantVehicleType, setDefendantVehicleType] = useState("");
+  const [defendantInsCode, setDefendantInsCode] = useState("");
+  const [defendantAddress, setDefendantAddress] = useState("");
+  const [defendantCity, setDefendantCity] = useState("");
+  const [defendantState, setDefendantState] = useState("");
+  const [defendantZip, setDefendantZip] = useState("");
+  // Client party type flags
+  const [clientIsVehicle, setClientIsVehicle] = useState(false);
+  const [clientVehicleNum, setClientVehicleNum] = useState(0);
+  const [clientIsBicyclist, setClientIsBicyclist] = useState(false);
+  const [clientIsPedestrian, setClientIsPedestrian] = useState(false);
+  const [clientIsOtherPed, setClientIsOtherPed] = useState(false);
+  const [showClientFlags, setShowClientFlags] = useState(false);
   const [clientEmail, setClientEmail] = useState("");
   const [accidentTime, setAccidentTime] = useState("");
   const [dayOfWeek, setDayOfWeek] = useState("");
@@ -266,6 +282,21 @@ export default function Dashboard() {
     setDefendantIsBicyclist(defendantVehicle_.is_bicyclist || false);
     setDefendantIsPedestrian(defendantVehicle_.is_pedestrian || false);
     setDefendantIsOtherPed(defendantVehicle_.is_other_pedestrian || false);
+    setDefendantPlate(defendantVehicle_.plate_number || "");
+    setDefendantPlateState(defendantVehicle_.plate_state || "");
+    setDefendantVehicleYearMake([defendantVehicle_.vehicle_year, defendantVehicle_.vehicle_make].filter(Boolean).join(" "));
+    setDefendantVehicleType(defendantVehicle_.vehicle_type || "");
+    setDefendantInsCode(defendantVehicle_.ins_code || "");
+    setDefendantAddress(defendantVehicle_.address || "");
+    setDefendantCity(defendantVehicle_.city || "");
+    setDefendantState(defendantVehicle_.state || "");
+    setDefendantZip(defendantVehicle_.zip || "");
+    // Client party type flags
+    setClientVehicleNum(m.matchedVehicle);
+    setClientIsVehicle(!clientVehicle.is_bicyclist && !clientVehicle.is_pedestrian);
+    setClientIsBicyclist(clientVehicle.is_bicyclist || false);
+    setClientIsPedestrian(clientVehicle.is_pedestrian || false);
+    setClientIsOtherPed(clientVehicle.is_other_pedestrian || false);
     setClientEmail(m.clientEmail);
     setMatterId(m.matter.id);
     setAccidentTime(data.accident_time || "");
@@ -306,6 +337,21 @@ export default function Dashboard() {
     setDefendantIsBicyclist(data.vehicle_2.is_bicyclist || false);
     setDefendantIsPedestrian(data.vehicle_2.is_pedestrian || false);
     setDefendantIsOtherPed(data.vehicle_2.is_other_pedestrian || false);
+    setDefendantPlate(data.vehicle_2.plate_number || "");
+    setDefendantPlateState(data.vehicle_2.plate_state || "");
+    setDefendantVehicleYearMake([data.vehicle_2.vehicle_year, data.vehicle_2.vehicle_make].filter(Boolean).join(" "));
+    setDefendantVehicleType(data.vehicle_2.vehicle_type || "");
+    setDefendantInsCode(data.vehicle_2.ins_code || "");
+    setDefendantAddress(data.vehicle_2.address || "");
+    setDefendantCity(data.vehicle_2.city || "");
+    setDefendantState(data.vehicle_2.state || "");
+    setDefendantZip(data.vehicle_2.zip || "");
+    // Client party type flags (no match = default to V1)
+    setClientVehicleNum(1);
+    setClientIsVehicle(!data.vehicle_1.is_bicyclist && !data.vehicle_1.is_pedestrian);
+    setClientIsBicyclist(data.vehicle_1.is_bicyclist || false);
+    setClientIsPedestrian(data.vehicle_1.is_pedestrian || false);
+    setClientIsOtherPed(data.vehicle_1.is_other_pedestrian || false);
     setClientEmail(process.env.NEXT_PUBLIC_HACKATHON_EMAIL || "");
     setMatterId(0);
     setAccidentTime(data.accident_time || "");
@@ -704,7 +750,20 @@ export default function Dashboard() {
               </div>
 
               {/* Client Info */}
-              <Section title={`Client Information${match ? ` (Vehicle ${match.matchedVehicle})` : ""}`}>
+              <div className="mb-6">
+                <div className="mb-3 flex items-center justify-between border-b border-clio-border pb-2">
+                  <h3 className="text-xs font-bold uppercase tracking-wide text-clio-text-light">
+                    Client Information{match ? ` (Vehicle ${match.matchedVehicle})` : ""}
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowClientFlags(!showClientFlags)}
+                    className="flex items-center gap-1 rounded px-2 py-0.5 text-xs text-clio-text-light transition-colors hover:bg-gray-100 hover:text-clio-text"
+                  >
+                    {showClientFlags ? "Hide" : "Show"} Flags
+                    <span className="text-[10px]">{showClientFlags ? "\u25B2" : "\u25BC"}</span>
+                  </button>
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="First Name" confidence={extraction?.confidence?.vehicle_1_name} {...auditProps("clientFirst")}>
                     <input className="input-field input-ai" value={clientFirst} onChange={(e) => setClientFirst(e.target.value)} />
@@ -752,7 +811,63 @@ export default function Dashboard() {
                     <input className="input-field input-ai" value={clientInsCode} onChange={(e) => setClientInsCode(e.target.value)} />
                   </Field>
                 </div>
-              </Section>
+                {showClientFlags && (
+                  <div className="mt-3 grid grid-cols-4 gap-3">
+                    <Field label="Vehicle" {...auditProps("clientIsVehicle")}>
+                      <button
+                        type="button"
+                        onClick={() => setClientIsVehicle(!clientIsVehicle)}
+                        className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-sm font-bold transition-colors ${
+                          clientIsVehicle
+                            ? "border-clio-blue bg-clio-blue text-white"
+                            : "border-clio-border bg-white text-transparent hover:border-gray-400"
+                        }`}
+                      >
+                        {clientVehicleNum}
+                      </button>
+                    </Field>
+                    <Field label="Bicyclist" {...auditProps("clientBicyclist")}>
+                      <button
+                        type="button"
+                        onClick={() => setClientIsBicyclist(!clientIsBicyclist)}
+                        className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-lg transition-colors ${
+                          clientIsBicyclist
+                            ? "border-clio-blue bg-clio-blue text-white"
+                            : "border-clio-border bg-white text-transparent hover:border-gray-400"
+                        }`}
+                      >
+                        ✓
+                      </button>
+                    </Field>
+                    <Field label="Pedestrian" {...auditProps("clientPedestrian")}>
+                      <button
+                        type="button"
+                        onClick={() => setClientIsPedestrian(!clientIsPedestrian)}
+                        className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-lg transition-colors ${
+                          clientIsPedestrian
+                            ? "border-clio-blue bg-clio-blue text-white"
+                            : "border-clio-border bg-white text-transparent hover:border-gray-400"
+                        }`}
+                      >
+                        ✓
+                      </button>
+                    </Field>
+                    <Field label="Other Pedestrian" {...auditProps("clientOtherPed")}>
+                      <button
+                        type="button"
+                        onClick={() => setClientIsOtherPed(!clientIsOtherPed)}
+                        className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-lg transition-colors ${
+                          clientIsOtherPed
+                            ? "border-clio-blue bg-clio-blue text-white"
+                            : "border-clio-border bg-white text-transparent hover:border-gray-400"
+                        }`}
+                      >
+                        ✓
+                      </button>
+                    </Field>
+                  </div>
+                )}
+              </div>
 
               {/* Defendant */}
               <div className="mb-6">
@@ -776,12 +891,40 @@ export default function Dashboard() {
                   <Field label="Last Name" confidence={extraction?.confidence?.vehicle_2_name} {...auditProps("defendantLast")}>
                     <input className="input-field input-ai" value={defendantLast} onChange={(e) => setDefendantLast(e.target.value)} />
                   </Field>
-                </div>
-                <div className={`mt-3 grid gap-3 ${showDefendantFlags ? "grid-cols-5" : "grid-cols-1"}`}>
-                  <Field label="Defendant Vehicle" {...auditProps("defendantVehicle")}>
-                    <input className="input-field input-ai" value={defendantVehicle} onChange={(e) => setDefendantVehicle(e.target.value)} />
+                  <Field label="Address" full {...auditProps("defendantAddress")}>
+                    <input className="input-field input-ai" value={defendantAddress} onChange={(e) => setDefendantAddress(e.target.value)} />
                   </Field>
-                  {showDefendantFlags && (
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-3">
+                  <Field label="City or Town" {...auditProps("defendantCity")}>
+                    <input className="input-field input-ai" value={defendantCity} onChange={(e) => setDefendantCity(e.target.value)} />
+                  </Field>
+                  <Field label="State" {...auditProps("defendantState")}>
+                    <input className="input-field input-ai" value={defendantState} onChange={(e) => setDefendantState(e.target.value)} />
+                  </Field>
+                  <Field label="Zip Code" {...auditProps("defendantZip")}>
+                    <input className="input-field input-ai" value={defendantZip} onChange={(e) => setDefendantZip(e.target.value)} />
+                  </Field>
+                </div>
+                <div className="mt-3 grid grid-cols-5 gap-3">
+                  <Field label="Registration Plate" {...auditProps("defendantPlate")}>
+                    <input className="input-field input-ai" value={defendantPlate} onChange={(e) => setDefendantPlate(e.target.value)} />
+                  </Field>
+                  <Field label="State of Reg." {...auditProps("defendantPlateState")}>
+                    <input className="input-field input-ai" value={defendantPlateState} onChange={(e) => setDefendantPlateState(e.target.value)} />
+                  </Field>
+                  <Field label="Vehicle Year & Make" {...auditProps("defendantVehicleYearMake")}>
+                    <input className="input-field input-ai" value={defendantVehicleYearMake} onChange={(e) => setDefendantVehicleYearMake(e.target.value)} />
+                  </Field>
+                  <Field label="Vehicle Type" {...auditProps("defendantVehicleType")}>
+                    <input className="input-field input-ai" value={defendantVehicleType} onChange={(e) => setDefendantVehicleType(e.target.value)} />
+                  </Field>
+                  <Field label="Ins. Code" {...auditProps("defendantInsCode")}>
+                    <input className="input-field input-ai" value={defendantInsCode} onChange={(e) => setDefendantInsCode(e.target.value)} />
+                  </Field>
+                </div>
+                {showDefendantFlags && (
+                  <div className="mt-3 grid grid-cols-4 gap-3">
                     <Field label="Vehicle" {...auditProps("defendantIsVehicle")}>
                       <button
                         type="button"
@@ -795,8 +938,6 @@ export default function Dashboard() {
                         {defendantVehicleNum}
                       </button>
                     </Field>
-                  )}
-                  {showDefendantFlags && (
                     <Field label="Bicyclist" {...auditProps("defendantBicyclist")}>
                       <button
                         type="button"
@@ -810,8 +951,6 @@ export default function Dashboard() {
                         ✓
                       </button>
                     </Field>
-                  )}
-                  {showDefendantFlags && (
                     <Field label="Pedestrian" {...auditProps("defendantPedestrian")}>
                       <button
                         type="button"
@@ -825,8 +964,6 @@ export default function Dashboard() {
                         ✓
                       </button>
                     </Field>
-                  )}
-                  {showDefendantFlags && (
                     <Field label="Other Pedestrian" {...auditProps("defendantOtherPed")}>
                       <button
                         type="button"
@@ -840,8 +977,8 @@ export default function Dashboard() {
                         ✓
                       </button>
                     </Field>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
 
               {/* Accident Location & Description */}

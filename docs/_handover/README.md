@@ -17,6 +17,7 @@ Session handover notes for continuity between developers and LLM sessions.
 | README.md | This file — handover conventions | active |
 | [2026-02-28_initial_build.md](2026-02-28_initial_build.md) | Full build session — MVP, dual AI providers, 14 design mockups, comprehensive handover | active |
 | [2026-03-01_dashboard_ui_refinement.md](2026-03-01_dashboard_ui_refinement.md) | Dashboard UI restructure, defendant flags, field-mapping CSV, new extraction fields, docs update | active |
+| [2026-03-01_full_handover.md](2026-03-01_full_handover.md) | **Full project handover** — complete state of all code, bugs fixed, what's left, how to run, quick reference | active |
 
 ## Naming Convention
 
