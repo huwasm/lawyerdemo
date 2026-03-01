@@ -13,6 +13,11 @@ sample-data/
 .env.production.local
 
 # ----------------------------
+# Claude Code (may contain tokens in permissions)
+# ----------------------------
+.claude/settings.local.json
+
+# ----------------------------
 # Node / JS
 # ----------------------------
 node_modules/

@@ -7,7 +7,8 @@
       "Bash(npm install @supabase/supabase-js)",
       "Bash(curl -s -X POST http://localhost:3001/api/extract -F \"file=@/Users/user/code/lawyerdemo/sample-data/GUILLERMO_REYES_v_LIONEL_FRANCOIS_et_al_EXHIBIT_S__XX.pdf\")",
       "Bash(python3 -m json.tool)",
-      "Bash(curl -s \"https://eu.app.clio.com/api/v4/matters?fields=id,client,status&status=open&limit=200\" -H \"Authorization: Bearer 4100-AG4QXLlqfZeQnba00GNqiQirGbSvuqBTLPT\")"
+      "Bash(curl -s \"https://eu.app.clio.com/api/v4/matters?fields=id,client,status&status=open&limit=200\" -H \"Authorization: Bearer 4100-AG4QXLlqfZeQnba00GNqiQirGbSvuqBTLPT\")",
+      "mcp__supabase__execute_sql"
     ]
   }
 }
