@@ -26,7 +26,9 @@
       "Bash(__NEW_LINE_1179c7bd09d3ca06__ vercel env rm CALENDLY_VIRTUAL production --yes)",
       "Bash(printf \"https://calendly.com/swans-santiago-p/winter-autumn\")",
       "Bash(vercel env add HACKATHON_EMAIL production)",
-      "Bash(__NEW_LINE_ea9fe65ccf7a4900__ echo \"✓ Fixed env vars \\(no trailing newlines\\)\")"
+      "Bash(__NEW_LINE_ea9fe65ccf7a4900__ echo \"✓ Fixed env vars \\(no trailing newlines\\)\")",
+      "Bash(printf 'talent.legal-engineer.hackathon.automation-email@swans.co')",
+      "Bash(npx vercel env add HACKATHON_EMAIL production --force)"
     ]
   }
 }
