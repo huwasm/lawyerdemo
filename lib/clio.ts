@@ -1,3 +1,9 @@
+// ┌──────────────────────────────────────────────────────────────────────┐
+// │ EU-CONFIG: Base URL and token are set via .env.local                │
+// │ EU:  CLIO_BASE_URL=https://eu.app.clio.com                         │
+// │ US:  CLIO_BASE_URL=https://app.clio.com  (the default fallback)    │
+// │ See docs/EU_TO_US_MIGRATION.md for full switch checklist.          │
+// └──────────────────────────────────────────────────────────────────────┘
 const CLIO_BASE_URL = process.env.CLIO_BASE_URL || "https://app.clio.com";
 const CLIO_ACCESS_TOKEN = process.env.CLIO_ACCESS_TOKEN || "";
 
@@ -169,36 +175,61 @@ export async function getMatterDocuments(matterId: number) {
 export async function downloadDocument(
   documentId: number
 ): Promise<Buffer | null> {
-  clog("downloadDocument", `Getting version info for doc #${documentId}`);
+  clog("downloadDocument", `Downloading doc #${documentId}`);
 
   try {
-    // First get the version ID
-    const docData = await clioFetch(
-      `/api/v4/documents/${documentId}?fields=id,name,latest_document_version`
-    );
+    // ┌──────────────────────────────────────────────────────────────────┐
+    // │ EU-WORKAROUND: Clio EU does NOT support the standard endpoint   │
+    // │   GET /api/v4/document_versions/{versionId}/download            │
+    // │ It returns 404 for all version IDs.                             │
+    // │                                                                 │
+    // │ Working endpoint on EU:                                         │
+    // │   GET /api/v4/documents/{documentId}/download.json              │
+    // │ Returns 303 → S3 presigned URL.                                 │
+    // │                                                                 │
+    // │ US-SWITCH: On US Clio, the standard /document_versions/{id}/    │
+    // │   download endpoint may work. Test first. If it does, you can   │
+    // │   revert to the simpler version. See docs/EU_TO_US_MIGRATION.md │
+    // └──────────────────────────────────────────────────────────────────┘
 
-    const versionId = docData.data?.latest_document_version?.id;
-    if (!versionId) {
-      clog("downloadDocument", "No version ID found — cannot download");
+    // Step 1: Request download — get 303 redirect to S3
+    // Must use redirect:'manual' so we can strip the Auth header before following to S3
+    const downloadUrl = `${CLIO_BASE_URL}/api/v4/documents/${documentId}/download.json`;
+    clog("downloadDocument", `GET ${downloadUrl} (manual redirect)`);
+
+    const redirectRes = await fetch(downloadUrl, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${CLIO_ACCESS_TOKEN}`,
+      },
+      redirect: "manual",
+    });
+
+    if (redirectRes.status !== 303) {
+      const body = await redirectRes.text();
+      clog("downloadDocument", `Expected 303 but got ${redirectRes.status}: ${body.slice(0, 300)}`);
       return null;
     }
 
-    clog("downloadDocument", `Downloading version #${versionId}`);
-
-    // Download the actual file
-    const res = await clioFetch(
-      `/api/v4/document_versions/${versionId}/download`
-    );
-
-    if (res instanceof Response) {
-      const arrayBuffer = await res.arrayBuffer();
-      const buf = Buffer.from(arrayBuffer);
-      clog("downloadDocument", `Downloaded ${buf.length} bytes`);
-      return buf;
+    const s3Url = redirectRes.headers.get("location");
+    if (!s3Url) {
+      clog("downloadDocument", "303 response missing Location header");
+      return null;
     }
 
-    clog("downloadDocument", "Response was not binary — unexpected");
-    return null;
+    clog("downloadDocument", `Following redirect to S3 (${s3Url.slice(0, 80)}...)`);
+
+    // Step 2: Download from S3 — NO Authorization header (S3 uses its own presigned URL auth)
+    const s3Res = await fetch(s3Url);
+    if (!s3Res.ok) {
+      clog("downloadDocument", `S3 download failed: ${s3Res.status}`);
+      return null;
+    }
+
+    const arrayBuffer = await s3Res.arrayBuffer();
+    const buf = Buffer.from(arrayBuffer);
+    clog("downloadDocument", `Downloaded ${buf.length} bytes`);
+    return buf;
   } catch (err) {
     clog("downloadDocument", `FAILED: ${err instanceof Error ? err.message : String(err)}`);
     return null;
