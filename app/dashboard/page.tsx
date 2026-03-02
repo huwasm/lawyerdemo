@@ -86,21 +86,6 @@ function formatStatuteDisplay(isoDate: string): string {
   return `${date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} (8 years)`;
 }
 
-function confidenceBadge(score: number | undefined) {
-  if (!score) return null;
-  const level =
-    score >= 90 ? "high" : score >= 70 ? "medium" : "low";
-  const colors = {
-    high: "bg-clio-success-bg text-clio-success",
-    medium: "bg-clio-warning-bg text-clio-warning",
-    low: "bg-red-50 text-clio-error",
-  };
-  return (
-    <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${colors[level]}`}>
-      {score}%
-    </span>
-  );
-}
 
 function buildLocationString(loc: ExtractionData["accident_location"]): string {
   const parts = [loc.road, loc.intersecting_street, loc.borough]
@@ -585,8 +570,11 @@ export default function Dashboard() {
             Richards & Law <span className="font-normal text-clio-text">| Intake</span>
           </h1>
           <span className="rounded-full bg-clio-blue-light px-3 py-1 text-xs font-semibold text-clio-blue">
-            Powered by Clio
+            Powered by Swans
           </span>
+          <a href="/dashboard/infoandrew" className="rounded-full bg-clio-blue-light px-3 py-1 text-xs font-semibold text-clio-blue transition-colors hover:bg-clio-blue hover:text-white">
+            Info Andrew
+          </a>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm text-clio-text-light">Andrew Richards</span>
@@ -768,7 +756,7 @@ export default function Dashboard() {
                   </button>
                 </div>
                 <div className={`grid gap-3 ${showExtraAccident ? "grid-cols-5" : "grid-cols-2"}`}>
-                  <Field label="Date of Accident" confidence={extraction?.confidence?.accident_date} {...auditProps("accidentDate")}>
+                  <Field label="Date of Accident" {...auditProps("accidentDate")}>
                     <input className="input-field input-ai" value={accidentDate} onChange={(e) => setAccidentDate(e.target.value)} />
                   </Field>
                   {showExtraAccident && (
@@ -777,7 +765,7 @@ export default function Dashboard() {
                     </Field>
                   )}
                   {showExtraAccident && (
-                    <Field label="Time of Accident" confidence={extraction?.confidence?.accident_time} {...auditProps("accidentTime")}>
+                    <Field label="Time of Accident" {...auditProps("accidentTime")}>
                       <input className="input-field input-ai" value={accidentTime} onChange={(e) => setAccidentTime(e.target.value)} />
                     </Field>
                   )}
@@ -786,7 +774,7 @@ export default function Dashboard() {
                       <input className="input-field input-ai" type="number" value={noVehicles} onChange={(e) => setNoVehicles(parseInt(e.target.value) || 0)} />
                     </Field>
                   )}
-                  <Field label="Number Injured" confidence={extraction?.confidence?.no_injured} {...auditProps("noInjured")}>
+                  <Field label="Number Injured" {...auditProps("noInjured")}>
                     <input className="input-field input-ai" type="number" value={noInjured} onChange={(e) => setNoInjured(parseInt(e.target.value) || 0)} />
                   </Field>
                   {showExtraAccident && (
@@ -805,10 +793,10 @@ export default function Dashboard() {
                   </h3>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="First Name" confidence={extraction?.confidence?.vehicle_1_name} {...auditProps("clientFirst")}>
+                  <Field label="First Name" {...auditProps("clientFirst")}>
                     <input className="input-field input-ai" value={clientFirst} onChange={(e) => setClientFirst(e.target.value)} />
                   </Field>
-                  <Field label="Last Name" confidence={extraction?.confidence?.vehicle_1_name} {...auditProps("clientLast")}>
+                  <Field label="Last Name" {...auditProps("clientLast")}>
                     <input className="input-field input-ai" value={clientLast} onChange={(e) => setClientLast(e.target.value)} />
                   </Field>
                   <Field label="Address" full {...auditProps("clientAddress")}>
@@ -835,7 +823,7 @@ export default function Dashboard() {
                   </Field>
                 </div>
                 <div className="mt-3 grid grid-cols-4 gap-3">
-                  <Field label="Registration Plate" confidence={extraction?.confidence?.plate_number} {...auditProps("clientPlate")}>
+                  <Field label="Registration Plate" {...auditProps("clientPlate")}>
                     <input className="input-field input-ai" value={clientPlate} onChange={(e) => setClientPlate(e.target.value)} />
                   </Field>
                   <Field label="State of Reg." {...auditProps("clientPlateState")}>
@@ -912,10 +900,10 @@ export default function Dashboard() {
                   </h3>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="First Name" confidence={extraction?.confidence?.vehicle_2_name} {...auditProps("defendantFirst")}>
+                  <Field label="First Name" {...auditProps("defendantFirst")}>
                     <input className="input-field input-ai" value={defendantFirst} onChange={(e) => setDefendantFirst(e.target.value)} />
                   </Field>
-                  <Field label="Last Name" confidence={extraction?.confidence?.vehicle_2_name} {...auditProps("defendantLast")}>
+                  <Field label="Last Name" {...auditProps("defendantLast")}>
                     <input className="input-field input-ai" value={defendantLast} onChange={(e) => setDefendantLast(e.target.value)} />
                   </Field>
                   <Field label="Address" full {...auditProps("defendantAddress")}>
@@ -1006,10 +994,10 @@ export default function Dashboard() {
               {/* Accident Location & Description */}
               <Section title="Accident Location & Description">
                 <div className="grid grid-cols-1 gap-3">
-                  <Field label="Accident Location" confidence={extraction?.confidence?.accident_location} {...auditProps("accidentLocation")}>
+                  <Field label="Accident Location" {...auditProps("accidentLocation")}>
                     <input className="input-field input-ai" value={accidentLocation} onChange={(e) => setAccidentLocation(e.target.value)} />
                   </Field>
-                  <Field label="Accident Description (officer notes)" confidence={extraction?.confidence?.officer_notes} {...auditProps("officerNotes")}>
+                  <Field label="Accident Description (officer notes)" {...auditProps("officerNotes")}>
                     <textarea className="input-field input-ai min-h-[80px] resize-y" value={officerNotes} onChange={(e) => setOfficerNotes(e.target.value)} />
                   </Field>
                 </div>
@@ -1232,16 +1220,7 @@ export default function Dashboard() {
           {/* Footer */}
           {phase === "review" && (
             <div className="sticky bottom-0 flex items-center justify-between border-t border-clio-border bg-white px-5 py-4">
-              <div className="text-xs text-clio-text-light">
-                {extraction?.confidence && (
-                  <>
-                    <span className="font-semibold text-clio-blue">
-                      {Object.keys(extraction.confidence).length} fields
-                    </span>{" "}
-                    extracted
-                  </>
-                )}
-              </div>
+              <div className="text-xs text-clio-text-light"></div>
               <div className="flex gap-2">
                 <button className="btn-secondary" onClick={handleReset}>
                   Reset
@@ -1331,7 +1310,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Field({
   label,
-  confidence,
   full,
   auditKey,
   auditChecked,
@@ -1339,7 +1317,6 @@ function Field({
   children,
 }: {
   label: string;
-  confidence?: number;
   full?: boolean;
   auditKey?: string;
   auditChecked?: boolean;
@@ -1348,20 +1325,17 @@ function Field({
 }) {
   return (
     <div className={`flex flex-col gap-1 ${full ? "col-span-2" : ""}`}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          {auditKey !== undefined && (
-            <input
-              type="checkbox"
-              checked={auditChecked || false}
-              onChange={onAuditToggle}
-              className="h-3.5 w-3.5 cursor-pointer rounded border-gray-300 accent-green-600"
-              title={auditChecked ? "Marked correct" : "Mark as correct"}
-            />
-          )}
-          <label className="text-xs font-semibold text-clio-text-light">{label}</label>
-        </div>
-        {confidenceBadge(confidence)}
+      <div className="flex items-center gap-1.5">
+        {auditKey !== undefined && (
+          <input
+            type="checkbox"
+            checked={auditChecked || false}
+            onChange={onAuditToggle}
+            className="h-3.5 w-3.5 cursor-pointer rounded border-gray-300 accent-green-600"
+            title={auditChecked ? "Marked correct" : "Mark as correct"}
+          />
+        )}
+        <label className="text-xs font-semibold text-clio-text-light">{label}</label>
       </div>
       {children}
     </div>
