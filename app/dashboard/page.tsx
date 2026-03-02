@@ -673,9 +673,12 @@ export default function Dashboard() {
         <div className="flex flex-1 flex-col overflow-y-auto">
           {/* Status bar */}
           {phase === "extracting" && (
-            <div className="flex items-center gap-2 bg-clio-warning-bg px-5 py-3 text-sm text-clio-warning">
-              <div className="h-2 w-2 animate-pulse-dot rounded-full bg-current" />
-              AI extracting data from police report...
+            <div className="relative overflow-hidden bg-clio-blue px-5 py-3.5 text-sm font-semibold text-white">
+              <div className="relative z-10 flex items-center gap-3">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                AI extracting data from police report...
+              </div>
+              <div className="animate-progress absolute bottom-0 left-0 h-1 bg-white/40" />
             </div>
           )}
           {phase === "review" && (

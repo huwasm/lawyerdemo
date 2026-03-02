@@ -41,3 +41,22 @@
 .animate-pulse-dot {
   animation: pulse-dot 1.5s infinite;
 }
+
+@keyframes progress-sweep {
+  0% {
+    width: 0%;
+    left: 0%;
+  }
+  50% {
+    width: 40%;
+    left: 30%;
+  }
+  100% {
+    width: 0%;
+    left: 100%;
+  }
+}
+
+.animate-progress {
+  animation: progress-sweep 2s ease-in-out infinite;
+}
