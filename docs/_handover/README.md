@@ -20,6 +20,7 @@ Session handover notes for continuity between developers and LLM sessions.
 | [2026-03-01_full_handover.md](2026-03-01_full_handover.md) | **Full project handover** — complete state of all code, bugs fixed, what's left, how to run, quick reference | active |
 | [2026-03-02_session4_ui_symmetry_and_pipeline_resilience.md](2026-03-02_session4_ui_symmetry_and_pipeline_resilience.md) | **Session 4** — Symmetric form (both sides all fields), ins_code prompt fix, debug logging, download retry & resilience, 500 error fix | active |
 | [2026-03-02_session5_pipeline_complete.md](2026-03-02_session5_pipeline_complete.md) | **Session 5** — Full pipeline 5/5 working on EU! Fixed download (EU workaround endpoint) + email (new Resend key). Ready for US switch. | active |
+| [2026-03-02_session6_us_clio_setup.md](2026-03-02_session6_us_clio_setup.md) | **Session 6** — US Clio account fully set up via API, pronoun merge fields added, favicon, retainer template fix in progress | active |
 | [../EU_TO_US_MIGRATION.md](../EU_TO_US_MIGRATION.md) | **EU→US Migration** — Complete step-by-step checklist to switch from EU to US Clio. All env vars, no code changes needed. | active |
 
 ## Naming Convention

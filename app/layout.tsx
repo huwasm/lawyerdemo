@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Richards & Law — Intake Dashboard",
   description: "Automated police report intake powered by AI and Clio Manage",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({

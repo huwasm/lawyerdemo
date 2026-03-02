@@ -144,14 +144,19 @@ export async function getContact(contactId: number) {
 
 // --- Document Automation ---
 
-export async function generateRetainer(matterId: number, filename: string) {
-  const templateId = parseInt(process.env.CLIO_TEMPLATE_ID || "0");
-  clog("generateRetainer", `Template #${templateId}, Matter #${matterId}, filename: "${filename}"`);
+export async function generateRetainer(
+  matterId: number,
+  filename: string,
+  templateId?: number
+) {
+  const tplId =
+    templateId || parseInt(process.env.CLIO_TEMPLATE_ID || "0");
+  clog("generateRetainer", `Template #${tplId}, Matter #${matterId}, filename: "${filename}"`);
   return clioFetch("/api/v4/document_automations", {
     method: "POST",
     body: JSON.stringify({
       data: {
-        document_template: { id: templateId },
+        document_template: { id: tplId },
         matter: { id: matterId },
         filename,
         formats: ["pdf"],

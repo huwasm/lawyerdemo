@@ -62,6 +62,8 @@ export async function POST(req: NextRequest) {
       CLIO_FIELD_ACCIDENT_LOCATION: body.accidentLocation,
       CLIO_FIELD_DEFENDANT_NAME: body.defendantName,
       CLIO_FIELD_CLIENT_GENDER: body.clientGender === "M" ? "Male" : "Female",
+      CLIO_FIELD_PRONOUN_POSSESSIVE: body.clientGender === "M" ? "his" : "her",
+      CLIO_FIELD_PRONOUN_SUBJECT: body.clientGender === "M" ? "he" : "she",
       CLIO_FIELD_REGISTRATION_PLATE: body.registrationPlate || "N/A",
       CLIO_FIELD_NUMBER_INJURED: body.noInjured,
       CLIO_FIELD_ACCIDENT_DESCRIPTION: body.officerNotes,
@@ -85,10 +87,14 @@ export async function POST(req: NextRequest) {
     }
     steps.push({ step: "Update custom fields", status: "done" });
 
-    // Step 2: Generate retainer agreement
+    // Step 2: Generate retainer agreement (select template by injury status)
     const retainerFilename = `Retainer_Agreement_${body.clientLastName}`;
-    log(2, `Generating retainer: "${retainerFilename}" using template #${process.env.CLIO_TEMPLATE_ID}`);
-    await generateRetainer(body.matterId, retainerFilename);
+    const templateId =
+      body.noInjured > 0
+        ? parseInt(process.env.CLIO_TEMPLATE_ID_INJURED || process.env.CLIO_TEMPLATE_ID || "0")
+        : parseInt(process.env.CLIO_TEMPLATE_ID_PROPERTY || process.env.CLIO_TEMPLATE_ID || "0");
+    log(2, `Generating retainer: "${retainerFilename}" using template #${templateId} (injured=${body.noInjured > 0 ? "yes" : "no"})`)
+    await generateRetainer(body.matterId, retainerFilename, templateId);
     log(2, "Retainer generation triggered");
     steps.push({ step: "Generate retainer", status: "done" });
 
@@ -109,6 +115,8 @@ export async function POST(req: NextRequest) {
         await new Promise((resolve) => setTimeout(resolve, waitSec * 1000));
 
         const docs = await getMatterDocuments(body.matterId);
+        // Sort by ID descending so newest document is first (avoids picking stale old retainers)
+        docs.sort((a: { id: number }, b: { id: number }) => b.id - a.id);
         log(4, `Found ${docs.length} documents on Matter #${body.matterId}`, docs.map((d: { id: number; name: string }) => ({ id: d.id, name: d.name })));
 
         const retainerDoc = docs.find(
