@@ -599,30 +599,60 @@ export default function Dashboard() {
       {/* Main */}
       <div className="flex flex-1">
         {/* Left: PDF Panel */}
-        <div className="flex w-[45%] flex-col border-r border-clio-border bg-white">
-          <div className="border-b border-clio-border px-5 py-4">
-            <div className="text-sm font-semibold text-clio-text">Police Report</div>
-            <div className="text-xs text-clio-text-light">
-              {fileName || "No file uploaded"}
+        <div className={`flex w-[45%] flex-col border-r border-clio-border ${phase === "upload" ? "" : "bg-white"}`}>
+          {/* Header — only show in non-upload phases */}
+          {phase !== "upload" && (
+            <div className="border-b border-clio-border px-5 py-4 bg-white">
+              <div className="text-sm font-semibold text-clio-text">Police Report</div>
+              <div className="text-xs text-clio-text-light">
+                {fileName || "No file uploaded"}
+              </div>
             </div>
-          </div>
+          )}
 
+          {/* Upload phase — colorful branded panel */}
           {phase === "upload" && (
             <div
-              className="flex flex-1 items-center justify-center p-10"
+              className="relative flex flex-1 flex-col overflow-hidden"
+              style={{ background: "linear-gradient(165deg, #0058B8 0%, #0070E0 40%, #4A90D9 100%)" }}
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}
             >
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full cursor-pointer rounded-xl border-2 border-dashed border-clio-border p-12 text-center transition-colors hover:border-clio-blue hover:bg-clio-blue-light"
-              >
-                <div className="mb-3 text-4xl">📄</div>
-                <div className="text-base font-semibold">Drop police report PDF here</div>
-                <div className="text-sm text-clio-text-light">
-                  or click to upload — supports MV-104AN and other formats
+              {/* Decorative circles */}
+              <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full" style={{ background: "rgba(255,255,255,0.04)" }} />
+              <div className="pointer-events-none absolute -bottom-12 -left-20 h-72 w-72 rounded-full" style={{ background: "rgba(255,255,255,0.03)" }} />
+
+              <div className="relative z-10 flex flex-1 flex-col px-8 py-10">
+                {/* Welcome */}
+                <div className="mb-10">
+                  <h1 className="mb-2 text-[28px] font-bold tracking-tight text-white">Client Intake</h1>
+                  <p className="max-w-[360px] text-[15px] leading-relaxed text-white/70">
+                    Upload a police report to begin the intake pipeline.
+                  </p>
                 </div>
-              </button>
+
+                {/* Upload card */}
+                <div className="flex flex-1 flex-col gap-4">
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="cursor-pointer rounded-2xl border border-white/30 p-6 text-left transition-all hover:-translate-y-0.5 hover:shadow-lg"
+                    style={{ background: "rgba(255,255,255,0.18)", backdropFilter: "blur(10px)" }}
+                  >
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl text-[22px]" style={{ background: "rgba(255,255,255,0.25)" }}>
+                      📄
+                    </div>
+                    <h3 className="mb-1.5 text-[17px] font-semibold text-white">Upload Police Report</h3>
+                    <p className="text-[13px] leading-relaxed text-white/60">
+                      Drop an MV-104AN police report PDF for AI extraction. The system will read the document, extract all fields, and match to a Clio matter automatically.
+                    </p>
+                    <div className="mt-4 rounded-xl border-2 border-dashed border-white/30 px-5 py-5 text-center text-[13px] text-white/55 transition-colors hover:border-white/50 hover:text-white/75">
+                      Drop PDF here or click to browse
+                    </div>
+                  </button>
+                </div>
+
+              </div>
+
               <input
                 ref={fileInputRef}
                 type="file"
@@ -737,7 +767,7 @@ export default function Dashboard() {
                     <span className="text-[10px]">{showExtraAccident ? "\u25B2" : "\u25BC"}</span>
                   </button>
                 </div>
-                <div className={`grid gap-3 ${showExtraAccident ? "grid-cols-6" : "grid-cols-2"}`}>
+                <div className={`grid gap-3 ${showExtraAccident ? "grid-cols-5" : "grid-cols-2"}`}>
                   <Field label="Date of Accident" confidence={extraction?.confidence?.accident_date} {...auditProps("accidentDate")}>
                     <input className="input-field input-ai" value={accidentDate} onChange={(e) => setAccidentDate(e.target.value)} />
                   </Field>
@@ -749,11 +779,6 @@ export default function Dashboard() {
                   {showExtraAccident && (
                     <Field label="Time of Accident" confidence={extraction?.confidence?.accident_time} {...auditProps("accidentTime")}>
                       <input className="input-field input-ai" value={accidentTime} onChange={(e) => setAccidentTime(e.target.value)} />
-                    </Field>
-                  )}
-                  {showExtraAccident && (
-                    <Field label="Report Reviewed Date" {...auditProps("reportReviewedDate")}>
-                      <input className="input-field input-ai" value={reportReviewedDate} onChange={(e) => setReportReviewedDate(e.target.value)} placeholder="MM/DD/YYYY" />
                     </Field>
                   )}
                   {showExtraAccident && (
@@ -994,6 +1019,11 @@ export default function Dashboard() {
                     <textarea className="input-field input-ai min-h-[80px] resize-y" value={officerNotes} onChange={(e) => setOfficerNotes(e.target.value)} />
                   </Field>
                 </div>
+                <div className="mt-3 grid grid-cols-1 gap-3">
+                  <Field label="Report Reviewed Date" {...auditProps("reportReviewedDate")}>
+                    <input className="input-field input-ai" value={reportReviewedDate} onChange={(e) => setReportReviewedDate(e.target.value)} placeholder="MM/DD/YYYY" />
+                  </Field>
+                </div>
               </Section>
 
               {/* Clio Matter */}
@@ -1037,16 +1067,127 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Upload placeholder */}
+          {/* Upload placeholder — show empty fields */}
           {phase === "upload" && !showSaved && (
-            <div className="flex flex-1 flex-col items-center justify-center gap-4 text-clio-text-light">
-              Upload a police report to get started
-              <button
-                onClick={fetchSavedReports}
-                className="rounded-md border border-clio-border px-4 py-2 text-xs font-semibold text-clio-text transition-colors hover:bg-gray-50"
-              >
-                or load a saved report
-              </button>
+            <div className="flex-1 overflow-y-auto p-5">
+              {/* Accident Details */}
+              <Section title="Accident Details">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-clio-text-light">Date of Accident</label>
+                    <input className="input-field bg-gray-50 text-gray-400" placeholder="MM/DD/YYYY" disabled />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-clio-text-light">Number Injured</label>
+                    <input className="input-field bg-gray-50 text-gray-400" type="number" placeholder="0" disabled />
+                  </div>
+                </div>
+              </Section>
+
+              {/* Client Info */}
+              <Section title="Client Information">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-clio-text-light">First Name</label>
+                    <input className="input-field bg-gray-50 text-gray-400" placeholder="—" disabled />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-clio-text-light">Last Name</label>
+                    <input className="input-field bg-gray-50 text-gray-400" placeholder="—" disabled />
+                  </div>
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-clio-text-light">City or Town</label>
+                    <input className="input-field bg-gray-50 text-gray-400" placeholder="—" disabled />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-clio-text-light">State</label>
+                    <input className="input-field bg-gray-50 text-gray-400" placeholder="—" disabled />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-clio-text-light">Zip Code</label>
+                    <input className="input-field bg-gray-50 text-gray-400" placeholder="—" disabled />
+                  </div>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-clio-text-light">Sex / Gender</label>
+                    <select className="input-field bg-gray-50 text-gray-400" disabled><option>—</option></select>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-clio-text-light">Registration Plate</label>
+                    <input className="input-field bg-gray-50 text-gray-400" placeholder="—" disabled />
+                  </div>
+                </div>
+              </Section>
+
+              {/* Defendant */}
+              <Section title="Defendant">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-clio-text-light">First Name</label>
+                    <input className="input-field bg-gray-50 text-gray-400" placeholder="—" disabled />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-clio-text-light">Last Name</label>
+                    <input className="input-field bg-gray-50 text-gray-400" placeholder="—" disabled />
+                  </div>
+                </div>
+              </Section>
+
+              {/* Accident Location & Description */}
+              <Section title="Accident Location & Description">
+                <div className="grid grid-cols-1 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-clio-text-light">Accident Location</label>
+                    <input className="input-field bg-gray-50 text-gray-400" placeholder="—" disabled />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-clio-text-light">Accident Description (officer notes)</label>
+                    <textarea className="input-field min-h-[80px] resize-y bg-gray-50 text-gray-400" placeholder="—" disabled />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-clio-text-light">Report Reviewed Date</label>
+                    <input className="input-field bg-gray-50 text-gray-400" placeholder="MM/DD/YYYY" disabled />
+                  </div>
+                </div>
+              </Section>
+
+              {/* Clio Matter */}
+              <Section title="Clio Matter">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-clio-text-light">Linked Matter</label>
+                    <input className="input-field bg-gray-50 text-gray-400" placeholder="No match found" disabled />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-clio-text-light">Statute of Limitations</label>
+                    <input className="input-field bg-gray-50 text-gray-400" placeholder="—" disabled />
+                  </div>
+                </div>
+              </Section>
+
+              {/* Email Settings */}
+              <Section title="Email Settings">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-clio-text-light">Send To</label>
+                    <input className="input-field bg-gray-50 text-gray-400" placeholder="—" disabled />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-clio-text-light">Calendly Link</label>
+                    <input className="input-field bg-gray-50 text-gray-400" placeholder="—" disabled />
+                  </div>
+                </div>
+              </Section>
+
+              {/* Approve button — disabled */}
+              <div className="mt-4 text-center">
+                <button className="btn-primary cursor-not-allowed opacity-40" disabled>
+                  Approve & Send
+                </button>
+              </div>
             </div>
           )}
 
