@@ -90,7 +90,6 @@ ROW 5 (vehicle details) — ⚠️ THIS IS WHERE THE PLATE NUMBER IS:
     - "State of Reg.": 2-letter state code (e.g. "NY", "NJ"). This is SEPARATE from plate number.
     - "Vehicle Year & Make": year + manufacturer (e.g. "2018 FREIGHTLINER", "2017 MAZDA")
     - "Vehicle Type": body style code (e.g. "BOX TRUCK", "SW/SUV", "SEDAN", "VAN")
-    - "Ins. Co. Code": insurance company code (1-5 digits), the LAST small box in this row. Examples: "36", "42", "100", "135". Can be just 2-3 digits. If not visible or unreadable, use "". For pedestrians/bicyclists this will be "".
 
   ⚠️ CRITICAL — PLATE NUMBER vs LICENSE ID:
   The "Plate Number" (Row 5) is SHORT (5-8 chars, e.g. "XCGY85", "DYY7657").
@@ -106,9 +105,8 @@ BOTTOM SECTION:
 
 ## EXTRACTION RULES:
 - Extract ALL people/names from BOTH vehicles (V1 + V2)
-- Vehicle 2 may be a PEDESTRIAN or BICYCLIST — check the checkboxes. If so, vehicle fields (plate, make, year, ins_code) will be empty — use ""
+- Vehicle 2 may be a PEDESTRIAN or BICYCLIST — check the checkboxes. If so, vehicle fields (plate, make, year) will be empty — use ""
 - "plate_number" is the VEHICLE LICENSE PLATE from Row 5 (short, e.g. "XCGY85", "DYY7657"). Do NOT use the "License ID Number" from Row 2 (that is the driver's license, much longer). Do NOT prepend the state. "plate_state" is the separate 2-letter state code from the same Row 5.
-- "ins_code" is the Insurance Company Code — the LAST small box in Row 5. It can be 1-5 digits (e.g. "36", "42", "100", "135"). Extract EXACTLY what is printed — do NOT guess or pad. If the box is empty or unreadable, use "". For pedestrians/bicyclists this will be "".
 - Sex uses M or F
 - accident_date: use MM/DD/YYYY format
 - accident_time: use HH:MM (from "Military Time" box)
@@ -149,7 +147,6 @@ Return this exact JSON structure:
     "vehicle_year": "",
     "vehicle_make": "",
     "vehicle_type": "",
-    "ins_code": "",
     "is_pedestrian": false,
     "is_bicyclist": false,
     "is_other_pedestrian": false
@@ -168,7 +165,6 @@ Return this exact JSON structure:
     "vehicle_year": "",
     "vehicle_make": "",
     "vehicle_type": "",
-    "ins_code": "",
     "is_pedestrian": false,
     "is_bicyclist": false,
     "is_other_pedestrian": false
@@ -186,8 +182,7 @@ Return this exact JSON structure:
     "no_injured": 95,
     "no_killed": 95,
     "officer_notes": 85,
-    "plate_number": 90,
-    "ins_code": 80
+    "plate_number": 90
   }
 }`;
 

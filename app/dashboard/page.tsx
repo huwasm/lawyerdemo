@@ -834,7 +834,7 @@ export default function Dashboard() {
                     </select>
                   </Field>
                 </div>
-                <div className="mt-3 grid grid-cols-5 gap-3">
+                <div className="mt-3 grid grid-cols-4 gap-3">
                   <Field label="Registration Plate" confidence={extraction?.confidence?.plate_number} {...auditProps("clientPlate")}>
                     <input className="input-field input-ai" value={clientPlate} onChange={(e) => setClientPlate(e.target.value)} />
                   </Field>
@@ -846,9 +846,6 @@ export default function Dashboard() {
                   </Field>
                   <Field label="Vehicle Type" {...auditProps("clientVehicleType")}>
                     <input className="input-field input-ai" value={clientVehicleType} onChange={(e) => setClientVehicleType(e.target.value)} />
-                  </Field>
-                  <Field label="Ins. Code" {...auditProps("clientInsCode")}>
-                    <input className="input-field input-ai" value={clientInsCode} onChange={(e) => setClientInsCode(e.target.value)} />
                   </Field>
                 </div>
                 <div className="mt-3 grid grid-cols-4 gap-3">
@@ -936,7 +933,7 @@ export default function Dashboard() {
                     <input className="input-field input-ai" value={defendantZip} onChange={(e) => setDefendantZip(e.target.value)} />
                   </Field>
                 </div>
-                <div className="mt-3 grid grid-cols-5 gap-3">
+                <div className="mt-3 grid grid-cols-4 gap-3">
                   <Field label="Registration Plate" {...auditProps("defendantPlate")}>
                     <input className="input-field input-ai" value={defendantPlate} onChange={(e) => setDefendantPlate(e.target.value)} />
                   </Field>
@@ -948,9 +945,6 @@ export default function Dashboard() {
                   </Field>
                   <Field label="Vehicle Type" {...auditProps("defendantVehicleType")}>
                     <input className="input-field input-ai" value={defendantVehicleType} onChange={(e) => setDefendantVehicleType(e.target.value)} />
-                  </Field>
-                  <Field label="Ins. Code" {...auditProps("defendantInsCode")}>
-                    <input className="input-field input-ai" value={defendantInsCode} onChange={(e) => setDefendantInsCode(e.target.value)} />
                   </Field>
                 </div>
                 <div className="mt-3 grid grid-cols-4 gap-3">
