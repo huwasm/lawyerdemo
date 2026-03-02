@@ -8,6 +8,14 @@ function getResend() {
 
 const ATTORNEY_NAME = process.env.ATTORNEY_NAME || "Andrew Richards";
 
+function elog(msg: string, data?: unknown) {
+  if (data !== undefined) {
+    console.log(`[Email]`, msg, typeof data === "string" ? data : JSON.stringify(data));
+  } else {
+    console.log(`[Email]`, msg);
+  }
+}
+
 interface EmailDraftInput {
   clientFirstName: string;
   accidentDate: string;
@@ -18,11 +26,16 @@ interface EmailDraftInput {
 async function draftPersonalParagraph(
   input: EmailDraftInput
 ): Promise<string> {
-  return getAI().draftParagraph({
+  elog(`Drafting AI paragraph for ${input.clientFirstName}, accident: ${input.accidentDate}`);
+  const startMs = Date.now();
+  const paragraph = await getAI().draftParagraph({
     clientFirstName: input.clientFirstName,
     accidentDate: input.accidentDate,
     officerNotes: input.officerNotes,
   });
+  const elapsed = Date.now() - startMs;
+  elog(`AI paragraph drafted in ${elapsed}ms (${paragraph.length} chars)`);
+  return paragraph;
 }
 
 function formatDate(dateStr: string): string {
@@ -54,6 +67,8 @@ interface SendEmailInput {
 }
 
 export async function sendClientEmail(input: SendEmailInput) {
+  elog(`Preparing email to ${input.clientEmail}`);
+
   const personalParagraph = await draftPersonalParagraph({
     clientFirstName: input.clientFirstName,
     accidentDate: input.accidentDate,
@@ -62,7 +77,11 @@ export async function sendClientEmail(input: SendEmailInput) {
   });
 
   const calendlyLink = getCalendlyLink(input.accidentMonth);
+  const calendlyType = input.accidentMonth >= 3 && input.accidentMonth <= 8 ? "office" : "virtual";
+  elog(`Calendly link: ${calendlyType} → ${calendlyLink}`);
+
   const formattedDate = formatDate(input.accidentDate);
+  elog(`PDF attachment: "${input.retainerFilename}" (${input.retainerPdf.length} bytes)`);
 
   const htmlBody = `
 <p>Hello ${input.clientFirstName},</p>
@@ -79,6 +98,9 @@ At that meeting, we'll go through the agreement in detail and discuss next steps
 <p>${ATTORNEY_NAME}</p>
   `.trim();
 
+  elog(`Sending via Resend: from="${ATTORNEY_NAME}", to="${input.clientEmail}", subject="Retainer Agreement for Your Review – Richards & Law"`);
+  const startMs = Date.now();
+
   const result = await getResend().emails.send({
     from: `${ATTORNEY_NAME} <onboarding@resend.dev>`,
     to: input.clientEmail,
@@ -91,6 +113,9 @@ At that meeting, we'll go through the agreement in detail and discuss next steps
       },
     ],
   });
+
+  const elapsed = Date.now() - startMs;
+  elog(`Resend responded in ${elapsed}ms`, result);
 
   return result;
 }

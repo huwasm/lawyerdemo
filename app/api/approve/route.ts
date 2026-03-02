@@ -33,11 +33,28 @@ function formatDateForClio(dateStr: string): string {
   return dateStr;
 }
 
+function log(step: number, msg: string, data?: unknown) {
+  const prefix = `[Approve][Step ${step}]`;
+  if (data !== undefined) {
+    console.log(prefix, msg, JSON.stringify(data, null, 2));
+  } else {
+    console.log(prefix, msg);
+  }
+}
+
 export async function POST(req: NextRequest) {
+  const startTime = Date.now();
   try {
     const body: ApproveRequest = await req.json();
     const clientFullName = `${body.clientFirstName} ${body.clientLastName}`;
     const steps: { step: string; status: string; detail?: string }[] = [];
+
+    log(0, `Starting approve pipeline for Matter #${body.matterId}`, {
+      client: clientFullName,
+      email: body.clientEmail,
+      accidentDate: body.accidentDate,
+      statuteDate: body.statuteDate,
+    });
 
     // Step 1: Update custom fields on Matter
     const fieldMap: Record<string, string | number> = {
@@ -60,33 +77,64 @@ export async function POST(req: NextRequest) {
     }
 
     if (customFields.length > 0) {
+      log(1, `Updating ${customFields.length} custom fields on Matter #${body.matterId}`);
       await updateMatterCustomFields(body.matterId, customFields);
+      log(1, "Custom fields updated successfully");
+    } else {
+      log(1, "WARNING: No custom field IDs configured in env");
     }
     steps.push({ step: "Update custom fields", status: "done" });
 
     // Step 2: Generate retainer agreement
     const retainerFilename = `Retainer_Agreement_${body.clientLastName}`;
+    log(2, `Generating retainer: "${retainerFilename}" using template #${process.env.CLIO_TEMPLATE_ID}`);
     await generateRetainer(body.matterId, retainerFilename);
+    log(2, "Retainer generation triggered");
     steps.push({ step: "Generate retainer", status: "done" });
 
     // Step 3: Create calendar entry (Statute of Limitations)
+    log(3, `Creating SOL calendar entry: ${body.statuteDate} on calendar #${process.env.CLIO_CALENDAR_ID}`);
     await createCalendarEntry(body.matterId, clientFullName, body.statuteDate);
+    log(3, "Calendar entry created");
     steps.push({ step: "Create calendar entry", status: "done" });
 
-    // Step 4: Download retainer PDF from Clio
-    // Wait a moment for document generation to complete
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-
+    // Step 4: Download retainer PDF from Clio (non-fatal — pipeline continues if download fails)
     let retainerPdf: Buffer | null = null;
-    const docs = await getMatterDocuments(body.matterId);
-    const retainerDoc = docs.find(
-      (d: { name: string }) =>
-        d.name.toLowerCase().includes("retainer") ||
-        d.name.toLowerCase().includes(body.clientLastName.toLowerCase())
-    );
+    try {
+      // Retry up to 3 times with increasing wait — Clio needs time to generate the document
+      const maxRetries = 3;
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        const waitSec = attempt === 1 ? 4 : 5;
+        log(4, `Attempt ${attempt}/${maxRetries}: waiting ${waitSec}s for Clio document generation...`);
+        await new Promise((resolve) => setTimeout(resolve, waitSec * 1000));
 
-    if (retainerDoc) {
-      retainerPdf = await downloadDocument(retainerDoc.id);
+        const docs = await getMatterDocuments(body.matterId);
+        log(4, `Found ${docs.length} documents on Matter #${body.matterId}`, docs.map((d: { id: number; name: string }) => ({ id: d.id, name: d.name })));
+
+        const retainerDoc = docs.find(
+          (d: { name: string }) =>
+            d.name.toLowerCase().includes("retainer") ||
+            d.name.toLowerCase().includes(body.clientLastName.toLowerCase())
+        );
+
+        if (retainerDoc) {
+          log(4, `Downloading retainer doc #${retainerDoc.id}: "${retainerDoc.name}"`);
+          retainerPdf = await downloadDocument(retainerDoc.id);
+          if (retainerPdf) {
+            log(4, `Downloaded PDF: ${retainerPdf.length} bytes`);
+            break; // success — stop retrying
+          }
+          log(4, `Download returned null on attempt ${attempt}`);
+        } else {
+          log(4, `Attempt ${attempt}: No retainer document found matching name filter yet`);
+        }
+
+        if (attempt < maxRetries) {
+          log(4, `Will retry...`);
+        }
+      }
+    } catch (downloadError) {
+      log(4, `WARNING: Download failed (non-fatal): ${downloadError instanceof Error ? downloadError.message : String(downloadError)}`);
     }
     steps.push({
       step: "Download retainer PDF",
@@ -97,8 +145,10 @@ export async function POST(req: NextRequest) {
     // Step 5: Send email to client
     const accidentDateParts = body.accidentDate.split("/");
     const accidentMonth = parseInt(accidentDateParts[0]) || new Date().getMonth() + 1;
+    const calendlyType = accidentMonth >= 3 && accidentMonth <= 8 ? "office (Mar-Aug)" : "virtual (Sep-Feb)";
+    log(5, `Sending email to ${body.clientEmail}, Calendly: ${calendlyType}, PDF attached: ${!!retainerPdf}`);
 
-    await sendClientEmail({
+    const emailResult = await sendClientEmail({
       clientFirstName: body.clientFirstName,
       clientEmail: body.clientEmail,
       accidentDate: body.accidentDate,
@@ -107,7 +157,11 @@ export async function POST(req: NextRequest) {
       retainerPdf: retainerPdf || Buffer.from(""),
       retainerFilename: `${retainerFilename}.pdf`,
     });
+    log(5, "Email sent", emailResult);
     steps.push({ step: "Send email", status: "done" });
+
+    const totalMs = Date.now() - startTime;
+    log(0, `Pipeline complete in ${totalMs}ms`);
 
     return NextResponse.json({
       success: true,
@@ -120,7 +174,8 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Approve error:", error);
+    const totalMs = Date.now() - startTime;
+    console.error(`[Approve] FAILED after ${totalMs}ms:`, error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Approval failed" },
       { status: 500 }

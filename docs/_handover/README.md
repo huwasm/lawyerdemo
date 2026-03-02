@@ -18,6 +18,7 @@ Session handover notes for continuity between developers and LLM sessions.
 | [2026-02-28_initial_build.md](2026-02-28_initial_build.md) | Full build session — MVP, dual AI providers, 14 design mockups, comprehensive handover | active |
 | [2026-03-01_dashboard_ui_refinement.md](2026-03-01_dashboard_ui_refinement.md) | Dashboard UI restructure, defendant flags, field-mapping CSV, new extraction fields, docs update | active |
 | [2026-03-01_full_handover.md](2026-03-01_full_handover.md) | **Full project handover** — complete state of all code, bugs fixed, what's left, how to run, quick reference | active |
+| [2026-03-02_session4_ui_symmetry_and_pipeline_resilience.md](2026-03-02_session4_ui_symmetry_and_pipeline_resilience.md) | **Session 4** — Symmetric form (both sides all fields), ins_code prompt fix, debug logging, download retry & resilience, 500 error fix | active |
 
 ## Naming Convention
 

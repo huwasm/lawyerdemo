@@ -83,7 +83,7 @@ ROW 3-4: VEHICLE 1 section (left half) and VEHICLE 2 section (right half), side 
     - "State of Lic." or "State of Reg.": 2-letter state code (e.g. "NY", "NJ"). This is SEPARATE from plate number.
     - "Vehicle Year & Make": year + manufacturer (e.g. "2018 MAZDA", "2017 ME BE")
     - "Vehicle Type": body style code (e.g. "SW/SUV", "SEDAN", "VAN", "BIKE")
-    - "Ins. Co. Code": 3-5 digit insurance company code, LAST box in this row (e.g. "639", "042", "11433"). May look like a number.
+    - "Ins. Co. Code": insurance company code (1-5 digits), the LAST small box in this row. Examples: "36", "42", "100", "11433". Can be just 2 digits. If not visible or unreadable, use "".
 
 BOTTOM SECTION:
   Accident Location: road name + intersecting street
@@ -94,7 +94,7 @@ BOTTOM SECTION:
 - Extract ALL people/names from BOTH vehicles (V1 + V2)
 - Vehicle 2 may be a PEDESTRIAN or BICYCLIST — check the checkboxes. If so, vehicle fields (plate, make, year, ins_code) will be empty — use ""
 - "plate_number" is ONLY the plate text (e.g. "DYY7657") — do NOT prepend the state. "plate_state" is the separate 2-letter state code.
-- "ins_code" is the Insurance Company Code — the LAST small box in the vehicle info row. It's a 3-5 digit number. Extract for BOTH vehicles if present, otherwise "".
+- "ins_code" is the Insurance Company Code — the LAST small box in the vehicle info row. It can be 1-5 digits (e.g. "36", "42", "100"). Extract EXACTLY what is printed — do NOT guess or pad. If the box is empty or unreadable, use "". For pedestrians/bicyclists this will be "".
 - Sex uses M or F
 - accident_date: use MM/DD/YYYY format
 - accident_time: use HH:MM (from "Military Time" box)

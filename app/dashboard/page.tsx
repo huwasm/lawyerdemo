@@ -156,7 +156,7 @@ export default function Dashboard() {
   const [defendantIsBicyclist, setDefendantIsBicyclist] = useState(false);
   const [defendantIsPedestrian, setDefendantIsPedestrian] = useState(false);
   const [defendantIsOtherPed, setDefendantIsOtherPed] = useState(false);
-  const [showDefendantFlags, setShowDefendantFlags] = useState(false);
+  const [showDefendantFlags, setShowDefendantFlags] = useState(true);
   const [defendantPlate, setDefendantPlate] = useState("");
   const [defendantPlateState, setDefendantPlateState] = useState("");
   const [defendantVehicleYearMake, setDefendantVehicleYearMake] = useState("");
@@ -172,7 +172,7 @@ export default function Dashboard() {
   const [clientIsBicyclist, setClientIsBicyclist] = useState(false);
   const [clientIsPedestrian, setClientIsPedestrian] = useState(false);
   const [clientIsOtherPed, setClientIsOtherPed] = useState(false);
-  const [showClientFlags, setShowClientFlags] = useState(false);
+  const [showClientFlags, setShowClientFlags] = useState(true);
   const [clientEmail, setClientEmail] = useState("");
   const [accidentTime, setAccidentTime] = useState("");
   const [dayOfWeek, setDayOfWeek] = useState("");
@@ -527,12 +527,25 @@ export default function Dashboard() {
     setDefendantFirst("");
     setDefendantLast("");
     setDefendantVehicle("");
-    setDefendantIsVehicle(true);
-    setDefendantVehicleNum(2);
+    setDefendantIsVehicle(false);
+    setDefendantVehicleNum(0);
     setDefendantIsBicyclist(false);
     setDefendantIsPedestrian(false);
     setDefendantIsOtherPed(false);
-    setShowDefendantFlags(false);
+    setDefendantPlate("");
+    setDefendantPlateState("");
+    setDefendantVehicleYearMake("");
+    setDefendantVehicleType("");
+    setDefendantInsCode("");
+    setDefendantAddress("");
+    setDefendantCity("");
+    setDefendantState("");
+    setDefendantZip("");
+    setClientIsVehicle(false);
+    setClientVehicleNum(0);
+    setClientIsBicyclist(false);
+    setClientIsPedestrian(false);
+    setClientIsOtherPed(false);
     setAccidentTime("");
     setDayOfWeek("");
     setNoVehicles(0);
@@ -755,14 +768,6 @@ export default function Dashboard() {
                   <h3 className="text-xs font-bold uppercase tracking-wide text-clio-text-light">
                     Client Information{match ? ` (Vehicle ${match.matchedVehicle})` : ""}
                   </h3>
-                  <button
-                    type="button"
-                    onClick={() => setShowClientFlags(!showClientFlags)}
-                    className="flex items-center gap-1 rounded px-2 py-0.5 text-xs text-clio-text-light transition-colors hover:bg-gray-100 hover:text-clio-text"
-                  >
-                    {showClientFlags ? "Hide" : "Show"} Flags
-                    <span className="text-[10px]">{showClientFlags ? "\u25B2" : "\u25BC"}</span>
-                  </button>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="First Name" confidence={extraction?.confidence?.vehicle_1_name} {...auditProps("clientFirst")}>
@@ -811,62 +816,60 @@ export default function Dashboard() {
                     <input className="input-field input-ai" value={clientInsCode} onChange={(e) => setClientInsCode(e.target.value)} />
                   </Field>
                 </div>
-                {showClientFlags && (
-                  <div className="mt-3 grid grid-cols-4 gap-3">
-                    <Field label="Vehicle" {...auditProps("clientIsVehicle")}>
-                      <button
-                        type="button"
-                        onClick={() => setClientIsVehicle(!clientIsVehicle)}
-                        className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-sm font-bold transition-colors ${
-                          clientIsVehicle
-                            ? "border-clio-blue bg-clio-blue text-white"
-                            : "border-clio-border bg-white text-transparent hover:border-gray-400"
-                        }`}
-                      >
-                        {clientVehicleNum}
-                      </button>
-                    </Field>
-                    <Field label="Bicyclist" {...auditProps("clientBicyclist")}>
-                      <button
-                        type="button"
-                        onClick={() => setClientIsBicyclist(!clientIsBicyclist)}
-                        className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-lg transition-colors ${
-                          clientIsBicyclist
-                            ? "border-clio-blue bg-clio-blue text-white"
-                            : "border-clio-border bg-white text-transparent hover:border-gray-400"
-                        }`}
-                      >
-                        ✓
-                      </button>
-                    </Field>
-                    <Field label="Pedestrian" {...auditProps("clientPedestrian")}>
-                      <button
-                        type="button"
-                        onClick={() => setClientIsPedestrian(!clientIsPedestrian)}
-                        className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-lg transition-colors ${
-                          clientIsPedestrian
-                            ? "border-clio-blue bg-clio-blue text-white"
-                            : "border-clio-border bg-white text-transparent hover:border-gray-400"
-                        }`}
-                      >
-                        ✓
-                      </button>
-                    </Field>
-                    <Field label="Other Pedestrian" {...auditProps("clientOtherPed")}>
-                      <button
-                        type="button"
-                        onClick={() => setClientIsOtherPed(!clientIsOtherPed)}
-                        className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-lg transition-colors ${
-                          clientIsOtherPed
-                            ? "border-clio-blue bg-clio-blue text-white"
-                            : "border-clio-border bg-white text-transparent hover:border-gray-400"
-                        }`}
-                      >
-                        ✓
-                      </button>
-                    </Field>
-                  </div>
-                )}
+                <div className="mt-3 grid grid-cols-4 gap-3">
+                  <Field label="Vehicle" {...auditProps("clientIsVehicle")}>
+                    <button
+                      type="button"
+                      onClick={() => setClientIsVehicle(!clientIsVehicle)}
+                      className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-sm font-bold transition-colors ${
+                        clientIsVehicle
+                          ? "border-clio-blue bg-clio-blue text-white"
+                          : "border-clio-border bg-white text-transparent hover:border-gray-400"
+                      }`}
+                    >
+                      {clientVehicleNum || ""}
+                    </button>
+                  </Field>
+                  <Field label="Bicyclist" {...auditProps("clientBicyclist")}>
+                    <button
+                      type="button"
+                      onClick={() => setClientIsBicyclist(!clientIsBicyclist)}
+                      className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-lg transition-colors ${
+                        clientIsBicyclist
+                          ? "border-clio-blue bg-clio-blue text-white"
+                          : "border-clio-border bg-white text-transparent hover:border-gray-400"
+                      }`}
+                    >
+                      ✓
+                    </button>
+                  </Field>
+                  <Field label="Pedestrian" {...auditProps("clientPedestrian")}>
+                    <button
+                      type="button"
+                      onClick={() => setClientIsPedestrian(!clientIsPedestrian)}
+                      className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-lg transition-colors ${
+                        clientIsPedestrian
+                          ? "border-clio-blue bg-clio-blue text-white"
+                          : "border-clio-border bg-white text-transparent hover:border-gray-400"
+                      }`}
+                    >
+                      ✓
+                    </button>
+                  </Field>
+                  <Field label="Other Pedestrian" {...auditProps("clientOtherPed")}>
+                    <button
+                      type="button"
+                      onClick={() => setClientIsOtherPed(!clientIsOtherPed)}
+                      className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-lg transition-colors ${
+                        clientIsOtherPed
+                          ? "border-clio-blue bg-clio-blue text-white"
+                          : "border-clio-border bg-white text-transparent hover:border-gray-400"
+                      }`}
+                    >
+                      ✓
+                    </button>
+                  </Field>
+                </div>
               </div>
 
               {/* Defendant */}
@@ -875,14 +878,6 @@ export default function Dashboard() {
                   <h3 className="text-xs font-bold uppercase tracking-wide text-clio-text-light">
                     Defendant
                   </h3>
-                  <button
-                    type="button"
-                    onClick={() => setShowDefendantFlags(!showDefendantFlags)}
-                    className="flex items-center gap-1 rounded px-2 py-0.5 text-xs text-clio-text-light transition-colors hover:bg-gray-100 hover:text-clio-text"
-                  >
-                    {showDefendantFlags ? "Hide" : "Show"} Flags
-                    <span className="text-[10px]">{showDefendantFlags ? "\u25B2" : "\u25BC"}</span>
-                  </button>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="First Name" confidence={extraction?.confidence?.vehicle_2_name} {...auditProps("defendantFirst")}>
@@ -923,62 +918,60 @@ export default function Dashboard() {
                     <input className="input-field input-ai" value={defendantInsCode} onChange={(e) => setDefendantInsCode(e.target.value)} />
                   </Field>
                 </div>
-                {showDefendantFlags && (
-                  <div className="mt-3 grid grid-cols-4 gap-3">
-                    <Field label="Vehicle" {...auditProps("defendantIsVehicle")}>
-                      <button
-                        type="button"
-                        onClick={() => setDefendantIsVehicle(!defendantIsVehicle)}
-                        className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-sm font-bold transition-colors ${
-                          defendantIsVehicle
-                            ? "border-clio-blue bg-clio-blue text-white"
-                            : "border-clio-border bg-white text-transparent hover:border-gray-400"
-                        }`}
-                      >
-                        {defendantVehicleNum}
-                      </button>
-                    </Field>
-                    <Field label="Bicyclist" {...auditProps("defendantBicyclist")}>
-                      <button
-                        type="button"
-                        onClick={() => setDefendantIsBicyclist(!defendantIsBicyclist)}
-                        className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-lg transition-colors ${
-                          defendantIsBicyclist
-                            ? "border-clio-blue bg-clio-blue text-white"
-                            : "border-clio-border bg-white text-transparent hover:border-gray-400"
-                        }`}
-                      >
-                        ✓
-                      </button>
-                    </Field>
-                    <Field label="Pedestrian" {...auditProps("defendantPedestrian")}>
-                      <button
-                        type="button"
-                        onClick={() => setDefendantIsPedestrian(!defendantIsPedestrian)}
-                        className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-lg transition-colors ${
-                          defendantIsPedestrian
-                            ? "border-clio-blue bg-clio-blue text-white"
-                            : "border-clio-border bg-white text-transparent hover:border-gray-400"
-                        }`}
-                      >
-                        ✓
-                      </button>
-                    </Field>
-                    <Field label="Other Pedestrian" {...auditProps("defendantOtherPed")}>
-                      <button
-                        type="button"
-                        onClick={() => setDefendantIsOtherPed(!defendantIsOtherPed)}
-                        className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-lg transition-colors ${
-                          defendantIsOtherPed
-                            ? "border-clio-blue bg-clio-blue text-white"
-                            : "border-clio-border bg-white text-transparent hover:border-gray-400"
-                        }`}
-                      >
-                        ✓
-                      </button>
-                    </Field>
-                  </div>
-                )}
+                <div className="mt-3 grid grid-cols-4 gap-3">
+                  <Field label="Vehicle" {...auditProps("defendantIsVehicle")}>
+                    <button
+                      type="button"
+                      onClick={() => setDefendantIsVehicle(!defendantIsVehicle)}
+                      className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-sm font-bold transition-colors ${
+                        defendantIsVehicle
+                          ? "border-clio-blue bg-clio-blue text-white"
+                          : "border-clio-border bg-white text-transparent hover:border-gray-400"
+                      }`}
+                    >
+                      {defendantVehicleNum || ""}
+                    </button>
+                  </Field>
+                  <Field label="Bicyclist" {...auditProps("defendantBicyclist")}>
+                    <button
+                      type="button"
+                      onClick={() => setDefendantIsBicyclist(!defendantIsBicyclist)}
+                      className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-lg transition-colors ${
+                        defendantIsBicyclist
+                          ? "border-clio-blue bg-clio-blue text-white"
+                          : "border-clio-border bg-white text-transparent hover:border-gray-400"
+                      }`}
+                    >
+                      ✓
+                    </button>
+                  </Field>
+                  <Field label="Pedestrian" {...auditProps("defendantPedestrian")}>
+                    <button
+                      type="button"
+                      onClick={() => setDefendantIsPedestrian(!defendantIsPedestrian)}
+                      className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-lg transition-colors ${
+                        defendantIsPedestrian
+                          ? "border-clio-blue bg-clio-blue text-white"
+                          : "border-clio-border bg-white text-transparent hover:border-gray-400"
+                      }`}
+                    >
+                      ✓
+                    </button>
+                  </Field>
+                  <Field label="Other Pedestrian" {...auditProps("defendantOtherPed")}>
+                    <button
+                      type="button"
+                      onClick={() => setDefendantIsOtherPed(!defendantIsOtherPed)}
+                      className={`flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-md border text-lg transition-colors ${
+                        defendantIsOtherPed
+                          ? "border-clio-blue bg-clio-blue text-white"
+                          : "border-clio-border bg-white text-transparent hover:border-gray-400"
+                      }`}
+                    >
+                      ✓
+                    </button>
+                  </Field>
+                </div>
               </div>
 
               {/* Accident Location & Description */}
