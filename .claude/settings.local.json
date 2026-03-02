@@ -8,7 +8,12 @@
       "Bash(curl -s -X POST http://localhost:3001/api/extract -F \"file=@/Users/user/code/lawyerdemo/sample-data/GUILLERMO_REYES_v_LIONEL_FRANCOIS_et_al_EXHIBIT_S__XX.pdf\")",
       "Bash(python3 -m json.tool)",
       "Bash(curl -s \"https://eu.app.clio.com/api/v4/matters?fields=id,client,status&status=open&limit=200\" -H \"Authorization: Bearer 4100-AG4QXLlqfZeQnba00GNqiQirGbSvuqBTLPT\")",
-      "mcp__supabase__execute_sql"
+      "mcp__supabase__execute_sql",
+      "Bash(for id in 2353636591 2353636606 2353636621 2353636636 2353636651)",
+      "Bash(do)",
+      "Bash(curl -s -X PATCH \"https://app.clio.com/api/v4/contacts/$id.json\" -H \"Authorization: Bearer 27041-41luonkV9P56h6y6Ues54Yk4Zxx3nXUlkZ\" -H \"Content-Type: application/json\" -d '{\"\"data\"\":{\"\"email_addresses\"\":[{\"\"address\"\":\"\"hwasmer1@gmail.com\"\",\"\"name\"\":\"\"Work\"\",\"\"default_email\"\":true}]}}')",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d[''data''][''name''], ''→'', d[''data''].get\\(''primary_email_address'',''?''\\)\\)\")",
+      "Bash(done)"
     ]
   }
 }

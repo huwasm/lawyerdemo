@@ -1,6 +1,6 @@
 # TASKS — Implementation Backlog
 
-> Last updated: 2026-02-28
+> Last updated: 2026-03-02
 > Priority: top = do first, bottom = do last
 
 
@@ -107,34 +107,52 @@
 
 ---
 
-## Phase 6: Test Retainer Generation
+## Phase 6: Test Retainer Generation (DONE — EU)
 
-- [ ] `POST /document_automations` → verify doc created
-- [ ] List documents on Matter → find generated retainer
-- [ ] Download retainer PDF via `GET /document_versions/{id}/download`
+- [x] `POST /document_automations` → verified, creates PDF in Clio
+- [x] List documents on Matter → finds generated retainer by name filter
+- [x] Download retainer PDF — **EU uses `GET /documents/{id}/download.json`** (NOT `/document_versions/{id}/download` which returns 404 on EU)
+- [x] Download confirmed: 135,158 bytes, valid PDF, via 303 redirect → S3
 
----
-
-## Phase 7: Test Calendar Entry
-
-- [ ] `POST /calendar_entries` → SOL date (accident + 8 years)
-- [ ] Verify calendar entry appears in Clio (Calendar ID 437603)
+> **EU-WORKAROUND:** Code in `lib/clio.ts` → `downloadDocument()` uses `/documents/{id}/download.json` with manual redirect handling (strips Auth header before following to S3). Search for `EU-WORKAROUND` in the code. US Clio may support the standard endpoint — test during Phase 13.
 
 ---
 
-## Phase 8: Test Email
+## Phase 7: Test Calendar Entry (DONE — EU)
 
-- [ ] Verify Resend sends email to `huwas003@gmail.com`
-- [ ] Check email contains: AI-drafted paragraph, retainer PDF attachment, Calendly link
-- [ ] Verify seasonal Calendly logic (Mar-Aug = office, Sep-Feb = virtual)
+- [x] `POST /calendar_entries` → SOL date (accident + 8 years)
+- [x] Verified calendar entry created on Calendar ID 437603
 
 ---
 
-## Phase 9: Full End-to-End
+## Phase 8: Test Email (DONE — EU)
 
-- [ ] Upload Guillermo Reyes PDF → extract → review → approve → all 5 steps green
-- [ ] Verify in Clio: custom fields, retainer, calendar
-- [ ] Verify email received in Gmail
+- [x] Resend sends email to `hwasmer1@gmail.com` (free tier only sends to account owner)
+- [x] Email contains: AI-drafted paragraph, retainer PDF attachment (135KB), Calendly link
+- [x] Seasonal Calendly logic confirmed (Nov → virtual link)
+- [x] Resend API key: `re_6qt6Pu4n_...` (old key `re_gj55WNM8_...` was revoked)
+
+> **Limitation:** Resend free tier with `onboarding@resend.dev` sender can only send to account owner email (`hwasmer1@gmail.com`). To send to `talent.legal-engineer...@swans.co`, need verified domain at resend.com/domains.
+
+---
+
+## Phase 9: Full End-to-End (DONE — EU, Castillo case)
+
+- [x] Upload Castillo PDF → extract → review → approve → **all 5 steps green**
+- [x] Verified in Clio: custom fields, retainer, calendar
+- [x] Email received in Gmail (`hwasmer1@gmail.com`) with retainer PDF attached
+- [x] Full pipeline: **9,932ms (~10 seconds)**
+
+```
+Pipeline run — 2026-03-02 — Castillo v Dorjee
+Step 1: Custom fields      ✅  8 fields updated (236ms + 253ms)
+Step 2: Retainer generated  ✅  Template #359618 (137ms)
+Step 3: Calendar entry      ✅  SOL 2030-11-16 (429ms)
+Step 4: PDF download        ✅  135,158 bytes from S3 (EU workaround)
+Step 5: Email sent          ✅  Resend ID a9f3e8e7-... (502ms)
+```
+
+- [ ] Still need: test Reyes (demo case), Noel, Grillo, Vincent → see Phase 10
 
 ---
 
@@ -291,17 +309,34 @@ Legal tools need audit trails. Every report processed, every action taken, trace
 
 ## Phase 13: US Clio Account Switch
 
-- [ ] Create US Clio Manage account (VPN if in EU)
-- [ ] Register new Developer App → Client ID + Secret
-- [ ] OAuth flow → Access Token
-- [ ] Create 8 custom fields → get IDs
-- [ ] Upload retainer template → get Template ID
-- [ ] Create 5 test Matters with contacts (Reyes, Noel, Castillo, Grillo, Vincent)
-- [ ] Get Calendar ID for Andrew Richards
-- [ ] Update `.env.local` + `.env.vercel` with all new values
-- [ ] Change `CLIO_BASE_URL` to `https://app.clio.com`
-- [ ] Change `HACKATHON_EMAIL` back to `talent.legal-engineer.hackathon.automation-email@swans.co`
-- [ ] Re-run Phase 9 (full pipeline)
+> **Full checklist:** See [`docs/EU_TO_US_MIGRATION.md`](EU_TO_US_MIGRATION.md) for step-by-step with curl commands.
+> **Zero code changes needed** — everything is env vars.
+
+- [ ] **Step 1:** Create US Clio account (VPN to US → clio.com → free trial, firm "Richards & Law")
+- [ ] **Step 2:** Register app in US Clio → get `CLIO_CLIENT_ID` + `CLIO_CLIENT_SECRET`
+- [ ] **Step 3:** OAuth flow → get `CLIO_ACCESS_TOKEN`
+- [ ] **Step 4:** Create 8 custom fields → get all `CLIO_FIELD_*` IDs
+- [ ] **Step 5a:** Upload retainer template → get `CLIO_TEMPLATE_ID`
+- [ ] **Step 5b:** Get `CLIO_CALENDAR_ID` for Andrew Richards
+- [ ] **Step 5c:** Create 5 test Matters + Contacts (Reyes, Noel, Castillo, Grillo, Vincent)
+- [ ] **Step 6:** Test download endpoint on US (may support standard `/document_versions/{id}/download`)
+- [ ] **Step 7:** Update `.env.local` — 14 Clio env vars (see migration doc for full table)
+- [ ] **Step 8:** Update `.env.vercel` — same 14 vars, then redeploy
+- [ ] **Step 9:** Run full pipeline (Phase 9) on US — verify all 5 steps green
+- [ ] **Step 10:** Change `HACKATHON_EMAIL` to `talent.legal-engineer.hackathon.automation-email@swans.co` (requires verified Resend domain)
+
+### EU↔US Quick Switch
+```bash
+# Save current config:
+cp .env.local .env.eu    # EU backup
+cp .env.local .env.us    # US backup (after setting up US)
+
+# Switch to EU:
+cp .env.eu .env.local && npm run dev
+
+# Switch to US:
+cp .env.us .env.local && npm run dev
+```
 
 ---
 
@@ -329,3 +364,10 @@ Legal tools need audit trails. Every report processed, every action taken, trace
 
 - [x] Phase 0: Route rename (`/` → `/dashboard`) — `app/dashboard/page.tsx`
 - [x] Phase 1: `.env.vercel` created, `.env.local` filled, port 3001
+- [x] Phase 2: Clio custom fields created (8 fields, EU account)
+- [x] Phase 5: Custom field PATCH — 8 fields update on approve
+- [x] Phase 6: Retainer generation + download (EU workaround: `/documents/{id}/download.json`)
+- [x] Phase 7: Calendar entry creation (SOL = accident + 8 years)
+- [x] Phase 8: Email sending via Resend (with PDF attachment, AI-drafted paragraph, Calendly link)
+- [x] Phase 9: Full pipeline 5/5 — Castillo case on EU (2026-03-02, ~10s)
+- [x] Session 5: Fixed download 404 (EU endpoint), fixed Resend 401 (new API key), fixed Resend 403 (recipient restriction)

@@ -8,6 +8,8 @@ sample-data/
 # ----------------------------
 .env
 .env.local
+.env.eu
+.env.us
 .env.vercel
 .env.development.local
 .env.production.local
