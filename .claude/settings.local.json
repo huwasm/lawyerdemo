@@ -13,7 +13,20 @@
       "Bash(do)",
       "Bash(curl -s -X PATCH \"https://app.clio.com/api/v4/contacts/$id.json\" -H \"Authorization: Bearer 27041-41luonkV9P56h6y6Ues54Yk4Zxx3nXUlkZ\" -H \"Content-Type: application/json\" -d '{\"\"data\"\":{\"\"email_addresses\"\":[{\"\"address\"\":\"\"hwasmer1@gmail.com\"\",\"\"name\"\":\"\"Work\"\",\"\"default_email\"\":true}]}}')",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d[''data''][''name''], ''→'', d[''data''].get\\(''primary_email_address'',''?''\\)\\)\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(vercel env add \"$KEY\" production done echo \"✓ All vars updated\")",
+      "Bash(vercel env rm CALENDLY_OFFICE production --yes echo \"https://calendly.com/swans-santiago-p/summer-spring\")",
+      "Bash(vercel env add CALENDLY_OFFICE production vercel env rm CALENDLY_VIRTUAL production --yes echo \"https://calendly.com/swans-santiago-p/winter-autumn\")",
+      "Bash(vercel env add CALENDLY_VIRTUAL production echo \"✓ Calendly env vars updated on Vercel\")",
+      "Bash(vercel env rm CALENDLY_OFFICE production --yes)",
+      "Bash(vercel env add CALENDLY_OFFICE production)",
+      "Bash(vercel env rm CALENDLY_VIRTUAL production --yes)",
+      "Bash(vercel env add CALENDLY_VIRTUAL production)",
+      "Bash(vercel --prod --yes)",
+      "Bash(__NEW_LINE_1179c7bd09d3ca06__ vercel env rm CALENDLY_VIRTUAL production --yes)",
+      "Bash(printf \"https://calendly.com/swans-santiago-p/winter-autumn\")",
+      "Bash(vercel env add HACKATHON_EMAIL production)",
+      "Bash(__NEW_LINE_ea9fe65ccf7a4900__ echo \"✓ Fixed env vars \\(no trailing newlines\\)\")"
     ]
   }
 }

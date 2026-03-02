@@ -26,6 +26,7 @@ interface VehicleInfo {
 interface ExtractionData {
   accident_date: string;
   accident_time: string;
+  police_report_reviewed_date: string;
   no_injured: number;
   no_killed: number;
   no_vehicles: number;
@@ -175,6 +176,7 @@ export default function Dashboard() {
   const [showClientFlags, setShowClientFlags] = useState(true);
   const [clientEmail, setClientEmail] = useState("");
   const [accidentTime, setAccidentTime] = useState("");
+  const [reportReviewedDate, setReportReviewedDate] = useState("");
   const [dayOfWeek, setDayOfWeek] = useState("");
   const [noVehicles, setNoVehicles] = useState(0);
   const [noKilled, setNoKilled] = useState(0);
@@ -300,6 +302,7 @@ export default function Dashboard() {
     setClientEmail(m.clientEmail);
     setMatterId(m.matter.id);
     setAccidentTime(data.accident_time || "");
+    setReportReviewedDate(data.police_report_reviewed_date || "");
     setDayOfWeek(computeDayOfWeek(data.accident_date));
     setNoVehicles(data.no_vehicles || 0);
     setNoKilled(data.no_killed || 0);
@@ -355,6 +358,7 @@ export default function Dashboard() {
     setClientEmail(process.env.NEXT_PUBLIC_HACKATHON_EMAIL || "");
     setMatterId(0);
     setAccidentTime(data.accident_time || "");
+    setReportReviewedDate(data.police_report_reviewed_date || "");
     setDayOfWeek(computeDayOfWeek(data.accident_date));
     setNoVehicles(data.no_vehicles || 0);
     setNoKilled(data.no_killed || 0);
@@ -408,6 +412,7 @@ export default function Dashboard() {
               clientEmail,
               clientGender,
               accidentDate,
+              reportReviewedDate,
               accidentLocation,
               defendantName: `${defendantFirst} ${defendantLast}`.trim(),
               registrationPlate: clientPlate,
@@ -747,6 +752,11 @@ export default function Dashboard() {
                     </Field>
                   )}
                   {showExtraAccident && (
+                    <Field label="Report Reviewed Date" {...auditProps("reportReviewedDate")}>
+                      <input className="input-field input-ai" value={reportReviewedDate} onChange={(e) => setReportReviewedDate(e.target.value)} placeholder="MM/DD/YYYY" />
+                    </Field>
+                  )}
+                  {showExtraAccident && (
                     <Field label="No. of Vehicles" {...auditProps("noVehicles")}>
                       <input className="input-field input-ai" type="number" value={noVehicles} onChange={(e) => setNoVehicles(parseInt(e.target.value) || 0)} />
                     </Field>
@@ -1011,11 +1021,14 @@ export default function Dashboard() {
                   <Field label="Calendly Link">
                     <input
                       className="input-field bg-gray-50 text-xs"
-                      value={accidentDate ? (
-                        parseInt(accidentDate.split("/")[0]) >= 3 && parseInt(accidentDate.split("/")[0]) <= 8
+                      value={(() => {
+                        const dateForCalendly = reportReviewedDate || accidentDate;
+                        if (!dateForCalendly) return "";
+                        const month = parseInt(dateForCalendly.split("/")[0]);
+                        return month >= 3 && month <= 8
                           ? "In-office (Mar-Aug)"
-                          : "Virtual (Sep-Feb)"
-                      ) : ""}
+                          : "Virtual (Sep-Feb)";
+                      })()}
                       disabled
                     />
                   </Field>

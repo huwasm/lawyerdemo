@@ -1,6 +1,7 @@
 export interface ExtractionResult {
   accident_date: string;
   accident_time: string;
+  police_report_reviewed_date: string;
   no_injured: number;
   no_killed: number;
   no_vehicles: number;
@@ -100,6 +101,8 @@ BOTTOM SECTION:
   Accident Location: road name + intersecting street
   Borough: one of Bronx, Kings, New York, Queens, Richmond
   Officer narrative / accident description (free text block)
+  "Reviewing Date/Time Reviewed": date the report was finalized (e.g. "04/04/2022 18:46").
+  Extract ONLY the date portion in MM/DD/YYYY format.
 
 ## EXTRACTION RULES:
 - Extract ALL people/names from BOTH vehicles (V1 + V2)
@@ -123,6 +126,7 @@ Return this exact JSON structure:
 {
   "accident_date": "MM/DD/YYYY",
   "accident_time": "HH:MM",
+  "police_report_reviewed_date": "MM/DD/YYYY",
   "no_injured": 0,
   "no_killed": 0,
   "no_vehicles": 0,

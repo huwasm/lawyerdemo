@@ -16,6 +16,7 @@ interface ApproveRequest {
   clientEmail: string;
   clientGender: string;
   accidentDate: string; // MM/DD/YYYY
+  reportReviewedDate: string; // MM/DD/YYYY — used for Calendly link selection
   accidentLocation: string;
   defendantName: string;
   registrationPlate: string;
@@ -150,19 +151,19 @@ export async function POST(req: NextRequest) {
       detail: retainerPdf ? undefined : "Could not download — email sent without attachment",
     });
 
-    // Step 5: Send email to client
-    const accidentDateParts = body.accidentDate.split("/");
-    const accidentMonth = parseInt(accidentDateParts[0]) || new Date().getMonth() + 1;
+    // Step 5: Send email to client — use reviewed date month for Calendly (fallback to accident date)
+    const calendlyDateParts = (body.reportReviewedDate || body.accidentDate).split("/");
+    const accidentMonth = parseInt(calendlyDateParts[0]) || new Date().getMonth() + 1;
     const calendlyType = accidentMonth >= 3 && accidentMonth <= 8 ? "office (Mar-Aug)" : "virtual (Sep-Feb)";
     log(5, `Sending email to ${body.clientEmail}, Calendly: ${calendlyType}, PDF attached: ${!!retainerPdf}`);
 
     const emailResult = await sendClientEmail({
       clientFirstName: body.clientFirstName,
-      clientEmail: body.clientEmail,
+      clientEmail: body.clientEmail.trim(),
       accidentDate: body.accidentDate,
       officerNotes: body.officerNotes,
       accidentMonth,
-      retainerPdf: retainerPdf || Buffer.from(""),
+      retainerPdf: retainerPdf || null,
       retainerFilename: `${retainerFilename}.pdf`,
     });
     log(5, "Email sent", emailResult);

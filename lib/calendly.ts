@@ -1,10 +1,10 @@
 const CALENDLY_OFFICE =
   process.env.CALENDLY_OFFICE ||
-  "https://calendly.com/d/cmh3-gfv-v7j/consultation-with-andrew-richards-esq";
+  "https://calendly.com/swans-santiago-p/summer-spring";
 
 const CALENDLY_VIRTUAL =
   process.env.CALENDLY_VIRTUAL ||
-  "https://calendly.com/d/cmgz-pmz-w2s/consultation-with-andrew-richards-esq";
+  "https://calendly.com/swans-santiago-p/winter-autumn";
 
 /**
  * March-August → in-office link

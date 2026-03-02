@@ -62,7 +62,7 @@ interface SendEmailInput {
   accidentDate: string;
   officerNotes: string;
   accidentMonth: number;
-  retainerPdf: Buffer;
+  retainerPdf: Buffer | null;
   retainerFilename: string;
 }
 
@@ -76,12 +76,12 @@ export async function sendClientEmail(input: SendEmailInput) {
     accidentMonth: input.accidentMonth,
   });
 
-  const calendlyLink = getCalendlyLink(input.accidentMonth);
+  const calendlyLink = getCalendlyLink(input.accidentMonth).trim();
   const calendlyType = input.accidentMonth >= 3 && input.accidentMonth <= 8 ? "office" : "virtual";
   elog(`Calendly link: ${calendlyType} → ${calendlyLink}`);
 
   const formattedDate = formatDate(input.accidentDate);
-  elog(`PDF attachment: "${input.retainerFilename}" (${input.retainerPdf.length} bytes)`);
+  elog(`PDF attachment: "${input.retainerFilename}" (${input.retainerPdf?.length ?? 0} bytes)`);
 
   const htmlBody = `
 <p>Hello ${input.clientFirstName},</p>
@@ -98,20 +98,31 @@ At that meeting, we'll go through the agreement in detail and discuss next steps
 <p>${ATTORNEY_NAME}</p>
   `.trim();
 
-  elog(`Sending via Resend: from="${ATTORNEY_NAME}", to="${input.clientEmail}", subject="Retainer Agreement for Your Review – Richards & Law"`);
+  const toEmail = input.clientEmail.trim();
+  elog(`Sending via Resend: from="${ATTORNEY_NAME}", to="${toEmail}", subject="Retainer Agreement for Your Review – Richards & Law"`);
   const startMs = Date.now();
+
+  // Only attach PDF if we have one (avoids Resend "invalid_attachment" error)
+  const attachments =
+    input.retainerPdf && input.retainerPdf.length > 0
+      ? [
+          {
+            filename: input.retainerFilename,
+            content: input.retainerPdf.toString("base64"),
+          },
+        ]
+      : undefined;
+
+  if (!attachments) {
+    elog("WARNING: No PDF attachment — sending email without retainer");
+  }
 
   const result = await getResend().emails.send({
     from: `${ATTORNEY_NAME} <onboarding@resend.dev>`,
-    to: input.clientEmail,
+    to: toEmail,
     subject: "Retainer Agreement for Your Review – Richards & Law",
     html: htmlBody,
-    attachments: [
-      {
-        filename: input.retainerFilename,
-        content: input.retainerPdf.toString("base64"),
-      },
-    ],
+    ...(attachments ? { attachments } : {}),
   });
 
   const elapsed = Date.now() - startMs;
