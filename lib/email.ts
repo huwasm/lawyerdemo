@@ -99,7 +99,8 @@ At that meeting, we'll go through the agreement in detail and discuss next steps
   `.trim();
 
   const toEmail = input.clientEmail.trim();
-  elog(`Sending via Resend: from="${ATTORNEY_NAME}", to="${toEmail}", subject="Retainer Agreement for Your Review – Richards & Law"`);
+  const fromEmail = (process.env.RESEND_FROM_EMAIL || "Andrew.Richards@theowhoami.com").trim();
+  elog(`Sending via Resend: from="${ATTORNEY_NAME} <${fromEmail}>", to="${toEmail}"`);
   const startMs = Date.now();
 
   // Only attach PDF if we have one (avoids Resend "invalid_attachment" error)
@@ -118,7 +119,7 @@ At that meeting, we'll go through the agreement in detail and discuss next steps
   }
 
   const result = await getResend().emails.send({
-    from: `${ATTORNEY_NAME} <onboarding@resend.dev>`,
+    from: `${ATTORNEY_NAME} <${fromEmail}>`,
     to: toEmail,
     subject: "Retainer Agreement for Your Review – Richards & Law",
     html: htmlBody,
